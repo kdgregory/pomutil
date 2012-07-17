@@ -61,6 +61,15 @@ public class VersionProps implements InplaceTransform
 //  Internals
 //----------------------------------------------------------------------------
 
+    private final static String[] DEPENDENCY_LOCATIONS = new String[]
+            {
+            "/mvn:project/mvn:dependencies/mvn:dependency",
+            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency",
+            "/mvn:project/mvn:build/mvn:plugins/mvn:plugin",
+            "/mvn:project/mvn:reporting/mvn:plugins/mvn:plugin",
+            "/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin",
+            };
+
     private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
                                          .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
 
@@ -68,7 +77,7 @@ public class VersionProps implements InplaceTransform
     private List<Element> findDependencyDefinitions(Document dom)
     {
         List<Element> ret = new ArrayList<Element>();
-        for (String xpath : new String[] { "/mvn:project/mvn:dependencies/mvn:dependency" })
+        for (String xpath : DEPENDENCY_LOCATIONS)
         {
             ret.addAll(xpFact.newXPath(xpath).evaluate(dom, Element.class));
         }

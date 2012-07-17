@@ -17,9 +17,13 @@ package com.kdgregory.pomutil;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -28,10 +32,12 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
 
+import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.modules.InplaceTransform;
+import com.kdgregory.pomutil.modules.VersionProps;
 
 
 /**
@@ -42,6 +48,9 @@ import com.kdgregory.pomutil.modules.InplaceTransform;
  */
 public class Cleaner
 {
+    public final static String  OPT_VERSION_PROPS       = "--versionprops";
+    public final static String  OPT_NO_VERSION_PROPS    = "--noversionprops";
+
     public static void main(String[] argv)
     {
         try
@@ -78,7 +87,27 @@ public class Cleaner
      */
     private static List<InplaceTransform> processOptions(LinkedList<String> args)
     {
-        return Arrays.asList();
+        Map<String,InplaceTransform> transforms = new MapBuilder<String,InplaceTransform>(
+                                                    new HashMap<String,InplaceTransform>())
+                                                    .put(OPT_VERSION_PROPS, new VersionProps())
+                                                    .toMap();
+
+        for (Iterator<String> itx = args.iterator() ; itx.hasNext() ; )
+        {
+            String arg = itx.next();
+            if (!arg.startsWith("--"))
+                continue;
+
+            itx.remove();
+            if (arg.equals(OPT_VERSION_PROPS))
+                ; // do nothing, this is the default
+            else if (arg.equals(OPT_NO_VERSION_PROPS))
+                transforms.remove(OPT_VERSION_PROPS);
+            else
+                throw new IllegalArgumentException("invalid option: " + arg);
+        }
+
+        return new ArrayList<InplaceTransform>(transforms.values());
     }
 
 

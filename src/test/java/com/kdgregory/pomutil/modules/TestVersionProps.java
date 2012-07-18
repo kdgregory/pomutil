@@ -124,4 +124,21 @@ public class TestVersionProps
         assertNotNull("should find properties section", props);
         assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
     }
+
+
+    @Test
+    public void testSameGroupDifferentVersion() throws Exception
+    {
+        loadAndApply("VersionProps4.xml");
+
+        // note that the first dependency gets the regular property name, the second gets
+        // the second is the one that has artifactId appended
+        assertProperty("com.example.version",               "1.2.3");
+        assertProperty("com.example.bar.version",           "4.5.6");
+
+        assertReference("com.example",  "foo",              "${com.example.version}");
+        assertReference("com.example", "bar",               "${com.example.bar.version}");
+
+        // FIXME - need to examine log output
+    }
 }

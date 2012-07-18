@@ -44,6 +44,19 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  */
 public class VersionProps implements InplaceTransform
 {
+    private final static String[] DEPENDENCY_LOCATIONS = new String[]
+            {
+            "/mvn:project/mvn:dependencies/mvn:dependency",
+            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
+            };
+
+    private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
+                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
+
+//----------------------------------------------------------------------------
+//  InplaceTransform
+//----------------------------------------------------------------------------
+
     @Override
     public void transform(Document dom)
     {
@@ -57,18 +70,8 @@ public class VersionProps implements InplaceTransform
 
 
 //----------------------------------------------------------------------------
-//  Internals
+//  Implementation
 //----------------------------------------------------------------------------
-
-    private final static String[] DEPENDENCY_LOCATIONS = new String[]
-            {
-            "/mvn:project/mvn:dependencies/mvn:dependency",
-            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
-            };
-
-    private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
-                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
-
 
     private List<Element> findDependencyDefinitions(Document dom)
     {
@@ -91,8 +94,11 @@ public class VersionProps implements InplaceTransform
             return;
 
         String propName = groupId + ".version";
-
-        // FIXME - check for existing property reference
+        if (versionProps.containsKey(propName))
+        {
+            propName = groupId + "." + artifactId + ".version";
+            // FIXME - log this
+        }
 
         versionProps.put(propName, version);
 

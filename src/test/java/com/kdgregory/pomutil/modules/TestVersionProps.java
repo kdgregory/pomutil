@@ -17,12 +17,14 @@ package com.kdgregory.pomutil.modules;
 import java.io.InputStream;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.xml.sax.InputSource;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 
@@ -80,11 +82,27 @@ public class TestVersionProps
 
         assertReference("junit",             "junit",      "${junit.version}");
         assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
-        
+
         // verify that we didn't damage the existing properties section
         String existingProp = xpFact.newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
                               .evaluateAsString(dom);
         assertEquals("existing property still exists", "UTF-8", existingProp);
     }
 
+
+    @Test
+    public void testAdditionOfPropertiesSection() throws Exception
+    {
+        loadAndApply("VersionProps2.xml");
+
+        Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        assertNotNull("should find properties section", props);
+        assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
+
+        assertProperty("junit.version",                     "4.10");
+        assertProperty("net.sf.kdgcommons.version",         "1.0.6");
+
+        assertReference("junit",             "junit",      "${junit.version}");
+        assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
+    }
 }

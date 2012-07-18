@@ -110,6 +110,11 @@ public class VersionProps implements InplaceTransform
     private void updateOrAddProperties(Document dom, Map<String,String> versionProps)
     {
         Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        if (props == null)
+        {
+            props = DomUtil.appendChildInheritNamespace(dom.getDocumentElement(), "properties");
+        }
+
         for (Map.Entry<String,String> entry : versionProps.entrySet())
         {
             Element prop = DomUtil.appendChildInheritNamespace(props, entry.getKey());

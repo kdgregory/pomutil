@@ -8,8 +8,8 @@
     <packaging>jar</packaging>
 
     <description>
-        The easiest version-to-properties transform: there's already a properties section, but
-        all of the dependencies have explicit version numbers.
+        Tests basic operation: explicit properties in dependencies and dependencyManagement
+        sections, with an existing properties section.
     </description>
 
 
@@ -18,7 +18,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -26,11 +25,16 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>net.sf.kdgcommons</groupId>
-            <artifactId>kdgcommons</artifactId>
-            <version>1.0.6</version>
-        </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.sf.kdgcommons</groupId>
+                <artifactId>kdgcommons</artifactId>
+                <version>1.0.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

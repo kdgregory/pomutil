@@ -71,7 +71,7 @@ public class TestVersionProps
 //----------------------------------------------------------------------------
 
     @Test
-    public void testAddExplicitVersionsToExistngProperties() throws Exception
+    public void testBasicOperation() throws Exception
     {
         loadAndApply("VersionProps1.xml");
 
@@ -80,20 +80,11 @@ public class TestVersionProps
 
         assertReference("junit",             "junit",      "${junit.version}");
         assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
-    }
-
-
-    @Test
-    public void testLookInDependencyAndDependencyManagmentSections() throws Exception
-    {
-        loadAndApply("VersionProps2.xml");
-
-        assertProperty("junit.version",                     "4.10");
-        assertProperty("net.sf.kdgcommons.version",         "1.0.6");
-
-        assertReference("junit",                    "junit",                    "${junit.version}");
-        assertReference("net.sf.kdgcommons",        "kdgcommons",               "${net.sf.kdgcommons.version}");
-        assertReference("net.sf.kdgcommons",        "kdgcommons",               "${net.sf.kdgcommons.version}");
+        
+        // verify that we didn't damage the existing properties section
+        String existingProp = xpFact.newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
+                              .evaluateAsString(dom);
+        assertEquals("existing property still exists", "UTF-8", existingProp);
     }
 
 }

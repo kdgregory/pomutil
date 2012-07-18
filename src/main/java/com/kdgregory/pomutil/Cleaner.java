@@ -17,13 +17,6 @@ package com.kdgregory.pomutil;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -32,12 +25,11 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
 
-import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
-import com.kdgregory.pomutil.modules.InplaceTransform;
 import com.kdgregory.pomutil.modules.VersionProps;
+import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 /**
@@ -48,21 +40,17 @@ import com.kdgregory.pomutil.modules.VersionProps;
  */
 public class Cleaner
 {
-    public final static String  OPT_VERSION_PROPS       = "--versionprops";
-    public final static String  OPT_NO_VERSION_PROPS    = "--noversionprops";
 
     public static void main(String[] argv)
     {
         try
         {
-            LinkedList<String> args = new LinkedList<String>(Arrays.asList(argv));
-
-            List<InplaceTransform> modules = processOptions(args);
+            InvocationArgs args = new InvocationArgs(argv);
             Document dom = readDocument(args);
-            for (InplaceTransform module : modules)
-            {
-                module.transform(dom);
-            }
+
+            if (!args.hasOption("--noversionprops"))
+                dom = new VersionProps().transform(dom);
+
             writeOutput(dom, args);
             System.exit(0);
         }
@@ -79,50 +67,17 @@ public class Cleaner
 //----------------------------------------------------------------------------
 
     /**
-     *  Examines the passed argument list for options, and builds the module
-     *  list. Options are removed once they're processed.
-     *
-     *  @throws IllegalArgumentException if an unrecognized option is in the
-     *          list.
-     */
-    private static List<InplaceTransform> processOptions(LinkedList<String> args)
-    {
-        Map<String,InplaceTransform> transforms = new MapBuilder<String,InplaceTransform>(
-                                                    new HashMap<String,InplaceTransform>())
-                                                    .put(OPT_VERSION_PROPS, new VersionProps())
-                                                    .toMap();
-
-        for (Iterator<String> itx = args.iterator() ; itx.hasNext() ; )
-        {
-            String arg = itx.next();
-            if (!arg.startsWith("--"))
-                continue;
-
-            itx.remove();
-            if (arg.equals(OPT_VERSION_PROPS))
-                ; // do nothing, this is the default
-            else if (arg.equals(OPT_NO_VERSION_PROPS))
-                transforms.remove(OPT_VERSION_PROPS);
-            else
-                throw new IllegalArgumentException("invalid option: " + arg);
-        }
-
-        return new ArrayList<InplaceTransform>(transforms.values());
-    }
-
-
-    /**
      *  Creates the DOM, either by reading the first entry in the passed list
      *  (which is then removed), or by reading StdIn (if there aren't any
      *  entries in the list).
      */
-    private static Document readDocument(LinkedList<String> args)
+    private static Document readDocument(InvocationArgs args)
     throws Exception
     {
-        if (args.size() > 0)
+        String filename = args.shift();
+        if (filename != null)
         {
-            File file = new File(args.removeFirst());
-            return ParseUtil.parse(file);
+            return ParseUtil.parse(new File(filename));
         }
         else
         {
@@ -136,12 +91,12 @@ public class Cleaner
      *  the first (and only) entry in the passed list, or to StdOut (if there are
      *  no entries in the list).
      */
-    private static void writeOutput(Document dom, LinkedList<String> args)
+    private static void writeOutput(Document dom, InvocationArgs args)
     throws Exception
     {
-        if (args.size() > 0)
-        {
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(args.removeFirst()));
+        String filename = args.shift();
+        if (filename != null)        {
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(filename));
             OutputUtil.indented(new DOMSource(dom), new StreamResult(out), 4);
             out.flush();
             out.close();

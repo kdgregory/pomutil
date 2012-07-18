@@ -18,12 +18,11 @@ import org.w3c.dom.Document;
 
 
 /**
- *  Operations that do an in-place transform of a single POM implement this interface.
- *  <p>
- *  Instances are allowed to maintain state. However, a new instance will be created
- *  for each POM, so state will not persist.
+ *  Base class for operations that transform a single POM in some way. The
+ *  parsed POM is passed to {@link #transform}, which returns the same or
+ *  a different parsed POM. 
  */
-public interface InplaceTransform
+public abstract class AbstractTransformer
 {
-    public void transform(Document dom);
+    public abstract Document transform(Document dom);
 }

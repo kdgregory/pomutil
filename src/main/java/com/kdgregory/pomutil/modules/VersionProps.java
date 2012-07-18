@@ -42,7 +42,8 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  *  properties will be appended to it. Otherwise, a new <code>&lt;properties&gt;</code>
  *  section will be appended to the POM.
  */
-public class VersionProps implements InplaceTransform
+public class VersionProps 
+extends AbstractTransformer
 {
     private final static String[] DEPENDENCY_LOCATIONS = new String[]
             {
@@ -58,7 +59,7 @@ public class VersionProps implements InplaceTransform
 //----------------------------------------------------------------------------
 
     @Override
-    public void transform(Document dom)
+    public Document transform(Document dom)
     {
         TreeMap<String,String> versionProps = new TreeMap<String,String>();
         for (Element dependency : findDependencyDefinitions(dom))
@@ -66,6 +67,7 @@ public class VersionProps implements InplaceTransform
             updateDependency(dependency, versionProps);
         }
         updateOrAddProperties(dom, versionProps);
+        return dom;
     }
 
 

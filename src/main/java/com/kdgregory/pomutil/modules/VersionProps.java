@@ -28,9 +28,9 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
 
 
 /**
- *  Finds all explicit version numbers and converts them to properties.
+ *  Finds explicit dependency version numbers and converts them to properties.
  *  <p>
- *  Examines <code>&lt;dependencies&gt;</code>, and &lt;dependencyManagement&gt;
+ *  Examines <code>&lt;dependencies&gt;</code> and <code>&lt;dependencyManagement&gt;</code>,
  *  sections.
  *  <p>
  *  The generated properties will be named <code>GROUPID.version</code>, where
@@ -40,7 +40,7 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  *  <p>
  *  If the POM already has a <code>&lt;properties&gt;</code> section, the generated
  *  properties will be appended to it. Otherwise, a new <code>&lt;properties&gt;</code>
- *  section will be inserted into the POM before the first dependency specification.
+ *  section will be appended to the POM.
  */
 public class VersionProps implements InplaceTransform
 {
@@ -64,10 +64,7 @@ public class VersionProps implements InplaceTransform
     private final static String[] DEPENDENCY_LOCATIONS = new String[]
             {
             "/mvn:project/mvn:dependencies/mvn:dependency",
-            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency",
-            "/mvn:project/mvn:build/mvn:plugins/mvn:plugin",
-            "/mvn:project/mvn:reporting/mvn:plugins/mvn:plugin",
-            "/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin",
+            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
             };
 
     private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)

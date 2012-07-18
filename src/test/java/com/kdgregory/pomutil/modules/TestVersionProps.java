@@ -73,7 +73,7 @@ public class TestVersionProps
     @Test
     public void testAddExplicitVersionsToExistngProperties() throws Exception
     {
-        loadAndApply("props1.xml");
+        loadAndApply("VersionProps1.xml");
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
@@ -84,21 +84,16 @@ public class TestVersionProps
 
 
     @Test
-    public void testLookInMultiplePlaces() throws Exception
+    public void testLookInDependencyAndDependencyManagmentSections() throws Exception
     {
-        loadAndApply("props2.xml");
+        loadAndApply("VersionProps2.xml");
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
-        assertProperty("org.apache.maven.plugins.version",  "2.3.2");
-        assertProperty("org.codehaus.mojo.version",         "2.5.1");
-        assertProperty("com.example.myplugin.version",      "1.3");
 
         assertReference("junit",                    "junit",                    "${junit.version}");
         assertReference("net.sf.kdgcommons",        "kdgcommons",               "${net.sf.kdgcommons.version}");
-        assertReference("org.apache.maven.plugins", "maven-compiler-plugin",    "${org.apache.maven.plugins.version}");
-        assertReference("org.codehaus.mojo",        "cobertura-maven-plugin",   "${org.codehaus.mojo.version}");
-        assertReference("com.example.myplugin",     "myplugin",                 "${com.example.myplugin.version}");
+        assertReference("net.sf.kdgcommons",        "kdgcommons",               "${net.sf.kdgcommons.version}");
     }
 
 }

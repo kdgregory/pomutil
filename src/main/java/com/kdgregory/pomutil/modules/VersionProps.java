@@ -50,8 +50,7 @@ public class VersionProps implements InplaceTransform
         TreeMap<String,String> versionProps = new TreeMap<String,String>();
         for (Element dependency : findDependencyDefinitions(dom))
         {
-            String propName = extractProp(dependency, versionProps);
-            updateDependencyReference(dependency, propName);
+            updateDependency(dependency, versionProps);
         }
         updateOrAddProperties(dom, versionProps);
     }
@@ -82,13 +81,14 @@ public class VersionProps implements InplaceTransform
     }
 
 
-    private String extractProp(Element dependency, Map<String,String> versionProps)
+    private void updateDependency(Element dependency, Map<String,String> versionProps)
     {
         String groupId = xpFact.newXPath("mvn:groupId").evaluateAsString(dependency);
         String artifactId = xpFact.newXPath("mvn:artifactId").evaluateAsString(dependency);
         String version = xpFact.newXPath("mvn:version").evaluateAsString(dependency);
 
-        // FIXME - ignore dependencies that already have versions specified by property
+        if (version.startsWith("${"))
+            return;
 
         String propName = groupId + ".version";
 
@@ -96,14 +96,8 @@ public class VersionProps implements InplaceTransform
 
         versionProps.put(propName, version);
 
-        return propName;
-    }
-
-
-    private void updateDependencyReference(Element dependency, String propName)
-    {
-        Element version = xpFact.newXPath("mvn:version").evaluateAsElement(dependency);
-        DomUtil.setText(version, "${" + propName + "}");
+        Element versionElem = xpFact.newXPath("mvn:version").evaluateAsElement(dependency);
+        DomUtil.setText(versionElem, "${" + propName + "}");
     }
 
 

@@ -105,4 +105,23 @@ public class TestVersionProps
         assertReference("junit",             "junit",      "${junit.version}");
         assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
     }
+
+
+    @Test
+    public void testExistingVersionPropertiesLeftAlone() throws Exception
+    {
+        loadAndApply("VersionProps3.xml");
+
+        assertProperty("junit.version",                     "4.10");
+        assertProperty("kdgcommons.version",                "1.0.6");
+
+        assertReference("junit",             "junit",      "${junit.version}");
+        assertReference("net.sf.kdgcommons", "kdgcommons", "${kdgcommons.version}");
+
+        // ensure that we haven't added a property
+
+        Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        assertNotNull("should find properties section", props);
+        assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
+    }
 }

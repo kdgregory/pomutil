@@ -28,7 +28,7 @@ public class InvocationArgs
     TreeSet<String> options = new TreeSet<String>();
 
 
-    public InvocationArgs(String[] argv)
+    public InvocationArgs(String... argv)
     {
         for (String arg : argv)
         {
@@ -39,6 +39,10 @@ public class InvocationArgs
         }
     }
 
+
+//----------------------------------------------------------------------------
+//  Public methods
+//----------------------------------------------------------------------------
 
     /**
      *  Determines whether the argument list contains the specified option, with or

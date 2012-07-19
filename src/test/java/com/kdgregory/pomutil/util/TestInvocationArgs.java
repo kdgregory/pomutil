@@ -24,7 +24,7 @@ public class TestInvocationArgs
     public void testEmptyConstructor() throws Exception
     {
         // a basic test to make sure nothing blows up
-        InvocationArgs args = new InvocationArgs(new String[0]);
+        InvocationArgs args = new InvocationArgs();
 
         assertFalse("hasOption()",  args.hasOption("--foo"));
         assertNull("shift()",       args.shift());
@@ -34,7 +34,7 @@ public class TestInvocationArgs
     @Test
     public void testHasOption() throws Exception
     {
-        InvocationArgs args = new InvocationArgs(new String[] { "foo", "--foo", "--bar=baz" });
+        InvocationArgs args = new InvocationArgs("foo", "--foo", "--bar=baz");
 
         assertTrue("option without parameter",                      args.hasOption("--foo"));
         assertTrue("option with parameter specified",               args.hasOption("--bar=baz"));
@@ -49,7 +49,7 @@ public class TestInvocationArgs
     @Test
     public void testShift() throws Exception
     {
-        InvocationArgs args = new InvocationArgs(new String[] { "foo", "--foo", "--bar=baz", "argle" });
+        InvocationArgs args = new InvocationArgs("foo", "--foo", "--bar=baz", "argle");
 
         assertEquals("first shift",  "foo", args.shift());
         assertEquals("second shift", "argle", args.shift());

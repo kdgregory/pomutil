@@ -23,43 +23,36 @@ import java.util.TreeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.apache.log4j.Logger;
+
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 /**
- *  Finds explicit dependency version numbers and converts them to properties.
- *  <p>
- *  Examines <code>&lt;dependencies&gt;</code> and <code>&lt;dependencyManagement&gt;</code>,
- *  sections.
- *  <p>
- *  The generated properties will be named <code>GROUPID.version</code>, where
- *  <code>GROUPID</code> is the group ID of the dependency. If multiple dependencies
- *  have the same group ID but different versions, they are logged and the second
- *  (and subsequent) properties are named <code>GROUPID.ARTIFACTID.version</code>.
- *  <p>
- *  If the POM already has a <code>&lt;properties&gt;</code> section, the generated
- *  properties will be appended to it. Otherwise, a new <code>&lt;properties&gt;</code>
- *  section will be appended to the POM.
+ *  Finds explicit dependency version numbers and converts them to properties. See
+ *  README for full specification.
  */
 public class VersionProps
 extends AbstractTransformer
 {
+    Logger logger = Logger.getLogger(getClass());
+
     private final static String[] DEPENDENCY_LOCATIONS = new String[]
             {
             "/mvn:project/mvn:dependencies/mvn:dependency",
             "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
             };
-    
+
     private Set<String> groupsToAppendArtifactId;
-    
-    
+
+
     public VersionProps(InvocationArgs args)
     {
         groupsToAppendArtifactId = args.getOptionValues("--addArtifactIdToProp");
     }
-    
+
 
 //----------------------------------------------------------------------------
 //  Transformer
@@ -101,12 +94,15 @@ extends AbstractTransformer
 
         if (version.startsWith("${"))
             return;
-        
+
         String propName = groupId + ".version";
         if (versionProps.containsKey(propName))
         {
-            propName = groupId + "." + artifactId + ".version";
-            // FIXME - log this
+            String existingVersion = versionProps.get(propName);
+            String newPropName = groupId + "." + artifactId + ".version";
+            logger.warn("property \"" + propName + "\" already exists with version " + existingVersion
+                        + "; creating \"" + newPropName + "\" for version " + version);
+            propName = newPropName;
         }
         if (groupsToAppendArtifactId.contains(groupId))
         {

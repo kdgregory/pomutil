@@ -14,6 +14,8 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.util.Set;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -55,5 +57,21 @@ public class TestInvocationArgs
         assertEquals("second shift", "argle", args.shift());
         assertNull("third shift",    args.shift());
     }
+
+
+    @Test
+    public void testGetValues() throws Exception
+    {
+        // note that an option without an "=" isn't considered to have a value
+        InvocationArgs args = new InvocationArgs("foo", "--foo", "--foo=bar", "--foo=baz", "--foob=biff");
+
+        Set<String> values = args.getOptionValues("--foo");
+        assertEquals("number of values", 2, values.size());
+        assertTrue("expected value: bar", values.contains("bar"));
+        assertTrue("expected value: baz", values.contains("baz"));
+
+        assertTrue("search for nonexistent value", args.getOptionValues("--argle").size() == 0);
+    }
+
 
 }

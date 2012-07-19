@@ -15,6 +15,7 @@
 package com.kdgregory.pomutil.util;
 
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -69,6 +70,31 @@ public class InvocationArgs
 
         // should have returned from within the loop, unless it was empty
         return false;
+    }
+
+
+    /**
+     *  Returns the values associated with the named option. For example, passing
+     *  "<code>--foo</code>" when there are options "<code>--foo=bar</code>" and
+     *  <code>--foo=baz</code>" will return "bar" and "baz". Returns an empty set
+     *  if there are no options for the given value.
+     *  <p>
+     *  The caller is free to modify the returned set.
+     */
+    public Set<String> getOptionValues(String req)
+    {
+        Set<String> result = new TreeSet<String>(); // TreeSet is easier to debug
+
+        req += "=";
+        for (String opt : options.tailSet(req))
+        {
+            if (!opt.startsWith(req))
+                break;
+            String value = opt.substring(opt.indexOf("=") + 1);
+            result.add(value);
+        }
+
+        return result;
     }
 
 

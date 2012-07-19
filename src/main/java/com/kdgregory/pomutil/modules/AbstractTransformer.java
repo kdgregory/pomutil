@@ -16,13 +16,41 @@ package com.kdgregory.pomutil.modules;
 
 import org.w3c.dom.Document;
 
+import net.sf.practicalxml.xpath.XPathWrapper;
+import net.sf.practicalxml.xpath.XPathWrapperFactory;
+import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
+
 
 /**
- *  Base class for operations that transform a single POM in some way. The
- *  parsed POM is passed to {@link #transform}, which returns the same or
- *  a different parsed POM. 
+ *  Base class for operations that transform a single POM.
  */
 public abstract class AbstractTransformer
 {
-    public abstract Document transform(Document dom);
+    private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
+                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
+
+
+//----------------------------------------------------------------------------
+//  Services for subclasses
+//----------------------------------------------------------------------------
+
+    /**
+     *  Returns an XPath that with the Maven namespace bound to the prefix
+     *  "mvn". XPath objects maybe stored in a single-threaded cache.
+     */
+    public XPathWrapper newXPath(String xpath)
+    {
+        return xpFact.newXPath(xpath);
+    }
+
+
+//----------------------------------------------------------------------------
+//  Subclasses must implement this method
+//----------------------------------------------------------------------------
+
+    /**
+     *  Transforms the source POM, returning the result (which may be the same
+     *  Document instance of a different one).
+     */
+    public abstract Document transform(Document pom);
 }

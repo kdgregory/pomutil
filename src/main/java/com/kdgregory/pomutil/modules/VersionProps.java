@@ -23,8 +23,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
-import net.sf.practicalxml.xpath.XPathWrapperFactory;
-import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
 
 
 /**
@@ -42,7 +40,7 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  *  properties will be appended to it. Otherwise, a new <code>&lt;properties&gt;</code>
  *  section will be appended to the POM.
  */
-public class VersionProps 
+public class VersionProps
 extends AbstractTransformer
 {
     private final static String[] DEPENDENCY_LOCATIONS = new String[]
@@ -51,11 +49,9 @@ extends AbstractTransformer
             "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
             };
 
-    private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
-                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
 
 //----------------------------------------------------------------------------
-//  InplaceTransform
+//  Transformer
 //----------------------------------------------------------------------------
 
     @Override
@@ -80,7 +76,7 @@ extends AbstractTransformer
         List<Element> ret = new ArrayList<Element>();
         for (String xpath : DEPENDENCY_LOCATIONS)
         {
-            ret.addAll(xpFact.newXPath(xpath).evaluate(dom, Element.class));
+            ret.addAll(newXPath(xpath).evaluate(dom, Element.class));
         }
         return ret;
     }
@@ -88,9 +84,9 @@ extends AbstractTransformer
 
     private void updateDependency(Element dependency, Map<String,String> versionProps)
     {
-        String groupId = xpFact.newXPath("mvn:groupId").evaluateAsString(dependency);
-        String artifactId = xpFact.newXPath("mvn:artifactId").evaluateAsString(dependency);
-        String version = xpFact.newXPath("mvn:version").evaluateAsString(dependency);
+        String groupId = newXPath("mvn:groupId").evaluateAsString(dependency);
+        String artifactId = newXPath("mvn:artifactId").evaluateAsString(dependency);
+        String version = newXPath("mvn:version").evaluateAsString(dependency);
 
         if (version.startsWith("${"))
             return;
@@ -104,14 +100,14 @@ extends AbstractTransformer
 
         versionProps.put(propName, version);
 
-        Element versionElem = xpFact.newXPath("mvn:version").evaluateAsElement(dependency);
+        Element versionElem = newXPath("mvn:version").evaluateAsElement(dependency);
         DomUtil.setText(versionElem, "${" + propName + "}");
     }
 
 
     private void updateOrAddProperties(Document dom, Map<String,String> versionProps)
     {
-        Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
         if (props == null)
         {
             props = DomUtil.appendChildInheritNamespace(dom.getDocumentElement(), "properties");

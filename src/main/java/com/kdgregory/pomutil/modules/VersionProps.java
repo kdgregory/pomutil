@@ -17,12 +17,15 @@ package com.kdgregory.pomutil.modules;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
+
+import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 /**
@@ -48,7 +51,15 @@ extends AbstractTransformer
             "/mvn:project/mvn:dependencies/mvn:dependency",
             "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
             };
-
+    
+    private Set<String> groupsToAppendArtifactId;
+    
+    
+    public VersionProps(InvocationArgs args)
+    {
+        groupsToAppendArtifactId = args.getOptionValues("--addArtifactIdToProp");
+    }
+    
 
 //----------------------------------------------------------------------------
 //  Transformer
@@ -90,12 +101,16 @@ extends AbstractTransformer
 
         if (version.startsWith("${"))
             return;
-
+        
         String propName = groupId + ".version";
         if (versionProps.containsKey(propName))
         {
             propName = groupId + "." + artifactId + ".version";
             // FIXME - log this
+        }
+        if (groupsToAppendArtifactId.contains(groupId))
+        {
+            propName = groupId + "." + artifactId + ".version";
         }
 
         versionProps.put(propName, version);

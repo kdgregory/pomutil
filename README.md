@@ -10,18 +10,23 @@ These generally behave as UNIX filters, reading StdIn or a file, writing StdOut 
 Cleaner
 -------
 
-Cleaner takes a single POM and cleans it up according to your options. This is the default app (you can type `java -jar target/pomutil.jar` and it runs Cleaner). 
+Cleaner takes a single POM and cleans it up according to your options. This is the default app (you can invoke with `java -jar target/pomutil.jar`).
 
-As with modern Unix utilities, options are signalled by a double-dash. Each option has a default value; you must explicitly turn off options that you don't want.
-Options are executed in the order listed here: the result of one option may be transformed by a subsequent option.
+The cleaning process consists of multiple steps, shown here. Some are enabled by default, some are disabled. For each step,
+you can specify an option to do something other than the default. Some steps also take options to control their behavior.
 
-*   `--versionprops` (default)
-    `--noversionprops`
+* Convert dependency versions to properties (enabled by default)
 
-    Finds all explicit dependency versions and converts them into properties of the form `GROUPID.version`, where `GROUPID` is the artifact's group ID.
-    multiple artifacts have the same group ID, the second (and subsequent) artifacts are named `GROUPID.ARTIFACTID.version`, and a warning is written 
-    the log.
-    
-    The original dependencies are updated to use the new properties, and the properties are added into the POM. If there's already a `<properties>` section,
-    they'll be added to the end of it in alphabetical order. If there isn't a `<properties>`, one will be added before the first dependency consumer.
-   
+    Disable with: `--noversionprops`
+
+    Finds all `<dependency>` entries that use explicit numeric versions, and converts those dependencies to use a property.
+    Will append version properties to the end of an existing `<properties>` section, or create a new `<properties>` section
+    at the end of the POM.
+
+    Properties are named by appending ".version" to the dependency's group ID (eg: "`com.example.verson`"). If the same
+    group ID is associated with two version numbers, then the property for *the second and subsequent* instances will be
+    constructed with the artifact ID (eg: first dependency is "`com.example.verson`" second is "`com.example.foo.verson`").
+    These collisions will be logged.
+
+    If you know that you have multiple artifacts with the same group ID and different versions, you can provide one or
+    more "`--addArtifactIdToProp=GROUPID`" options, where `GROUPID` is a group ID that should not appear alone.

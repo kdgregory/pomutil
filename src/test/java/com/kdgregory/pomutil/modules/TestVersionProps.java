@@ -28,6 +28,8 @@ import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 
+import com.kdgregory.pomutil.util.InvocationArgs;
+
 
 public class TestVersionProps
 {
@@ -41,12 +43,16 @@ public class TestVersionProps
 //  Support Code
 //----------------------------------------------------------------------------
 
-    private void loadAndApply(String pomName)
+    private void loadAndApply(String pomName, InvocationArgs... args)
     throws Exception
     {
         InputStream in = getClass().getClassLoader().getResourceAsStream(pomName);
-        dom = ParseUtil.parse(new InputSource(in));
-        new VersionProps().transform(dom);
+        Document orig = ParseUtil.parse(new InputSource(in));
+
+        if (args.length > 0)
+            dom = new VersionProps(args[0]).transform(orig);
+        else
+            dom = new VersionProps(new InvocationArgs()).transform(orig);
     }
 
 
@@ -136,9 +142,25 @@ public class TestVersionProps
         assertProperty("com.example.version",               "1.2.3");
         assertProperty("com.example.bar.version",           "4.5.6");
 
-        assertReference("com.example",  "foo",              "${com.example.version}");
+        assertReference("com.example", "foo",               "${com.example.version}");
         assertReference("com.example", "bar",               "${com.example.bar.version}");
 
         // FIXME - need to examine log output
+    }
+
+
+    @Test
+    public void testAlwaysCombineGroupAndArtifact() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--addArtifactIdToProp=com.example");
+        loadAndApply("VersionProps4.xml", args);
+
+        // note that the first dependency gets the regular property name, the second gets
+        // the second is the one that has artifactId appended
+        assertProperty("com.example.foo.version",           "1.2.3");
+        assertProperty("com.example.bar.version",           "4.5.6");
+
+        assertReference("com.example", "foo",               "${com.example.foo.version}");
+        assertReference("com.example", "bar",               "${com.example.bar.version}");
     }
 }

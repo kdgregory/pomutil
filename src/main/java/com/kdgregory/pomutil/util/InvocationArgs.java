@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.sf.kdgcommons.lang.StringUtil;
+
 /**
  *  Extracts options and arguments from <code>argv</code>. Options are denoted by
  *  leading double-dash, and may contain an embedded value, separated by an equals
@@ -70,6 +72,46 @@ public class InvocationArgs
 
         // should have returned from within the loop, unless it was empty
         return false;
+    }
+
+
+    /**
+     *  Returns a single value associated with the named option, an empty string
+     *  if there's no value for the option. For example, passing "<code>--foo</code>"
+     *  when there is an option "<code>--foo=bar</code>" will return "bar"; passing
+     *  "<code>--fibble</code>" in the same case returns an empty string.
+     *  <p>
+     *  If there is more than one option with the given name, returns an arbitrary
+     *  value.
+     */
+    public String getOptionValue(String req)
+    {
+        req += "=";
+        for (String opt : options.tailSet(req))
+        {
+            if (!opt.startsWith(req))
+                break;
+            return opt.substring(opt.indexOf("=") + 1);
+        }
+
+        return "";
+    }
+
+
+    /**
+     *  Calls {@link #getOptionValue} and attempts to parse the result as an integer.
+     *  Returns <code>null</code> if there is no value for the specified option.
+     *  <p>
+     *  If there is more than one option with the given name, returns an arbitrary
+     *  value.
+     */
+    public Integer getNumericOptionValue(String req)
+    {
+        String value = getOptionValue(req);
+        if (StringUtil.isBlank(value))
+            return null;
+        else
+            return Integer.valueOf(value);
     }
 
 

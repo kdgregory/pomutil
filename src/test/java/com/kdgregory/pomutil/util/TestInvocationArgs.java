@@ -49,18 +49,27 @@ public class TestInvocationArgs
 
 
     @Test
-    public void testShift() throws Exception
+    public void testGetOptionValue() throws Exception
     {
         InvocationArgs args = new InvocationArgs("foo", "--foo", "--bar=baz", "argle");
 
-        assertEquals("first shift",  "foo", args.shift());
-        assertEquals("second shift", "argle", args.shift());
-        assertNull("third shift",    args.shift());
+        assertEquals("option without value", "",    args.getOptionValue("--foo"));
+        assertEquals("option with value",    "baz", args.getOptionValue("--bar"));
     }
 
 
     @Test
-    public void testGetValues() throws Exception
+    public void testGetNumericOptionValue() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("foo", "--foo", "--bar=12", "argle");
+
+        assertNull("option without value",                      args.getNumericOptionValue("--foo"));
+        assertEquals("option with value",  Integer.valueOf(12), args.getNumericOptionValue("--bar"));
+    }
+
+
+    @Test
+    public void testGetOptionValues() throws Exception
     {
         // note that an option without an "=" isn't considered to have a value
         InvocationArgs args = new InvocationArgs("foo", "--foo", "--foo=bar", "--foo=baz", "--foob=biff");
@@ -74,4 +83,13 @@ public class TestInvocationArgs
     }
 
 
+    @Test
+    public void testShift() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("foo", "--foo", "--bar=baz", "argle");
+
+        assertEquals("first shift",  "foo", args.shift());
+        assertEquals("second shift", "argle", args.shift());
+        assertNull("third shift",    args.shift());
+    }
 }

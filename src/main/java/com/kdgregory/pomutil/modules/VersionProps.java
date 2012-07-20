@@ -48,9 +48,21 @@ extends AbstractTransformer
     private Set<String> groupsToAppendArtifactId;
 
 
+    /**
+     *  Base constructor.
+     */
     public VersionProps(InvocationArgs args)
     {
         groupsToAppendArtifactId = args.getOptionValues("--addArtifactIdToProp");
+    }
+
+
+    /**
+     *  Convenience constructor for argument-free invocation, used for testing.
+     */
+    public VersionProps()
+    {
+        this(new InvocationArgs());
     }
 
 

@@ -14,74 +14,24 @@
 
 package com.kdgregory.pomutil.modules;
 
-import java.io.InputStream;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.xml.sax.InputSource;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
-import net.sf.practicalxml.ParseUtil;
-import net.sf.practicalxml.xpath.XPathWrapperFactory;
 
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestVersionProps
+extends AbstractTransformerTest
 {
-
-    private XPathWrapperFactory xpFact = new XPathWrapperFactory()
-                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
-
-    private Document dom;
-
-//----------------------------------------------------------------------------
-//  Support Code
-//----------------------------------------------------------------------------
-
-    private void loadAndApply(String pomName, InvocationArgs... args)
-    throws Exception
-    {
-        InputStream in = getClass().getClassLoader().getResourceAsStream(pomName);
-        Document orig = ParseUtil.parse(new InputSource(in));
-
-        if (args.length > 0)
-            dom = new VersionProps(args[0]).transform(orig);
-        else
-            dom = new VersionProps(new InvocationArgs()).transform(orig);
-    }
-
-
-    private void assertProperty(String propName, String expected)
-    {
-        String value = xpFact.newXPath("/mvn:project/mvn:properties/mvn:" + propName)
-                       .evaluateAsString(dom);
-        assertEquals("property " + propName, expected, value);
-    }
-
-
-    private void assertReference(String groupId, String artifactId, String expected)
-    {
-        String xpath = "//mvn:groupId[text()='" + groupId + "']/"
-                     + "../mvn:artifactId[text()='" + artifactId + "']/"
-                     + "../mvn:version";
-        String actual = xpFact.newXPath(xpath).evaluateAsString(dom);
-        assertEquals("version for " + groupId + ":" + artifactId, expected, actual);
-    }
-
-
-//----------------------------------------------------------------------------
-//  Testcases
-//----------------------------------------------------------------------------
 
     @Test
     public void testBasicOperation() throws Exception
     {
-        loadAndApply("VersionProps1.xml");
+        loadAndApply("VersionProps1.xml", new VersionProps());
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
@@ -90,7 +40,7 @@ public class TestVersionProps
         assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
 
         // verify that we didn't damage the existing properties section
-        String existingProp = xpFact.newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
+        String existingProp = newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
                               .evaluateAsString(dom);
         assertEquals("existing property still exists", "UTF-8", existingProp);
     }
@@ -99,9 +49,9 @@ public class TestVersionProps
     @Test
     public void testAdditionOfPropertiesSection() throws Exception
     {
-        loadAndApply("VersionProps2.xml");
+        loadAndApply("VersionProps2.xml", new VersionProps());
 
-        Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
         assertNotNull("should find properties section", props);
         assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
 
@@ -116,7 +66,7 @@ public class TestVersionProps
     @Test
     public void testExistingVersionPropertiesLeftAlone() throws Exception
     {
-        loadAndApply("VersionProps3.xml");
+        loadAndApply("VersionProps3.xml", new VersionProps());
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("kdgcommons.version",                "1.0.6");
@@ -126,7 +76,7 @@ public class TestVersionProps
 
         // ensure that we haven't added a property
 
-        Element props = xpFact.newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
         assertNotNull("should find properties section", props);
         assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
     }
@@ -135,7 +85,7 @@ public class TestVersionProps
     @Test
     public void testSameGroupDifferentVersion() throws Exception
     {
-        loadAndApply("VersionProps4.xml");
+        loadAndApply("VersionProps4.xml", new VersionProps());
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended
@@ -153,7 +103,7 @@ public class TestVersionProps
     public void testAlwaysCombineGroupAndArtifact() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--addArtifactIdToProp=com.example");
-        loadAndApply("VersionProps4.xml", args);
+        loadAndApply("VersionProps4.xml", new VersionProps(args));
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended

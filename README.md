@@ -17,7 +17,7 @@ you can specify an option to do something other than the default. Some steps als
 
 * Convert dependency versions to properties (enabled by default)
 
-    Disable with: `--noversionprops`
+    Disable with: `--noVersionProps`
 
     Finds all `<dependency>` entries that use explicit numeric versions, and converts those dependencies to use a property.
     Will append version properties to the end of an existing `<properties>` section, or create a new `<properties>` section

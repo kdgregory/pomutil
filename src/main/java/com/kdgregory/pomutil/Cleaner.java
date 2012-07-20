@@ -52,7 +52,7 @@ public class Cleaner
             InvocationArgs args = new InvocationArgs(argv);
             Document dom = readDocument(args);
 
-            if (! args.hasOption("--noversionprops"))
+            if (! args.hasOption("--noVersionProps"))
                 dom = new VersionProps(args).transform(dom);
 
             writeOutput(dom, args);

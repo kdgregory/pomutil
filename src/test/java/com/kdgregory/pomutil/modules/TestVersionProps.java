@@ -36,8 +36,12 @@ extends AbstractTransformerTest
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
 
-        assertReference("junit",             "junit",      "${junit.version}");
-        assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
+        assertDependencyReference("junit",             "junit",      "${junit.version}");
+        assertDependencyReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
+
+        // verify that we removed the previous dependencies
+        assertNoDependencyReference("junit",             "junit",      "4.10");
+        assertNoDependencyReference("net.sf.kdgcommons", "kdgcommons", "1.0.6");
 
         // verify that we didn't damage the existing properties section
         String existingProp = newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
@@ -58,8 +62,8 @@ extends AbstractTransformerTest
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
 
-        assertReference("junit",             "junit",      "${junit.version}");
-        assertReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
+        assertDependencyReference("junit",             "junit",      "${junit.version}");
+        assertDependencyReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
     }
 
 
@@ -71,8 +75,8 @@ extends AbstractTransformerTest
         assertProperty("junit.version",                     "4.10");
         assertProperty("kdgcommons.version",                "1.0.6");
 
-        assertReference("junit",             "junit",      "${junit.version}");
-        assertReference("net.sf.kdgcommons", "kdgcommons", "${kdgcommons.version}");
+        assertDependencyReference("junit",             "junit",      "${junit.version}");
+        assertDependencyReference("net.sf.kdgcommons", "kdgcommons", "${kdgcommons.version}");
 
         // ensure that we haven't added a property
 
@@ -92,8 +96,8 @@ extends AbstractTransformerTest
         assertProperty("com.example.version",               "1.2.3");
         assertProperty("com.example.bar.version",           "4.5.6");
 
-        assertReference("com.example", "foo",               "${com.example.version}");
-        assertReference("com.example", "bar",               "${com.example.bar.version}");
+        assertDependencyReference("com.example", "foo",               "${com.example.version}");
+        assertDependencyReference("com.example", "bar",               "${com.example.bar.version}");
 
         // FIXME - need to examine log output
     }
@@ -110,7 +114,7 @@ extends AbstractTransformerTest
         assertProperty("com.example.foo.version",           "1.2.3");
         assertProperty("com.example.bar.version",           "4.5.6");
 
-        assertReference("com.example", "foo",               "${com.example.foo.version}");
-        assertReference("com.example", "bar",               "${com.example.bar.version}");
+        assertDependencyReference("com.example", "foo",               "${com.example.foo.version}");
+        assertDependencyReference("com.example", "bar",               "${com.example.bar.version}");
     }
 }

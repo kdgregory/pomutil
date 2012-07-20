@@ -82,18 +82,33 @@ public abstract class AbstractTransformerTest
 
 
     /**
-     *  Asserts that there is some GAV reference with the expected version number.
-     *  Note that this is not limited to dependencies; it can be used anywhere there
-     *  are sibling elements <code>groupId</code>, <code>artifactId</code>, and
-     *  <code>version</code>.
+     *  Asserts that there is a dependency reference somewhere in the POM with the
+     *  expected group ID, artifact ID, and version number. Note that, since this
+     *  performs an unrestricted search, it's only useful if you know that there
+     *  will be one and only one such reference.
      */
-    protected void assertReference(String groupId, String artifactId, String expected)
+    protected void assertDependencyReference(String groupId, String artifactId, String expected)
     {
         String xpath = "//mvn:groupId[text()='" + groupId + "']/"
                      + "../mvn:artifactId[text()='" + artifactId + "']/"
                      + "../mvn:version";
         String actual = xpFact.newXPath(xpath).evaluateAsString(dom);
         assertEquals("version for " + groupId + ":" + artifactId, expected, actual);
+    }
+
+
+    /**
+     *  Asserts that there is no dependency reference anywhere in the POM with the
+     *  expected group ID, artifact ID, and version number. This is used to ensure
+     *  that existing dependencies have been modified.
+     */
+    protected void assertNoDependencyReference(String groupId, String artifactId, String version)
+    {
+        String xpath = "//mvn:groupId[text()='" + groupId + "']/"
+                     + "../mvn:artifactId[text()='" + artifactId + "']/"
+                     + "../mvn:version[text()='" + version + "']";
+        Element elem = xpFact.newXPath(xpath).evaluateAsElement(dom);
+        assertNull("should not find dependency with GAV " + groupId + ":" + artifactId + ":" + version, elem);
     }
 
 

@@ -1,7 +1,7 @@
 pomutil
 =======
 
-Utilities to clean, organize, and restructure Maven POMs. 
+Utilities to clean, organize, and restructure Maven POMs.
 
 * `Cleaner [OPTIONS] [ INFILE [ OUTFILE ]]`
 
@@ -30,3 +30,13 @@ you can specify an option to do something other than the default. Some steps als
 
     If you know that you have multiple artifacts with the same group ID and different versions, you can provide one or
     more "`--addArtifactIdToProp=GROUPID`" options, where `GROUPID` is a group ID that should not appear alone.
+
+* Pretty-print output (enabled by default)
+
+    Disable with: `--noPrettyPrint`
+
+    Removes all "ignorable whitespace" from the POM, then writes the output using an indenting serializer. Note that this
+    will remove any blank lines between sections.
+
+    By default, the indentation is 4 spaces per level. You can change this with the option `--prettyPrint=NUM`, where
+    `NUM` is the number of spaces you want.

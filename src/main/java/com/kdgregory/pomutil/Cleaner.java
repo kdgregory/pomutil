@@ -14,9 +14,11 @@
 
 package com.kdgregory.pomutil;
 
-import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -25,6 +27,8 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
 
+import net.sf.kdgcommons.io.IOUtil;
+import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
@@ -87,23 +91,37 @@ public class Cleaner
 
 
     /**
-     *  Pretty-prints the provided DOM, writing it to either a file whose name is
-     *  the first (and only) entry in the passed list, or to StdOut (if there are
-     *  no entries in the list).
+     *  Output generation code.
      */
     private static void writeOutput(Document dom, InvocationArgs args)
     throws Exception
     {
         String filename = args.shift();
-        if (filename != null)        {
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(filename));
-            OutputUtil.indented(new DOMSource(dom), new StreamResult(out), 4);
-            out.flush();
-            out.close();
-        }
-        else
+
+        // note: must use writer due to JDK Bug 6337981
+        Writer out = (filename != null)
+                   ? new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")
+                   : new OutputStreamWriter(System.out, "UTF-8");
+        out = new BufferedWriter(out);
+
+        try
         {
-            OutputUtil.indented(new DOMSource(dom), new StreamResult(System.out), 4);
+            if (args.hasOption("--noPrettyPrint"))
+            {
+                OutputUtil.compact(new DOMSource(dom), new StreamResult(out));
+            }
+            else
+            {
+                DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
+
+                Integer indent0 = args.getNumericOptionValue("--prettyPrint");
+                int indent = (indent0 != null) ? indent0.intValue() : 4;
+                OutputUtil.indented(new DOMSource(dom), new StreamResult(out), indent);
+            }
+        }
+        finally
+        {
+            IOUtil.closeQuietly(out);
         }
     }
 }

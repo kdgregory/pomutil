@@ -1,19 +1,28 @@
-pomutil
-=======
-
 Utilities to clean, organize, and restructure Maven POMs.
 
-* `Cleaner [OPTIONS] [ INFILE [ OUTFILE ]]`
-
 These generally behave as UNIX filters, reading StdIn or a file, writing StdOut or another file, and reporting any problems to StdErr. The target JAR contains all dependencies.
+
 
 Cleaner
 -------
 
 Cleaner takes a single POM and cleans it up according to your options. This is the default app (you can invoke with `java -jar target/pomutil.jar`).
 
+`Cleaner [OPTIONS] [ INFILE [ OUTFILE ]]`
+
 The cleaning process consists of multiple steps, shown here. Some are enabled by default, some are disabled. For each step,
 you can specify an option to do something other than the default. Some steps also take options to control their behavior.
+
+* Order dependencies
+
+    Disable with: `--noDependencySort`
+
+    Sorts the `<dependency>` entries within `<dependencies>` and `<dependencyManagement>` top-level sections. Sort
+    is alphabetic, by combining group ID, artifact ID, and version (although version should never come into play).
+
+    Note that this step completely rebuilds the container elements, and will remove any blank lines or comments
+    between entries.
+
 
 * Convert dependency versions to properties (enabled by default)
 

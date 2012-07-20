@@ -17,11 +17,13 @@ package com.kdgregory.pomutil.modules;
 import java.io.InputStream;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.xml.sax.InputSource;
 
 import static org.junit.Assert.*;
 
+import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
@@ -92,6 +94,21 @@ public abstract class AbstractTransformerTest
                      + "../mvn:version";
         String actual = xpFact.newXPath(xpath).evaluateAsString(dom);
         assertEquals("version for " + groupId + ":" + artifactId, expected, actual);
+    }
+
+
+    /**
+     *  Asserts that the passed element is a <code>dependency</code>, and that
+     *  its GAV matches the expected values.
+     */
+    protected void assertDependencySpec(
+            String msg, Element elem,
+            String expectedGroupId, String expectedArtifactId, String expectedVersion)
+    {
+        assertEquals(msg + ": element",    "dependency",       DomUtil.getLocalName(elem));
+        assertEquals(msg + ": groupId",    expectedGroupId,    xpFact.newXPath("mvn:groupId").evaluateAsString(elem));
+        assertEquals(msg + ": artifactId", expectedArtifactId, xpFact.newXPath("mvn:artifactId").evaluateAsString(elem));
+        assertEquals(msg + ": version",    expectedVersion,    xpFact.newXPath("mvn:version").evaluateAsString(elem));
     }
 
 

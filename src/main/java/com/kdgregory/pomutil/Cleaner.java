@@ -32,6 +32,7 @@ import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
+import com.kdgregory.pomutil.modules.DependencySort;
 import com.kdgregory.pomutil.modules.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
@@ -51,6 +52,9 @@ public class Cleaner
         {
             InvocationArgs args = new InvocationArgs(argv);
             Document dom = readDocument(args);
+
+            if (! args.hasOption("--noDependencySort"))
+                dom = new DependencySort(args).transform(dom);
 
             if (! args.hasOption("--noVersionProps"))
                 dom = new VersionProps(args).transform(dom);

@@ -117,4 +117,19 @@ extends AbstractTransformerTest
         assertDependencyReference("com.example", "foo",               "${com.example.foo.version}");
         assertDependencyReference("com.example", "bar",               "${com.example.bar.version}");
     }
+
+
+    @Test
+    public void testSameGroupSameVersion() throws Exception
+    {
+        loadAndApply("VersionProps5.xml", new VersionProps());
+        
+        assertEquals("should only be one property added", 1, newXPath("/mvn:project/mvn:properties/*").evaluate(dom).size());
+
+        assertProperty("org.springframework.version",                       "3.1.2.RELEASE");
+
+        assertDependencyReference("org.springframework", "spring-tx",       "${org.springframework.version}");
+        assertDependencyReference("org.springframework", "spring-core",     "${org.springframework.version}");
+        assertDependencyReference("org.springframework", "spring-context",  "${org.springframework.version}");
+    }
 }

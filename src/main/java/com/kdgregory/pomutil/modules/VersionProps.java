@@ -108,7 +108,7 @@ extends AbstractTransformer
             return;
 
         String propName = groupId + ".version";
-        if (versionProps.containsKey(propName))
+        if (versionProps.containsKey(propName) && !version.equals(versionProps.get(propName)))
         {
             String existingVersion = versionProps.get(propName);
             String newPropName = groupId + "." + artifactId + ".version";
@@ -116,6 +116,7 @@ extends AbstractTransformer
                         + "; creating \"" + newPropName + "\" for version " + version);
             propName = newPropName;
         }
+
         if (groupsToAppendArtifactId.contains(groupId))
         {
             propName = groupId + "." + artifactId + ".version";

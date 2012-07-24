@@ -32,8 +32,8 @@ import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
-import com.kdgregory.pomutil.modules.DependencySort;
-import com.kdgregory.pomutil.modules.VersionProps;
+import com.kdgregory.pomutil.transformers.DependencySort;
+import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

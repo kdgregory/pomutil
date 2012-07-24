@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.modules;
+package com.kdgregory.pomutil.transformers;
 
 import java.io.InputStream;
 
@@ -27,6 +27,8 @@ import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
+
+import com.kdgregory.pomutil.transformers.AbstractTransformer;
 
 
 /**

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.modules;
+package com.kdgregory.pomutil.transformers;
 
 import org.w3c.dom.Element;
 
@@ -21,6 +21,7 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

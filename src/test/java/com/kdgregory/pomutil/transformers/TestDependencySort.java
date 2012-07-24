@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.modules;
+package com.kdgregory.pomutil.transformers;
 
 import java.util.List;
 
@@ -21,6 +21,8 @@ import org.w3c.dom.Element;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+
+import com.kdgregory.pomutil.transformers.DependencySort;
 
 
 public class TestDependencySort

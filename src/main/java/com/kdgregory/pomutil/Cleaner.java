@@ -53,10 +53,10 @@ public class Cleaner
             InvocationArgs args = new InvocationArgs(argv);
             Document dom = readDocument(args);
 
-            if (! args.hasOption("--noDependencySort"))
+            if (! args.hasOption(Options.NO_DEPENDENCY_SORT))
                 dom = new DependencySort(args).transform(dom);
 
-            if (! args.hasOption("--noVersionProps"))
+            if (! args.hasOption(Options.NO_VERSION_PROPS))
                 dom = new VersionProps(args).transform(dom);
 
             writeOutput(dom, args);
@@ -110,7 +110,7 @@ public class Cleaner
 
         try
         {
-            if (args.hasOption("--noPrettyPrint"))
+            if (args.hasOption(Options.NO_PRETTY_PRINT))
             {
                 OutputUtil.compact(new DOMSource(dom), new StreamResult(out));
             }
@@ -118,7 +118,7 @@ public class Cleaner
             {
                 DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
 
-                Integer indent0 = args.getNumericOptionValue("--prettyPrint");
+                Integer indent0 = args.getNumericOptionValue(Options.PRETTY_PRINT);
                 int indent = (indent0 != null) ? indent0.intValue() : 4;
                 OutputUtil.indented(new DOMSource(dom), new StreamResult(out), indent);
             }

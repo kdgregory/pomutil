@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
@@ -55,8 +56,8 @@ extends AbstractTransformer
      */
     public VersionProps(InvocationArgs args)
     {
-        groupsToAppendArtifactId = args.getOptionValues("--addArtifactIdToProp");
-        replaceExisting = args.hasOption("--replaceExistingProps");
+        groupsToAppendArtifactId = args.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
+        replaceExisting = args.hasOption(Options.VP_REPLACE_EXISTING);
     }
 
 

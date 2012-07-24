@@ -8,10 +8,8 @@
     <packaging>jar</packaging>
 
     <description>
-        Tests basic operation: explicit properties in dependencies and dependencyManagement
-        sections, with an existing properties section.
+        Verifies that we ignore existing version props.
     </description>
-
 
     <properties>
         <kdgcommons.version>1.0.6</kdgcommons.version>

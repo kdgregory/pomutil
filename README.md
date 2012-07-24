@@ -24,9 +24,11 @@ you can specify an option to do something other than the default. Some steps als
     between entries.
 
 
-* Convert dependency versions to properties (enabled by default)
+* Convert dependency versions to properties
 
     Disable with: `--noVersionProps`
+
+    Modify with: `--addArtifactIdToProp=GROUPID`, `--replaceExistingProps`
 
     Finds all `<dependency>` entries that use explicit numeric versions, and converts those dependencies to use a property.
     Will append version properties to the end of an existing `<properties>` section, or create a new `<properties>` section
@@ -40,7 +42,11 @@ you can specify an option to do something other than the default. Some steps als
     If you know that you have multiple artifacts with the same group ID and different versions, you can provide one or
     more "`--addArtifactIdToProp=GROUPID`" options, where `GROUPID` is a group ID that should not appear alone.
 
-* Pretty-print output (enabled by default)
+    Existing dependency properties will be checked for collisions but otherwise ignored. To make all of your dependencies
+    use the same format, use the `--replaceExistingProps` option.
+
+
+* Pretty-print output
 
     Disable with: `--noPrettyPrint`
 

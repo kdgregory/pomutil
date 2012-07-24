@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,6 +47,7 @@ extends AbstractTransformer
             };
 
     private Set<String> groupsToAppendArtifactId;
+    private boolean replaceExisting;
 
 
     /**
@@ -54,6 +56,7 @@ extends AbstractTransformer
     public VersionProps(InvocationArgs args)
     {
         groupsToAppendArtifactId = args.getOptionValues("--addArtifactIdToProp");
+        replaceExisting = args.hasOption("--replaceExistingProps");
     }
 
 
@@ -73,12 +76,17 @@ extends AbstractTransformer
     @Override
     public Document transform(Document dom)
     {
-        TreeMap<String,String> versionProps = new TreeMap<String,String>();
-        for (Element dependency : findDependencyDefinitions(dom))
+        List<Element> dependencies = selectDependencies(dom);
+        Map<String,String> allProps = selectProperties(dom);
+
+        if (replaceExisting)
         {
-            updateDependency(dependency, versionProps);
+            Set<String> oldProps = replaceExistingDependencyProps(dependencies, allProps);
+            removeReplacedProperties(dom, oldProps);
         }
-        updateOrAddProperties(dom, versionProps);
+
+        Set<String> newProps = updateDependencies(dependencies, allProps);
+        addNewProperties(dom, allProps, newProps);
         return dom;
     }
 
@@ -87,7 +95,7 @@ extends AbstractTransformer
 //  Implementation
 //----------------------------------------------------------------------------
 
-    private List<Element> findDependencyDefinitions(Document dom)
+    private List<Element> selectDependencies(Document dom)
     {
         List<Element> ret = new ArrayList<Element>();
         for (String xpath : DEPENDENCY_LOCATIONS)
@@ -98,19 +106,77 @@ extends AbstractTransformer
     }
 
 
-    private void updateDependency(Element dependency, Map<String,String> versionProps)
+    private Map<String,String> selectProperties(Document dom)
     {
-        String groupId = newXPath("mvn:groupId").evaluateAsString(dependency);
-        String artifactId = newXPath("mvn:artifactId").evaluateAsString(dependency);
-        String version = newXPath("mvn:version").evaluateAsString(dependency);
-
-        if (version.startsWith("${"))
-            return;
-
-        String propName = groupId + ".version";
-        if (versionProps.containsKey(propName) && !version.equals(versionProps.get(propName)))
+        Map<String,String> result = new TreeMap<String,String>();   // TreeMap is easier to debug
+        for (Element prop : newXPath("/mvn:project/mvn:properties/*").evaluate(dom, Element.class))
         {
-            String existingVersion = versionProps.get(propName);
+            result.put(DomUtil.getLocalName(prop), DomUtil.getText(prop));
+        }
+        return result;
+    }
+
+
+    private Set<String> replaceExistingDependencyProps(List<Element> dependencies, Map<String,String> properties)
+    {
+        Set<String> result = new TreeSet<String>();
+
+        for (Element dependency : dependencies)
+        {
+            String version = newXPath("mvn:version").evaluateAsString(dependency);
+            if (! version.startsWith("${"))
+                continue;
+
+            version = version.substring(2);
+            version = version.substring(0, version.length() - 1);
+            if (! properties.containsKey(version))
+                continue;
+
+            updateDependency(dependency, properties.get(version).trim());
+            result.add(version);
+        }
+
+        return result;
+    }
+
+
+    private void removeReplacedProperties(Document dom, Set<String> propNames)
+    {
+        Element containerElem = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        for (String propName : propNames)
+        {
+            Element propElem = newXPath("mvn:" + propName).evaluateAsElement(containerElem);
+            containerElem.removeChild(propElem);
+        }
+    }
+
+
+    private Set<String> updateDependencies(List<Element> dependencies, Map<String,String> props)
+    {
+        Set<String> newProps = new TreeSet<String>();
+        for (Element dependency : dependencies)
+        {
+            String groupId = newXPath("mvn:groupId").evaluateAsString(dependency);
+            String artifactId = newXPath("mvn:artifactId").evaluateAsString(dependency);
+            String version = newXPath("mvn:version").evaluateAsString(dependency);
+
+            if (version.startsWith("${"))
+                continue;
+
+            String propName = generatePropertyName(props, groupId, artifactId, version);
+            updateDependency(dependency, "${" + propName + "}");
+            newProps.add(propName);
+        }
+        return newProps;
+    }
+
+
+    private String generatePropertyName(Map<String,String> props, String groupId, String artifactId, String version)
+    {
+        String propName = groupId + ".version";
+        if (props.containsKey(propName) && !version.equals(props.get(propName)))
+        {
+            String existingVersion = props.get(propName);
             String newPropName = groupId + "." + artifactId + ".version";
             logger.warn("property \"" + propName + "\" already exists with version " + existingVersion
                         + "; creating \"" + newPropName + "\" for version " + version);
@@ -122,25 +188,30 @@ extends AbstractTransformer
             propName = groupId + "." + artifactId + ".version";
         }
 
-        versionProps.put(propName, version);
-
-        Element versionElem = newXPath("mvn:version").evaluateAsElement(dependency);
-        DomUtil.setText(versionElem, "${" + propName + "}");
+        props.put(propName, version);
+        return propName;
     }
 
 
-    private void updateOrAddProperties(Document dom, Map<String,String> versionProps)
+    private void updateDependency(Element dependency, String version)
     {
-        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
-        if (props == null)
+        Element versionElem = newXPath("mvn:version").evaluateAsElement(dependency);
+        DomUtil.setText(versionElem, version);
+    }
+
+
+    private void addNewProperties(Document dom, Map<String,String> props, Set<String> newProps)
+    {
+        Element propElem = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        if (propElem == null)
         {
-            props = DomUtil.appendChildInheritNamespace(dom.getDocumentElement(), "properties");
+            propElem = DomUtil.appendChildInheritNamespace(dom.getDocumentElement(), "properties");
         }
 
-        for (Map.Entry<String,String> entry : versionProps.entrySet())
+        for (String propName : newProps)
         {
-            Element prop = DomUtil.appendChildInheritNamespace(props, entry.getKey());
-            DomUtil.setText(prop, entry.getValue());
+            Element prop = DomUtil.appendChildInheritNamespace(propElem, propName);
+            DomUtil.setText(prop, props.get(propName));
         }
     }
 }

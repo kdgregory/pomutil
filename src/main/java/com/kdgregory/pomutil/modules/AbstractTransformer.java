@@ -15,6 +15,7 @@
 package com.kdgregory.pomutil.modules;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
@@ -41,6 +42,23 @@ public abstract class AbstractTransformer
     public XPathWrapper newXPath(String xpath)
     {
         return xpFact.newXPath(xpath);
+    }
+
+
+    /**
+     *  Removes all children from the passed element.
+     *
+     *  FIXME - this belongs in PracticalXml
+     */
+    protected void removeAllChildren(Node node)
+    {
+        Node child = node.getFirstChild();
+        while (child != null)
+        {
+            Node nextChild = child.getNextSibling();
+            node.removeChild(child);
+            child = nextChild;
+        }
     }
 
 

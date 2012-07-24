@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <description>
-        Tests addition of a properties section is one doesn't exist'.
+        Tests addition of a properties section if one doesn't exist.
     </description>
 
     <dependencies>

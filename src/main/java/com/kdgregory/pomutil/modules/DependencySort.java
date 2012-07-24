@@ -19,7 +19,6 @@ import java.util.TreeMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import com.kdgregory.pomutil.util.InvocationArgs;
 
@@ -89,18 +88,4 @@ extends AbstractTransformer
             container.appendChild(dependency.getValue());
         }
     }
-
-
-    // this will move into Practical XML
-    private void removeAllChildren(Node node)
-    {
-        Node child = node.getFirstChild();
-        while (child != null)
-        {
-            Node nextChild = child.getNextSibling();
-            node.removeChild(child);
-            child = nextChild;
-        }
-    }
-
 }

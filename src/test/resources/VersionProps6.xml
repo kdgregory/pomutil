@@ -8,22 +8,23 @@
     <packaging>jar</packaging>
 
     <description>
-        Tests collision: two dependencies with same group ID but different versions.
+        Tests replacement of existing properties by created properties.
     </description>
 
+
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <some.innocuous.propery>foo</some.innocuous.propery>
+        <example.version>1.2.3</example.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>foo</artifactId>
-            <version>1.2.3</version>
+            <version>${example.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.example</groupId>
+            <groupId>com.other</groupId>
             <artifactId>bar</artifactId>
             <version>4.5.6</version>
         </dependency>

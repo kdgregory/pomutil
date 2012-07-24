@@ -123,7 +123,7 @@ extends AbstractTransformerTest
     public void testSameGroupSameVersion() throws Exception
     {
         loadAndApply("VersionProps5.xml", new VersionProps());
-        
+
         assertEquals("should only be one property added", 1, newXPath("/mvn:project/mvn:properties/*").evaluate(dom).size());
 
         assertProperty("org.springframework.version",                       "3.1.2.RELEASE");
@@ -131,5 +131,25 @@ extends AbstractTransformerTest
         assertDependencyReference("org.springframework", "spring-tx",       "${org.springframework.version}");
         assertDependencyReference("org.springframework", "spring-core",     "${org.springframework.version}");
         assertDependencyReference("org.springframework", "spring-context",  "${org.springframework.version}");
+    }
+
+
+    @Test
+    public void testReplaceExistingProperties() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--replaceExistingProps");
+        loadAndApply("VersionProps6.xml", new VersionProps(args));
+
+        assertEquals("post-transform property count", 3, newXPath("/mvn:project/mvn:properties/*").evaluate(dom).size());
+
+        assertProperty("com.example.version",               "1.2.3");
+        assertProperty("com.other.version",                 "4.5.6");
+
+        assertDependencyReference("com.example", "foo",     "${com.example.version}");
+        assertDependencyReference("com.other",   "bar",     "${com.other.version}");
+
+        // verify that we did not damage to existing non-version property
+
+        assertProperty("some.innocuous.propery",            "foo");
     }
 }

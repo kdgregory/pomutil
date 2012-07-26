@@ -32,7 +32,7 @@ extends AbstractTransformerTest
     @Test
     public void testBasicOperation() throws Exception
     {
-        loadAndApply("VersionProps1.xml", new VersionProps());
+        new VersionProps(loadPom("VersionProps1.xml")).transform();
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
@@ -46,7 +46,7 @@ extends AbstractTransformerTest
 
         // verify that we didn't damage the existing properties section
         String existingProp = newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
-                              .evaluateAsString(dom);
+                              .evaluateAsString(dom());
         assertEquals("existing property still exists", "UTF-8", existingProp);
     }
 
@@ -54,9 +54,9 @@ extends AbstractTransformerTest
     @Test
     public void testAdditionOfPropertiesSection() throws Exception
     {
-        loadAndApply("VersionProps2.xml", new VersionProps());
+        new VersionProps(loadPom("VersionProps2.xml")).transform();
 
-        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom());
         assertNotNull("should find properties section", props);
         assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
 
@@ -71,7 +71,7 @@ extends AbstractTransformerTest
     @Test
     public void testExistingVersionPropertiesLeftAlone() throws Exception
     {
-        loadAndApply("VersionProps3.xml", new VersionProps());
+        new VersionProps(loadPom("VersionProps3.xml")).transform();
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("kdgcommons.version",                "1.0.6");
@@ -81,7 +81,7 @@ extends AbstractTransformerTest
 
         // ensure that we haven't added a property
 
-        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom());
         assertNotNull("should find properties section", props);
         assertEquals("<properties> should have two children", 2, DomUtil.getChildren(props).size());
     }
@@ -90,7 +90,7 @@ extends AbstractTransformerTest
     @Test
     public void testSameGroupDifferentVersion() throws Exception
     {
-        loadAndApply("VersionProps4.xml", new VersionProps());
+        new VersionProps(loadPom("VersionProps4.xml")).transform();
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended
@@ -108,7 +108,7 @@ extends AbstractTransformerTest
     public void testAlwaysCombineGroupAndArtifact() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--addArtifactIdToProp=com.example");
-        loadAndApply("VersionProps4.xml", new VersionProps(args));
+        new VersionProps(loadPom("VersionProps4.xml"), args).transform();
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended
@@ -123,9 +123,9 @@ extends AbstractTransformerTest
     @Test
     public void testSameGroupSameVersion() throws Exception
     {
-        loadAndApply("VersionProps5.xml", new VersionProps());
+        new VersionProps(loadPom("VersionProps5.xml")).transform();
 
-        assertEquals("should only be one property added", 1, newXPath("/mvn:project/mvn:properties/*").evaluate(dom).size());
+        assertEquals("should only be one property added", 1, newXPath("/mvn:project/mvn:properties/*").evaluate(dom()).size());
 
         assertProperty("org.springframework.version",                       "3.1.2.RELEASE");
 
@@ -139,9 +139,9 @@ extends AbstractTransformerTest
     public void testReplaceExistingProperties() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--replaceExistingProps");
-        loadAndApply("VersionProps6.xml", new VersionProps(args));
+        new VersionProps(loadPom("VersionProps6.xml"), args).transform();
 
-        assertEquals("post-transform property count", 3, newXPath("/mvn:project/mvn:properties/*").evaluate(dom).size());
+        assertEquals("post-transform property count", 3, newXPath("/mvn:project/mvn:properties/*").evaluate(dom()).size());
 
         assertProperty("com.example.version",               "1.2.3");
         assertProperty("com.other.version",                 "4.5.6");

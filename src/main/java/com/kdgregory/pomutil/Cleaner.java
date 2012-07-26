@@ -35,6 +35,7 @@ import net.sf.practicalxml.ParseUtil;
 import com.kdgregory.pomutil.transformers.DependencySort;
 import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
@@ -51,15 +52,15 @@ public class Cleaner
         try
         {
             InvocationArgs args = new InvocationArgs(argv);
-            Document dom = readDocument(args);
+            PomWrapper pom = new PomWrapper(readDocument(args));
 
             if (! args.hasOption(Options.NO_DEPENDENCY_SORT))
-                dom = new DependencySort(args).transform(dom);
+                new DependencySort(pom, args).transform();
 
             if (! args.hasOption(Options.NO_VERSION_PROPS))
-                dom = new VersionProps(args).transform(dom);
+                new VersionProps(pom, args).transform();
 
-            writeOutput(dom, args);
+            writeOutput(pom, args);
             System.exit(0);
         }
         catch (Throwable ex)
@@ -97,17 +98,17 @@ public class Cleaner
     /**
      *  Output generation code.
      */
-    private static void writeOutput(Document dom, InvocationArgs args)
+    private static void writeOutput(PomWrapper pom, InvocationArgs args)
     throws Exception
     {
+        Document dom = pom.getDom();
+        
         String filename = args.shift();
-
-        // note: must use writer due to JDK Bug 6337981
         Writer out = (filename != null)
                    ? new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")
                    : new OutputStreamWriter(System.out, "UTF-8");
         out = new BufferedWriter(out);
-
+        
         try
         {
             if (args.hasOption(Options.NO_PRETTY_PRINT))

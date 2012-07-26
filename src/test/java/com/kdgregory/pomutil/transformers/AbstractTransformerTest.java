@@ -28,7 +28,7 @@ import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 
-import com.kdgregory.pomutil.transformers.AbstractTransformer;
+import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
@@ -42,7 +42,7 @@ public abstract class AbstractTransformerTest
     private XPathWrapperFactory xpFact = new XPathWrapperFactory()
                                          .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
 
-    protected Document dom;
+    protected PomWrapper pom;
 
 
 //----------------------------------------------------------------------------
@@ -50,20 +50,25 @@ public abstract class AbstractTransformerTest
 //----------------------------------------------------------------------------
 
     /**
-     *  Loads the specified POM from the resource path, and applies one or more
-     *  transformations to it. The result is stored in the <code>dom</code>
-     *  member variable.
+     *  Loads the specified POM from the resource path, stashing the wrapper
+     *  for future use.
      */
-    protected void loadAndApply(String pomName, AbstractTransformer... transforms)
+    protected PomWrapper loadPom(String pomName)
     throws Exception
     {
         InputStream in = getClass().getClassLoader().getResourceAsStream(pomName);
-        dom = ParseUtil.parse(new InputSource(in));
+        Document initialDom = ParseUtil.parse(new InputSource(in));
+        pom = new PomWrapper(initialDom);
+        return pom;
+    }
 
-        for (AbstractTransformer transform : transforms)
-        {
-            dom = transform.transform(dom);
-        }
+
+    /**
+     *  Returns the current DOM from the PomWrapper
+     */
+    public Document dom()
+    {
+        return pom.getDom();
     }
 
 
@@ -78,7 +83,7 @@ public abstract class AbstractTransformerTest
     protected void assertProperty(String propName, String expected)
     {
         String value = xpFact.newXPath("/mvn:project/mvn:properties/mvn:" + propName)
-                       .evaluateAsString(dom);
+                       .evaluateAsString(dom());
         assertEquals("property " + propName, expected, value);
     }
 
@@ -94,7 +99,7 @@ public abstract class AbstractTransformerTest
         String xpath = "//mvn:groupId[text()='" + groupId + "']/"
                      + "../mvn:artifactId[text()='" + artifactId + "']/"
                      + "../mvn:version";
-        String actual = xpFact.newXPath(xpath).evaluateAsString(dom);
+        String actual = xpFact.newXPath(xpath).evaluateAsString(dom());
         assertEquals("version for " + groupId + ":" + artifactId, expected, actual);
     }
 
@@ -109,7 +114,7 @@ public abstract class AbstractTransformerTest
         String xpath = "//mvn:groupId[text()='" + groupId + "']/"
                      + "../mvn:artifactId[text()='" + artifactId + "']/"
                      + "../mvn:version[text()='" + version + "']";
-        Element elem = xpFact.newXPath(xpath).evaluateAsElement(dom);
+        Element elem = xpFact.newXPath(xpath).evaluateAsElement(dom());
         assertNull("should not find dependency with GAV " + groupId + ":" + artifactId + ":" + version, elem);
     }
 

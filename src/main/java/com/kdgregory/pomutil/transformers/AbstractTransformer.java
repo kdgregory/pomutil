@@ -14,61 +14,30 @@
 
 package com.kdgregory.pomutil.transformers;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import net.sf.practicalxml.xpath.XPathWrapper;
-import net.sf.practicalxml.xpath.XPathWrapperFactory;
-import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
+import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
- *  Base class for operations that transform a single POM.
+ *  Base class for transformers; exists to (1) provide a place to stash invocation
+ *  arguments and helper methods, and (2) enforce the <code>Transformer</code>
+ *  interface.
+ *  <p>
+ *  Transformers perform some operation on a single POM: it is constructed around
+ *  the POM, and some time later its {@link #transform} method is called.
  */
 public abstract class AbstractTransformer
 {
-    private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
-                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
+    protected PomWrapper pom;
+    protected InvocationArgs args;
 
-
-//----------------------------------------------------------------------------
-//  Services for subclasses
-//----------------------------------------------------------------------------
-
-    /**
-     *  Returns an XPath that with the Maven namespace bound to the prefix
-     *  "mvn". XPath objects maybe stored in a single-threaded cache.
-     */
-    public XPathWrapper newXPath(String xpath)
+    public AbstractTransformer(PomWrapper pom, InvocationArgs args)
     {
-        return xpFact.newXPath(xpath);
+        this.pom = pom;
+        this.args = args;
     }
 
 
-    /**
-     *  Removes all children from the passed element.
-     *
-     *  FIXME - this belongs in PracticalXml
-     */
-    protected void removeAllChildren(Node node)
-    {
-        Node child = node.getFirstChild();
-        while (child != null)
-        {
-            Node nextChild = child.getNextSibling();
-            node.removeChild(child);
-            child = nextChild;
-        }
-    }
+    public abstract void transform();
 
-
-//----------------------------------------------------------------------------
-//  Subclasses must implement this method
-//----------------------------------------------------------------------------
-
-    /**
-     *  Transforms the source POM, returning the result (which may be the same
-     *  Document instance of a different one).
-     */
-    public abstract Document transform(Document pom);
 }

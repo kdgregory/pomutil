@@ -17,10 +17,11 @@ package com.kdgregory.pomutil.transformers;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.kdgregory.pomutil.util.GAV;
 import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
@@ -32,18 +33,18 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public DependencySort(InvocationArgs args)
+    public DependencySort(PomWrapper pom, InvocationArgs args)
     {
-        // nothing here yet
+        super(pom,args);
     }
 
 
     /**
-     *  Convenience constructor, for testing without options.
+     *  Convenience constructor, for no-options testing.
      */
-    public DependencySort()
+    public DependencySort(PomWrapper pom)
     {
-        this(new InvocationArgs());
+        this(pom, new InvocationArgs());
     }
 
 
@@ -52,11 +53,10 @@ extends AbstractTransformer
 //----------------------------------------------------------------------------
 
     @Override
-    public Document transform(Document dom)
+    public void transform()
     {
-        processGroup(dom, "/mvn:project/mvn:dependencies");
-        processGroup(dom, "/mvn:project/mvn:dependencyManagement/mvn:dependencies");
-        return dom;
+        processGroup("/mvn:project/mvn:dependencies");
+        processGroup("/mvn:project/mvn:dependencyManagement/mvn:dependencies");
     }
 
 
@@ -64,26 +64,24 @@ extends AbstractTransformer
 //  Internals
 //----------------------------------------------------------------------------
 
-    private void processGroup(Document dom, String parentPath)
+    private void processGroup(String parentPath)
     {
-        TreeMap<String,Element> dependencies = new TreeMap<String,Element>();
+        TreeMap<GAV,Element> dependencies = new TreeMap<GAV,Element>();
 
         // note: any exact dupes will disappear in this step
         String selectionPath = parentPath + "/mvn:dependency";
-        for (Element dependency : newXPath(selectionPath).evaluate(dom, Element.class))
+        for (Element dependency : pom.selectElements(selectionPath))
         {
-            String groupId = newXPath("mvn:groupId").evaluateAsString(dependency);
-            String artifactId = newXPath("mvn:artifactId").evaluateAsString(dependency);
-            String version = newXPath("mvn:version").evaluateAsString(dependency);
-            dependencies.put(groupId + ":" + artifactId + ":" + version, dependency);
+            GAV gav = pom.extractGAV(dependency);
+            dependencies.put(gav, dependency);
         }
 
         if (dependencies.size() == 0)
             return;
 
-        Element container = newXPath(parentPath).evaluateAsElement(dom);
-        removeAllChildren(container);
-        for (Map.Entry<String,Element> dependency : dependencies.entrySet())
+        Element container = pom.selectElement(parentPath);
+        pom.clear(container);
+        for (Map.Entry<GAV,Element> dependency : dependencies.entrySet())
         {
             container.appendChild(dependency.getValue());
         }

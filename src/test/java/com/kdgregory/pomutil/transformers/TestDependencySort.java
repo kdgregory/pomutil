@@ -31,15 +31,15 @@ extends AbstractTransformerTest
     @Test
     public void testBasicOperation() throws Exception
     {
-        loadAndApply("DependencySort1.xml", new DependencySort());
+        new DependencySort(loadPom("DependencySort1.xml")).transform();
 
-        List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom, Element.class);
+        List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 3, dependencies.size());
         assertDependencySpec("dependencies(0)", dependencies.get(0), "commons-io",      "commons-io",      "2.4");
         assertDependencySpec("dependencies(1)", dependencies.get(1), "commons-logging", "commons-logging", "1.1");
         assertDependencySpec("dependencies(2)", dependencies.get(2), "junit",           "junit",           "4.10");
 
-        List<Element> dependencyMgmt = newXPath("/mvn:project/mvn:dependencyManagement/mvn:dependencies/*").evaluate(dom, Element.class);
+        List<Element> dependencyMgmt = newXPath("/mvn:project/mvn:dependencyManagement/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencyManagement>", 4, dependencyMgmt.size());
         assertDependencySpec("dependencyMgmt(0)", dependencyMgmt.get(0), "org.springframework", "spring-context", "3.1.2.RELEASE");
         assertDependencySpec("dependencyMgmt(1)", dependencyMgmt.get(1), "org.springframework", "spring-core",    "3.1.2.RELEASE");

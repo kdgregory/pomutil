@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.apache.log4j.Logger;
@@ -29,7 +28,9 @@ import org.apache.log4j.Logger;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.Options;
+import com.kdgregory.pomutil.util.GAV;
 import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
@@ -54,19 +55,20 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public VersionProps(InvocationArgs args)
+    public VersionProps(PomWrapper pom, InvocationArgs options)
     {
-        groupsToAppendArtifactId = args.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
-        replaceExisting = args.hasOption(Options.VP_REPLACE_EXISTING);
+        super(pom, options);
+        groupsToAppendArtifactId = options.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
+        replaceExisting = options.hasOption(Options.VP_REPLACE_EXISTING);
     }
 
 
     /**
-     *  Convenience constructor for argument-free invocation, used for testing.
+     *  Convenience constructor with no arguments (primarily used for testing).
      */
-    public VersionProps()
+    public VersionProps(PomWrapper pom)
     {
-        this(new InvocationArgs());
+        this(pom, new InvocationArgs());
     }
 
 
@@ -75,20 +77,19 @@ extends AbstractTransformer
 //----------------------------------------------------------------------------
 
     @Override
-    public Document transform(Document dom)
+    public void transform()
     {
-        List<Element> dependencies = selectDependencies(dom);
-        Map<String,String> allProps = selectProperties(dom);
+        List<Element> dependencies = selectDependencies();
+        Map<String,String> allProps = selectProperties();
 
         if (replaceExisting)
         {
             Set<String> oldProps = replaceExistingDependencyProps(dependencies, allProps);
-            removeReplacedProperties(dom, oldProps);
+            removeReplacedProperties(oldProps);
         }
 
         Set<String> newProps = updateDependencies(dependencies, allProps);
-        addNewProperties(dom, allProps, newProps);
-        return dom;
+        addNewProperties(allProps, newProps);
     }
 
 
@@ -96,21 +97,21 @@ extends AbstractTransformer
 //  Implementation
 //----------------------------------------------------------------------------
 
-    private List<Element> selectDependencies(Document dom)
+    private List<Element> selectDependencies()
     {
         List<Element> ret = new ArrayList<Element>();
         for (String xpath : DEPENDENCY_LOCATIONS)
         {
-            ret.addAll(newXPath(xpath).evaluate(dom, Element.class));
+            ret.addAll(pom.selectElements(xpath));
         }
         return ret;
     }
 
 
-    private Map<String,String> selectProperties(Document dom)
+    private Map<String,String> selectProperties()
     {
         Map<String,String> result = new TreeMap<String,String>();   // TreeMap is easier to debug
-        for (Element prop : newXPath("/mvn:project/mvn:properties/*").evaluate(dom, Element.class))
+        for (Element prop : pom.selectElements("/mvn:project/mvn:properties/*"))
         {
             result.put(DomUtil.getLocalName(prop), DomUtil.getText(prop));
         }
@@ -124,7 +125,7 @@ extends AbstractTransformer
 
         for (Element dependency : dependencies)
         {
-            String version = newXPath("mvn:version").evaluateAsString(dependency);
+            String version = pom.selectValue(dependency, "mvn:version");
             if (! version.startsWith("${"))
                 continue;
 
@@ -141,12 +142,12 @@ extends AbstractTransformer
     }
 
 
-    private void removeReplacedProperties(Document dom, Set<String> propNames)
+    private void removeReplacedProperties(Set<String> propNames)
     {
-        Element containerElem = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
+        Element containerElem = pom.selectElement("/mvn:project/mvn:properties");
         for (String propName : propNames)
         {
-            Element propElem = newXPath("mvn:" + propName).evaluateAsElement(containerElem);
+            Element propElem = pom.selectElement(containerElem, "mvn:" + propName);
             containerElem.removeChild(propElem);
         }
     }
@@ -157,14 +158,11 @@ extends AbstractTransformer
         Set<String> newProps = new TreeSet<String>();
         for (Element dependency : dependencies)
         {
-            String groupId = newXPath("mvn:groupId").evaluateAsString(dependency);
-            String artifactId = newXPath("mvn:artifactId").evaluateAsString(dependency);
-            String version = newXPath("mvn:version").evaluateAsString(dependency);
-
-            if (version.startsWith("${"))
+            GAV gav = pom.extractGAV(dependency);
+            if (gav.version.startsWith("${"))
                 continue;
 
-            String propName = generatePropertyName(props, groupId, artifactId, version);
+            String propName = generatePropertyName(props, gav);
             updateDependency(dependency, "${" + propName + "}");
             newProps.add(propName);
         }
@@ -172,43 +170,38 @@ extends AbstractTransformer
     }
 
 
-    private String generatePropertyName(Map<String,String> props, String groupId, String artifactId, String version)
+    private String generatePropertyName(Map<String,String> props, GAV gav)
     {
-        String propName = groupId + ".version";
-        if (props.containsKey(propName) && !version.equals(props.get(propName)))
+        String propName = gav.groupId + ".version";
+        if (props.containsKey(propName) && !gav.version.equals(props.get(propName)))
         {
             String existingVersion = props.get(propName);
-            String newPropName = groupId + "." + artifactId + ".version";
+            String newPropName = gav.groupId + "." + gav.artifactId + ".version";
             logger.warn("property \"" + propName + "\" already exists with version " + existingVersion
-                        + "; creating \"" + newPropName + "\" for version " + version);
+                        + "; creating \"" + newPropName + "\" for version " + gav.version);
             propName = newPropName;
         }
 
-        if (groupsToAppendArtifactId.contains(groupId))
+        if (groupsToAppendArtifactId.contains(gav.groupId))
         {
-            propName = groupId + "." + artifactId + ".version";
+            propName = gav.groupId + "." + gav.artifactId + ".version";
         }
 
-        props.put(propName, version);
+        props.put(propName, gav.version);
         return propName;
     }
 
 
     private void updateDependency(Element dependency, String version)
     {
-        Element versionElem = newXPath("mvn:version").evaluateAsElement(dependency);
+        Element versionElem = pom.selectElement(dependency, "mvn:version");
         DomUtil.setText(versionElem, version);
     }
 
 
-    private void addNewProperties(Document dom, Map<String,String> props, Set<String> newProps)
+    private void addNewProperties(Map<String,String> props, Set<String> newProps)
     {
-        Element propElem = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom);
-        if (propElem == null)
-        {
-            propElem = DomUtil.appendChildInheritNamespace(dom.getDocumentElement(), "properties");
-        }
-
+        Element propElem = pom.selectOrCreateElement("/mvn:project/mvn:properties");
         for (String propName : newProps)
         {
             Element prop = DomUtil.appendChildInheritNamespace(propElem, propName);

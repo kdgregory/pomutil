@@ -14,27 +14,18 @@
 
 package com.kdgregory.pomutil;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
 
-import net.sf.kdgcommons.io.IOUtil;
-import net.sf.practicalxml.DomUtil;
-import net.sf.practicalxml.OutputUtil;
 import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.transformers.DependencySort;
 import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.util.OutputHandler;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -46,7 +37,6 @@ import com.kdgregory.pomutil.util.PomWrapper;
  */
 public class Cleaner
 {
-
     public static void main(String[] argv)
     {
         try
@@ -60,7 +50,7 @@ public class Cleaner
             if (! args.hasOption(Options.NO_VERSION_PROPS))
                 new VersionProps(pom, args).transform();
 
-            writeOutput(pom, args);
+            new OutputHandler().writeOutput(pom.getDom(), args);
             System.exit(0);
         }
         catch (Throwable ex)
@@ -91,42 +81,6 @@ public class Cleaner
         else
         {
             return ParseUtil.parse(new InputSource(System.in));
-        }
-    }
-
-
-    /**
-     *  Output generation code.
-     */
-    private static void writeOutput(PomWrapper pom, InvocationArgs args)
-    throws Exception
-    {
-        Document dom = pom.getDom();
-        
-        String filename = args.shift();
-        Writer out = (filename != null)
-                   ? new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")
-                   : new OutputStreamWriter(System.out, "UTF-8");
-        out = new BufferedWriter(out);
-        
-        try
-        {
-            if (args.hasOption(Options.NO_PRETTY_PRINT))
-            {
-                OutputUtil.compact(new DOMSource(dom), new StreamResult(out));
-            }
-            else
-            {
-                DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
-
-                Integer indent0 = args.getNumericOptionValue(Options.PRETTY_PRINT);
-                int indent = (indent0 != null) ? indent0.intValue() : 4;
-                OutputUtil.indented(new DOMSource(dom), new StreamResult(out), indent);
-            }
-        }
-        finally
-        {
-            IOUtil.closeQuietly(out);
         }
     }
 }

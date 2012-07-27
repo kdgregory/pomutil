@@ -15,6 +15,8 @@
 package com.kdgregory.pomutil.util;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -154,8 +156,8 @@ public class PomWrapper
 
         return DomUtil.appendChildInheritNamespace(parent, childName);
     }
-    
-    
+
+
     /**
      *  Returns the group/artifact/version tuple from the passed element (which
      *  may be any type of dependency reference).
@@ -196,7 +198,53 @@ public class PomWrapper
     }
 
 
-//----------------------------------------------------------------------------
-//  Internals
-//----------------------------------------------------------------------------
+    /**
+     *  Returns all properties currently in the POM.
+     */
+    public Map<String,String> getProperties()
+    {
+        Map<String,String> properties = new TreeMap<String,String>();
+        for (Element propElem : selectElements("/mvn:project/mvn:properties/*"))
+        {
+            properties.put(DomUtil.getLocalName(propElem), DomUtil.getText(propElem));
+        }
+        return properties;
+    }
+
+
+    /**
+     *  Returns the value of the named property, an empty string if it does not
+     *  exist.
+     */
+    public String getProperty(String name)
+    {
+        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
+        return selectValue(xpath);
+    }
+
+
+    /**
+     *  Sets the value of the named property, appending a <code>&lt;properties&gt;</code>
+     *  section to the POM if one does not already exist.
+     */
+    public void setProperty(String name, String value)
+    {
+        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
+        Element elem = selectOrCreateElement(xpath);
+        DomUtil.setText(elem, value);
+    }
+
+
+    /**
+     *  Removes the named property if it exists; no-op if it doesn't.
+     */
+    public void deleteProperty(String name)
+    {
+        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
+        Element elem = selectElement(xpath);
+        if (elem == null)
+            return;
+
+        elem.getParentNode().removeChild(elem);
+    }
 }

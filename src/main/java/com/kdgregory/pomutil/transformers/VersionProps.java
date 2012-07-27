@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.w3c.dom.Element;
@@ -80,7 +79,7 @@ extends AbstractTransformer
     public void transform()
     {
         List<Element> dependencies = selectDependencies();
-        Map<String,String> allProps = selectProperties();
+        Map<String,String> allProps = pom.getProperties();
 
         if (replaceExisting)
         {
@@ -105,17 +104,6 @@ extends AbstractTransformer
             ret.addAll(pom.selectElements(xpath));
         }
         return ret;
-    }
-
-
-    private Map<String,String> selectProperties()
-    {
-        Map<String,String> result = new TreeMap<String,String>();   // TreeMap is easier to debug
-        for (Element prop : pom.selectElements("/mvn:project/mvn:properties/*"))
-        {
-            result.put(DomUtil.getLocalName(prop), DomUtil.getText(prop));
-        }
-        return result;
     }
 
 
@@ -144,11 +132,9 @@ extends AbstractTransformer
 
     private void removeReplacedProperties(Set<String> propNames)
     {
-        Element containerElem = pom.selectElement("/mvn:project/mvn:properties");
         for (String propName : propNames)
         {
-            Element propElem = pom.selectElement(containerElem, "mvn:" + propName);
-            containerElem.removeChild(propElem);
+            pom.deleteProperty(propName);
         }
     }
 
@@ -201,11 +187,9 @@ extends AbstractTransformer
 
     private void addNewProperties(Map<String,String> props, Set<String> newProps)
     {
-        Element propElem = pom.selectOrCreateElement("/mvn:project/mvn:properties");
         for (String propName : newProps)
         {
-            Element prop = DomUtil.appendChildInheritNamespace(propElem, propName);
-            DomUtil.setText(prop, props.get(propName));
+            pom.setProperty(propName, props.get(propName));
         }
     }
 }

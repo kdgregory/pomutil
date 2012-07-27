@@ -16,6 +16,7 @@ package com.kdgregory.pomutil.util;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,10 +29,15 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
+import net.sf.practicalxml.xpath.XPathWrapperFactory;
 
 
 public class TestPomWrapper
 {
+
+    private XPathWrapperFactory xpFact = new XPathWrapperFactory()
+                                         .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
+
 //----------------------------------------------------------------------------
 //  Support Code
 //----------------------------------------------------------------------------
@@ -121,21 +127,21 @@ public class TestPomWrapper
         Element check = wrapper.selectElement(path);
         assertSame("element was selectable via path", newElem, check);
     }
-    
-    
+
+
     @Test
-    public void testExtractGAV() throws Exception 
+    public void testExtractGAV() throws Exception
     {
         PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
-        
+
         Element elem = wrapper.selectElement("/mvn:project/mvn:dependencies/mvn:dependency[1]");
         GAV gav = wrapper.extractGAV(elem);
-        
+
         assertEquals("groupId",     "junit",    gav.groupId);
         assertEquals("artifactId",  "junit",    gav.artifactId);
         assertEquals("version",     "4.10",     gav.version);
     }
-    
+
 
     @Test
     public void testClear() throws Exception
@@ -145,6 +151,58 @@ public class TestPomWrapper
         Element propElem = wrapper.clear("/mvn:project/mvn:properties");
         assertEquals("element name", "properties", DomUtil.getLocalName(propElem));
         assertEquals("number of children", 0, propElem.getChildNodes().getLength());
+    }
+
+
+    @Test
+    public void testGetAndSetProperties() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+
+        Map<String,String> allProps1 = wrapper.getProperties();
+        assertEquals("property count, initial", 2, allProps1.size());
+        assertEquals("known property, initial", "UTF-8", allProps1.get("project.build.sourceEncoding"));
+
+        assertEquals("getProperty(), initial", "UTF-8", wrapper.getProperty("project.build.sourceEncoding"));
+        assertEquals("getProperty(), missing", "", wrapper.getProperty("foo"));
+
+        wrapper.setProperty("project.build.sourceEncoding", "US-ASCII");
+        assertEquals("getProperty(), adter set", "US-ASCII", wrapper.getProperty("project.build.sourceEncoding"));
+
+        Map<String,String> allProps2 = wrapper.getProperties();
+        assertEquals("property count, after set", 2, allProps2.size());
+        assertEquals("known property, after set", "US-ASCII", allProps2.get("project.build.sourceEncoding"));
+
+        assertEquals("cross-check, after set", "US-ASCII",
+                     xpFact.newXPath("//mvn:project.build.sourceEncoding").evaluateAsString(wrapper.getDom()));
+
+        wrapper.deleteProperty("project.build.sourceEncoding");
+        assertEquals("getProperty(), after delete", "", wrapper.getProperty("project.build.sourceEncoding"));
+
+        Map<String,String> allProps3 = wrapper.getProperties();
+        assertEquals("property count, after delete", 1, allProps3.size());
+        assertEquals("known property, after delete", null, allProps3.get("project.build.sourceEncoding"));
+    }
+
+
+    @Test
+    public void testSetPropertiesAddsIfNecessary() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper2.xml"));
+
+        // this first check simply verifies that we don't blow up if there's no properties section
+        Map<String,String> allProps1 = wrapper.getProperties();
+        assertEquals("property count, initial", 0, allProps1.size());
+        assertEquals("getProperty(), initial", "", wrapper.getProperty("foo"));
+
+        wrapper.setProperty("foo", "bar");
+
+        Map<String,String> allProps2 = wrapper.getProperties();
+        assertEquals("property count, after set", 1, allProps2.size());
+        assertEquals("allProps retrieve, after set", "bar", allProps2.get("foo"));
+        assertEquals("getProperty(), after set", "bar", wrapper.getProperty("foo"));
+
+        assertEquals("cross-check", "bar", xpFact.newXPath("//mvn:foo").evaluateAsString(wrapper.getDom()));
     }
 
 }

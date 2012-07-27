@@ -21,6 +21,12 @@ package com.kdgregory.pomutil;
 public class Options
 {
     /**
+     *  Disables addition of common properties.
+     */
+    public final static String  NO_COMMON_PROPS         = "--noCommonProps";
+
+
+    /**
      *  Disables sorting dependencies.
      */
     public final static String  NO_DEPENDENCY_SORT      = "--noDependencySort";

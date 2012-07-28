@@ -25,11 +25,16 @@ public class Options
      */
     public final static String  NO_COMMON_PROPS         = "--noCommonProps";
 
-
     /**
      *  Disables sorting dependencies.
      */
     public final static String  NO_DEPENDENCY_SORT      = "--noDependencySort";
+
+    /**
+     *  Modifies dependency sort to order dependencies by scope.
+     */
+    public final static String  GROUP_DEPCY_BY_SCOPE    = "--groupDependenciesByScope";
+
 
     /**
      *  Disables substitution of properties for explicit version numbers.

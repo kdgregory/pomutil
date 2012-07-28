@@ -13,12 +13,25 @@ Cleaner takes a single POM and cleans it up according to your options. This is t
 The cleaning process consists of multiple steps, shown here. Some are enabled by default, some are disabled. For each step,
 you can specify an option to do something other than the default. Some steps also take options to control their behavior.
 
+* Add common properties
+
+    Disable with: `--noCommonProps`
+
+    There are some standard properties, such as build encoding, that Maven complains about if missing. This
+    step adds them, creating a `<properties>` section if necessary.
+
+
 * Order dependencies
 
     Disable with: `--noDependencySort`
 
+    Modify with: `--groupDependenciesByScope`
+
     Sorts the `<dependency>` entries within `<dependencies>` and `<dependencyManagement>` top-level sections. Sort
     is alphabetic, by combining group ID, artifact ID, and version (although version should never come into play).
+
+    If the `--groupDependenciesByScope` option is provided, dependencies are first sorted by their `<scope>` value,
+    in the order `compile` (or blank), `test`, `runtime`, `provided`, `system`.
 
     Note that this step completely rebuilds the container elements, and will remove any blank lines or comments
     between entries.

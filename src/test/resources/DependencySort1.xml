@@ -3,13 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example.pom</groupId>
-    <artifactId>props1</artifactId>
+    <artifactId>DependencySort1</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>
-        Tests basic operation: explicit properties in dependencies and dependencyManagement
-        sections, with an existing properties section.
+        Tests sorting of dependencies, with or without scope.
     </description>
 
 

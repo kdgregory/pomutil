@@ -15,11 +15,13 @@
 
 
     <properties>
-        <!-- build configuration props, because Maven can't pick a sensible default -->
+        <!-- build configuration props, because Maven can't pick a sensible
+            default -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- all dependency versions are specified here -->
+        <commons.lang3.version>3.1</commons.lang3.version>
         <junit.version>4.10</junit.version>
         <kdgcommons.version>1.0.6</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
@@ -33,10 +35,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -52,6 +53,12 @@
             <groupId>net.sf.practicalxml</groupId>
             <artifactId>practicalxml</artifactId>
             <version>${practicalxml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

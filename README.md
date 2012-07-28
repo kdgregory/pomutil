@@ -3,8 +3,7 @@ Utilities to clean, organize, and restructure Maven POMs.
 These generally behave as UNIX filters, reading StdIn or a file, writing StdOut or another file, and reporting any problems to StdErr. The target JAR contains all dependencies.
 
 
-Cleaner
--------
+# Cleaner
 
 Cleaner takes a single POM and cleans it up according to your options. This is the default app (you can invoke with `java -jar target/pomutil.jar`).
 
@@ -19,7 +18,6 @@ you can specify an option to do something other than the default. Some steps als
 
     There are some standard properties, such as build encoding, that Maven complains about if missing. This
     step adds them, creating a `<properties>` section if necessary.
-
 
 * Order dependencies
 
@@ -36,8 +34,7 @@ you can specify an option to do something other than the default. Some steps als
     Note that this step completely rebuilds the container elements, and will remove any blank lines or comments
     between entries.
 
-
-* Convert dependency versions to properties
+* Convert explicit dependency versions to properties
 
     Disable with: `--noVersionProps`
 
@@ -58,7 +55,6 @@ you can specify an option to do something other than the default. Some steps als
     Existing dependency properties will be checked for collisions but otherwise ignored. To make all of your dependencies
     use the same format, use the `--replaceExistingProps` option.
 
-
 * Pretty-print output
 
     Disable with: `--noPrettyPrint`
@@ -68,3 +64,40 @@ you can specify an option to do something other than the default. Some steps als
 
     By default, the indentation is 4 spaces per level. You can change this with the option `--prettyPrint=NUM`, where
     `NUM` is the number of spaces you want.
+
+----
+
+# Roadmap
+
+Features still to be implemented:
+
+**Cleaner**
+
+*   Organize `<dependency>` specifications: order child elements and remove unnecessary "compile" scope specifications
+*   Remove duplicate dependencies (this already happens during sorting)
+*   Version-property replacement for plugins. The algorithm for constructing property names is based on artifactID, not
+    groupId, because most plugins have the same group.
+*   Add explicit version numbers to plugins (disabled by default). This will be based on a configuration file that's
+    irregularly updated from on [Maven documentation](http://maven.apache.org/plugins/index.html), and may be modified
+    by the user.
+*   Organize POM sections according to the [Maven documentation](http://maven.apache.org/ref/3.0.4/maven-model/maven.html).
+*   Insert lines between sections in pretty-printed output. This will require abandoning the JAXP pretty-printer, as it
+    gets confused when there's already inter-element whitespace.
+
+**ExtractParent**
+
+Utility to take a series of POMs, apply the *Cleaner* rules to them, and then generate a parent POM from them.
+
+*   Move all version properties into the parent, keeping the highest version number (option: warning where different
+    children have different versions).
+*   Move all non-execution plugin definitions into the parent. This will probably use a configuration file of some
+    sort, as it's unclear to me whether there's any automated way to resolve discrepancies. Might need some sort of
+    hardcoded logic to warn when one POM's configuration differs from the parent.
+*   Add a `<dependencyManagement>` section, containing all dependencies in all children.
+
+**DependencyCheck**
+
+Examines the bytecode of project classes to determine which third-party classes are invoked, then examines the
+project dependencies to find those classes. Reports both on dependencies that aren't used, and those that are
+missing (far too often I've used a class that's available through a transitive dependency, then wondered why
+my build failed when I removed the direct dependency).

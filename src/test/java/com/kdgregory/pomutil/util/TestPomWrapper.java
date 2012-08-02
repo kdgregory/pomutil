@@ -14,14 +14,10 @@
 
 package com.kdgregory.pomutil.util;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.xml.sax.InputSource;
 
 import org.junit.Test;
 
@@ -42,15 +38,6 @@ public class TestPomWrapper
 //  Support Code
 //----------------------------------------------------------------------------
 
-    /**
-     *  Loads the named POM as a classpath resource.
-     */
-    private static Document loadPom(String path)
-    {
-        InputStream in = TestPomWrapper.class.getClassLoader().getResourceAsStream(path);
-        return ParseUtil.parse(new InputSource(in));
-    }
-
 
 //----------------------------------------------------------------------------
 //  Testcases
@@ -59,7 +46,7 @@ public class TestPomWrapper
     @Test
     public void testSelectAgainstPom() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         assertEquals("selectValue()",
                      "A simple POM with a few sections",
@@ -78,7 +65,7 @@ public class TestPomWrapper
     @Test
     public void testSelectAgainstNode() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         Element root = wrapper.getDom().getDocumentElement();
 
@@ -96,7 +83,7 @@ public class TestPomWrapper
     @Test
     public void testSelectOrCreate() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         String path = "/mvn:project/mvn:name";
         assertNull("element doesn't exist at start", wrapper.selectElement(path));
@@ -114,7 +101,7 @@ public class TestPomWrapper
     @Test
     public void testSelectOrCreateRecursive() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         String path = "/mvn:project/mvn:argle/mvn:bargle";
         assertNull("element doesn't exist at start", wrapper.selectElement(path));
@@ -132,7 +119,7 @@ public class TestPomWrapper
     @Test
     public void testExtractGAV() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         Element elem = wrapper.selectElement("/mvn:project/mvn:dependencies/mvn:dependency[1]");
         GAV gav = wrapper.extractGAV(elem);
@@ -146,7 +133,7 @@ public class TestPomWrapper
     @Test
     public void testClear() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         Element propElem = wrapper.clear("/mvn:project/mvn:properties");
         assertEquals("element name", "properties", DomUtil.getLocalName(propElem));
@@ -157,7 +144,7 @@ public class TestPomWrapper
     @Test
     public void testGetAndSetProperties() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper1.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
 
         Map<String,String> allProps1 = wrapper.getProperties();
         assertEquals("property count, initial", 2, allProps1.size());
@@ -188,7 +175,7 @@ public class TestPomWrapper
     @Test
     public void testSetPropertiesAddsIfNecessary() throws Exception
     {
-        PomWrapper wrapper = new PomWrapper(loadPom("PomWrapper2.xml"));
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper2.xml"));
 
         // this first check simply verifies that we don't blow up if there's no properties section
         Map<String,String> allProps1 = wrapper.getProperties();

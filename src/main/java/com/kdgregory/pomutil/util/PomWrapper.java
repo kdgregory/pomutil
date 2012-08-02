@@ -172,28 +172,13 @@ public class PomWrapper
 
     /**
      *  Selects the element identified by the given XPath, and removes all of its
-     *  children. Will throw if the path does not select an element.
+     *  children. Acts as a no-op if the path does not select an element.
      */
     public Element clear(String xpath)
     {
-        return clear(selectElement(xpath));
-    }
-
-
-    /**
-     *  Removes all children from the passed element. Note that you can hold another
-     *  reference to the child and re-attach it to the same or different element.
-     */
-    public Element clear(Element elem)
-    {
-        Node child = elem.getFirstChild();
-        while (child != null)
-        {
-            Node nextChild = child.getNextSibling();
-            elem.removeChild(child);
-            child = nextChild;
-        }
-
+        Element elem = selectElement(xpath);
+        if (elem != null)
+            DomUtil.removeAllChildren(elem);
         return elem;
     }
 

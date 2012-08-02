@@ -14,12 +14,8 @@
 
 package com.kdgregory.pomutil.transformers;
 
-import java.io.InputStream;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.xml.sax.InputSource;
 
 import static org.junit.Assert.*;
 
@@ -56,8 +52,7 @@ public abstract class AbstractTransformerTest
     protected PomWrapper loadPom(String pomName)
     throws Exception
     {
-        InputStream in = getClass().getClassLoader().getResourceAsStream(pomName);
-        Document initialDom = ParseUtil.parse(new InputSource(in));
+        Document initialDom = ParseUtil.parseFromClasspath(pomName);
         pom = new PomWrapper(initialDom);
         return pom;
     }

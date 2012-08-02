@@ -24,6 +24,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.sf.kdgcommons.collections.MapBuilder;
+import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.Options;
 import com.kdgregory.pomutil.util.GAV;
@@ -105,7 +106,7 @@ extends AbstractTransformer
             return;
 
         Element container = pom.selectElement(parentPath);
-        pom.clear(container);
+        DomUtil.removeAllChildren(container);
         for (Map.Entry<GAV,Element> dependency : dependencies.entrySet())
         {
             container.appendChild(dependency.getValue());

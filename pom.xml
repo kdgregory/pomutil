@@ -25,7 +25,7 @@
         <junit.version>4.10</junit.version>
         <kdgcommons.version>1.0.6</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
-        <practicalxml.version>1.1.12</practicalxml.version>
+        <practicalxml.version>1.1.13</practicalxml.version>
 
         <!-- versions for the build tools themselve are here -->
         <plugin.compiler.version>2.3.2</plugin.compiler.version>

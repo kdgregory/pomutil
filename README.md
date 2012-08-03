@@ -19,6 +19,15 @@ you can specify an option to do something other than the default. Some steps als
     There are some standard properties, such as build encoding, that Maven complains about if missing. This
     step adds them, creating a `<properties>` section if necessary.
 
+* Normalize `dependency` specifications
+
+    Disable with: `--noDependencyNormalize`
+
+    Ensures that the children of the `dependency` element follow the order given in the
+    [Maven docs](http://maven.apache.org/ref/3.0.4/maven-model/maven.html#class_dependency) (most important being that
+    `groupId`, `artifactId`, and `version` come first and in that order), and removes any `<scope>compile</scope>`
+    or `<type>jar</type>` elements (because these are the defaults).
+
 * Order dependencies
 
     Disable with: `--noDependencySort`
@@ -73,7 +82,6 @@ Features still to be implemented:
 
 **Cleaner**
 
-*   Organize `<dependency>` specifications: order child elements and remove unnecessary "compile" scope specifications
 *   Remove duplicate dependencies (this already happens during sorting)
 *   Version-property replacement for plugins. The algorithm for constructing property names is based on artifactID, not
     groupId, because most plugins have the same group.

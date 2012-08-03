@@ -23,6 +23,7 @@ import org.xml.sax.InputSource;
 import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.transformers.CommonProps;
+import com.kdgregory.pomutil.transformers.DependencyNormalize;
 import com.kdgregory.pomutil.transformers.DependencySort;
 import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
@@ -47,6 +48,9 @@ public class Cleaner
 
             if (! args.hasOption(Options.NO_COMMON_PROPS))
                 new CommonProps(pom, args).transform();
+
+            if (! args.hasOption(Options.NO_DEPENDENCY_NORMALIZE))
+                new DependencyNormalize(pom, args).transform();
 
             if (! args.hasOption(Options.NO_DEPENDENCY_SORT))
                 new DependencySort(pom, args).transform();

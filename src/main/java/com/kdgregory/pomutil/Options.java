@@ -26,6 +26,11 @@ public class Options
     public final static String  NO_COMMON_PROPS         = "--noCommonProps";
 
     /**
+     *  Disables dependency normalization.
+     */
+    public final static String  NO_DEPENDENCY_NORMALIZE = "--noDependencyNormalize";
+
+    /**
      *  Disables sorting dependencies.
      */
     public final static String  NO_DEPENDENCY_SORT      = "--noDependencySort";

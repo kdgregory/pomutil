@@ -18,7 +18,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  Normalizes <code>&lt;dependency&gt;</code> entries, ordering the child elements
  *  and removing any children that represent default values.
  */
-public class DependencyNormalize
+public class NormalizeDependencies
 extends AbstractTransformer     // FIXME - create AbstractDependencyTransformer
 {
     private static final String[] STANDARD_CHILDREN = new String[] { "groupId", "artifactId", "version",
@@ -41,7 +41,7 @@ extends AbstractTransformer     // FIXME - create AbstractDependencyTransformer
     /**
      *  Base constructor.
      */
-    public DependencyNormalize(PomWrapper pom, InvocationArgs args)
+    public NormalizeDependencies(PomWrapper pom, InvocationArgs args)
     {
         super(pom, args);
         disabled = args.hasOption(Options.NO_DEPENDENCY_NORMALIZE);
@@ -51,7 +51,7 @@ extends AbstractTransformer     // FIXME - create AbstractDependencyTransformer
     /**
      *  Convenience constructor with no arguments (primarily used for testing).
      */
-    public DependencyNormalize(PomWrapper pom)
+    public NormalizeDependencies(PomWrapper pom)
     {
         this(pom, new InvocationArgs());
     }

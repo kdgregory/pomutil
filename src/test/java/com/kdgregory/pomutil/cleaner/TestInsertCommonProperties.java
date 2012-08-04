@@ -19,17 +19,17 @@ import org.w3c.dom.Element;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.kdgregory.pomutil.cleaner.transform.CommonProps;
+import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
-public class TestCommonProps
+public class TestInsertCommonProperties
 extends AbstractTransformerTest
 {
     @Test
     public void testAddPropsIfTheyDontExist() throws Exception
     {
-        new CommonProps(loadPom("cleaner/CommonProps1.xml")).transform();
+        new InsertCommonProperties(loadPom("cleaner/CommonProps1.xml")).transform();
 
         assertEquals("number of properties", 2,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
@@ -43,7 +43,7 @@ extends AbstractTransformerTest
     @Test
     public void testLeaveExistingPropsAlone() throws Exception
     {
-        new CommonProps(loadPom("cleaner/CommonProps2.xml")).transform();
+        new InsertCommonProperties(loadPom("cleaner/CommonProps2.xml")).transform();
 
         assertEquals("number of properties", 2,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
@@ -58,7 +58,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noCommonProps");
-        new CommonProps(loadPom("cleaner/CommonProps1.xml"), args).transform();
+        new InsertCommonProperties(loadPom("cleaner/CommonProps1.xml"), args).transform();
 
         assertEquals("number of properties", 0,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());

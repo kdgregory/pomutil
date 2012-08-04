@@ -21,17 +21,17 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.transform.VersionProps;
+import com.kdgregory.pomutil.cleaner.transform.ReplaceExplicitVersionsWithProperties;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
-public class TestVersionProps
+public class TestReplaceExplicitVersionsWithProperties
 extends AbstractTransformerTest
 {
     @Test
     public void testBasicOperation() throws Exception
     {
-        new VersionProps(loadPom("cleaner/VersionProps1.xml")).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps1.xml")).transform();
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("net.sf.kdgcommons.version",         "1.0.6");
@@ -53,7 +53,7 @@ extends AbstractTransformerTest
     @Test
     public void testAdditionOfPropertiesSection() throws Exception
     {
-        new VersionProps(loadPom("cleaner/VersionProps2.xml")).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps2.xml")).transform();
 
         Element props = newXPath("/mvn:project/mvn:properties").evaluateAsElement(dom());
         assertNotNull("should find properties section", props);
@@ -70,7 +70,7 @@ extends AbstractTransformerTest
     @Test
     public void testExistingVersionPropertiesLeftAlone() throws Exception
     {
-        new VersionProps(loadPom("cleaner/VersionProps3.xml")).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps3.xml")).transform();
 
         assertProperty("junit.version",                     "4.10");
         assertProperty("kdgcommons.version",                "1.0.6");
@@ -89,7 +89,7 @@ extends AbstractTransformerTest
     @Test
     public void testSameGroupDifferentVersion() throws Exception
     {
-        new VersionProps(loadPom("cleaner/VersionProps4.xml")).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps4.xml")).transform();
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended
@@ -107,7 +107,7 @@ extends AbstractTransformerTest
     public void testAlwaysCombineGroupAndArtifact() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--addArtifactIdToProp=com.example");
-        new VersionProps(loadPom("cleaner/VersionProps4.xml"), args).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps4.xml"), args).transform();
 
         // note that the first dependency gets the regular property name, the second gets
         // the second is the one that has artifactId appended
@@ -122,7 +122,7 @@ extends AbstractTransformerTest
     @Test
     public void testSameGroupSameVersion() throws Exception
     {
-        new VersionProps(loadPom("cleaner/VersionProps5.xml")).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps5.xml")).transform();
 
         assertEquals("should only be one property added", 1, newXPath("/mvn:project/mvn:properties/*").evaluate(dom()).size());
 
@@ -138,7 +138,7 @@ extends AbstractTransformerTest
     public void testReplaceExistingProperties() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--replaceExistingProps");
-        new VersionProps(loadPom("cleaner/VersionProps6.xml"), args).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps6.xml"), args).transform();
 
         assertEquals("post-transform property count", 3, newXPath("/mvn:project/mvn:properties/*").evaluate(dom()).size());
 
@@ -158,7 +158,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noVersionProps");
-        new VersionProps(loadPom("cleaner/VersionProps1.xml"), args).transform();
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps1.xml"), args).transform();
 
         assertNull("property should not be added",
                    newXPath("/mvn:project/mvn:properties/mvn:junit.version").evaluateAsElement(dom()));

@@ -36,7 +36,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  Finds explicit dependency version numbers and converts them to properties. See
  *  README for full specification.
  */
-public class VersionProps
+public class ReplaceExplicitVersionsWithProperties
 extends AbstractTransformer
 {
     Logger logger = Logger.getLogger(getClass());
@@ -60,7 +60,7 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public VersionProps(PomWrapper pom, InvocationArgs args)
+    public ReplaceExplicitVersionsWithProperties(PomWrapper pom, InvocationArgs args)
     {
         super(pom, args);
         disabled = args.hasOption(Options.NO_VERSION_PROPS);
@@ -72,7 +72,7 @@ extends AbstractTransformer
     /**
      *  Convenience constructor with no arguments (primarily used for testing).
      */
-    public VersionProps(PomWrapper pom)
+    public ReplaceExplicitVersionsWithProperties(PomWrapper pom)
     {
         this(pom, new InvocationArgs());
     }

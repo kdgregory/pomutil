@@ -11,7 +11,7 @@
 
     <groupId>com.example.pom</groupId>
     <version>1.0-SNAPSHOT</version>
-    <artifactId>pomorg1</artifactId>
+    <artifactId>OrganizePom1</artifactId>
     <packaging>jar</packaging>
 
 

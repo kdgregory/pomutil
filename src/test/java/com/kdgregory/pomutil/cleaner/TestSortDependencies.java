@@ -22,17 +22,17 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import com.kdgregory.pomutil.cleaner.transform.DependencySort;
+import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
-public class TestDependencySort
+public class TestSortDependencies
 extends AbstractTransformerTest
 {
     @Test
     public void testBasicOperation() throws Exception
     {
-        new DependencySort(loadPom("cleaner/DependencySort1.xml")).transform();
+        new SortDependencies(loadPom("cleaner/DependencySort1.xml")).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 3, dependencies.size());
@@ -53,7 +53,7 @@ extends AbstractTransformerTest
     public void testGroupByScope() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--groupDependenciesByScope");
-        new DependencySort(loadPom("cleaner/DependencySort2.xml"), args).transform();
+        new SortDependencies(loadPom("cleaner/DependencySort2.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 6, dependencies.size());
@@ -70,7 +70,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noDependencySort");
-        new DependencySort(loadPom("cleaner/DependencySort1.xml"), args).transform();
+        new SortDependencies(loadPom("cleaner/DependencySort1.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 3, dependencies.size());

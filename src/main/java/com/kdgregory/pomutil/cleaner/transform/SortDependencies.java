@@ -36,7 +36,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  Sorts <code>&lt;dependency&gt;</code> elements based on GAV, optionally
  *  including scope.
  */
-public class DependencySort
+public class SortDependencies
 extends AbstractTransformer
 {
     private static Map<String,Integer> SCOPE_GROUPS
@@ -60,7 +60,7 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public DependencySort(PomWrapper pom, InvocationArgs args)
+    public SortDependencies(PomWrapper pom, InvocationArgs args)
     {
         super(pom,args);
         disabled = args.hasOption(Options.NO_DEPENDENCY_SORT);
@@ -71,7 +71,7 @@ extends AbstractTransformer
     /**
      *  Convenience constructor, for no-options testing.
      */
-    public DependencySort(PomWrapper pom)
+    public SortDependencies(PomWrapper pom)
     {
         this(pom, new InvocationArgs());
     }

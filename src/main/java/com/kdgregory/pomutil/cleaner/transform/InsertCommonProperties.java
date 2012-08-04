@@ -28,7 +28,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
 /**
  *  Inserts common properties: those that Maven expects to find or it complains.
  */
-public class CommonProps
+public class InsertCommonProperties
 extends AbstractTransformer
 {
     private static Map<String,String> COMMON_PROPS = new MapBuilder<String,String>(new TreeMap<String,String>())
@@ -46,7 +46,7 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public CommonProps(PomWrapper pom, InvocationArgs options)
+    public InsertCommonProperties(PomWrapper pom, InvocationArgs options)
     {
         super(pom, options);
         disabled = args.hasOption(Options.NO_COMMON_PROPS);
@@ -56,7 +56,7 @@ extends AbstractTransformer
     /**
      *  Convenience constructor with no arguments (primarily used for testing).
      */
-    public CommonProps(PomWrapper pom)
+    public InsertCommonProperties(PomWrapper pom)
     {
         this(pom, new InvocationArgs());
     }

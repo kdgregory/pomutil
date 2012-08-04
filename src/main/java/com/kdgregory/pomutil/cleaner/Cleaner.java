@@ -22,10 +22,10 @@ import org.xml.sax.InputSource;
 
 import net.sf.practicalxml.ParseUtil;
 
-import com.kdgregory.pomutil.cleaner.transform.CommonProps;
-import com.kdgregory.pomutil.cleaner.transform.DependencyNormalize;
-import com.kdgregory.pomutil.cleaner.transform.DependencySort;
-import com.kdgregory.pomutil.cleaner.transform.VersionProps;
+import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
+import com.kdgregory.pomutil.cleaner.transform.NormalizeDependencies;
+import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
+import com.kdgregory.pomutil.cleaner.transform.ReplaceExplicitVersionsWithProperties;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.OutputHandler;
 import com.kdgregory.pomutil.util.PomWrapper;
@@ -46,10 +46,10 @@ public class Cleaner
             InvocationArgs args = new InvocationArgs(argv);
             PomWrapper pom = new PomWrapper(readDocument(args));
 
-            new CommonProps(pom, args).transform();
-            new DependencyNormalize(pom, args).transform();
-            new DependencySort(pom, args).transform();
-            new VersionProps(pom, args).transform();
+            new InsertCommonProperties(pom, args).transform();
+            new NormalizeDependencies(pom, args).transform();
+            new SortDependencies(pom, args).transform();
+            new ReplaceExplicitVersionsWithProperties(pom, args).transform();
 
             new OutputHandler().writeOutput(pom.getDom(), args);
             System.exit(0);

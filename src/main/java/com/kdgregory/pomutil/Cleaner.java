@@ -46,17 +46,10 @@ public class Cleaner
             InvocationArgs args = new InvocationArgs(argv);
             PomWrapper pom = new PomWrapper(readDocument(args));
 
-            if (! args.hasOption(Options.NO_COMMON_PROPS))
-                new CommonProps(pom, args).transform();
-
-            if (! args.hasOption(Options.NO_DEPENDENCY_NORMALIZE))
-                new DependencyNormalize(pom, args).transform();
-
-            if (! args.hasOption(Options.NO_DEPENDENCY_SORT))
-                new DependencySort(pom, args).transform();
-
-            if (! args.hasOption(Options.NO_VERSION_PROPS))
-                new VersionProps(pom, args).transform();
+            new CommonProps(pom, args).transform();
+            new DependencyNormalize(pom, args).transform();
+            new DependencySort(pom, args).transform();
+            new VersionProps(pom, args).transform();
 
             new OutputHandler().writeOutput(pom.getDom(), args);
             System.exit(0);

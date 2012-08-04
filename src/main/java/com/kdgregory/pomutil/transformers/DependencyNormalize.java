@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
@@ -31,15 +32,19 @@ extends AbstractTransformer     // FIXME - create AbstractDependencyTransformer
 
 
 //----------------------------------------------------------------------------
-//  Constuctors
+//  Instance variables and Constuctors
 //----------------------------------------------------------------------------
+
+    private boolean disabled;
+
 
     /**
      *  Base constructor.
      */
-    public DependencyNormalize(PomWrapper pom, InvocationArgs options)
+    public DependencyNormalize(PomWrapper pom, InvocationArgs args)
     {
-        super(pom, options);
+        super(pom, args);
+        disabled = args.hasOption(Options.NO_DEPENDENCY_NORMALIZE);
     }
 
 
@@ -59,6 +64,9 @@ extends AbstractTransformer     // FIXME - create AbstractDependencyTransformer
     @Override
     public void transform()
     {
+        if (disabled)
+            return;
+
         for (Element dependency : selectDependencies())
         {
             Map<String,Element> children = extractChildren(dependency);

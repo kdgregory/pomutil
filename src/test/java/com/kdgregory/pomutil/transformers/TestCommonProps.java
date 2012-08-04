@@ -14,12 +14,12 @@
 
 package com.kdgregory.pomutil.transformers;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestCommonProps
@@ -30,13 +30,12 @@ extends AbstractTransformerTest
     {
         new CommonProps(loadPom("CommonProps1.xml")).transform();
 
-        Document dom = pom.getDom();
         assertEquals("number of properties", 2,
-                     newXPath("/mvn:project/mvn:properties/*").evaluate(dom, Element.class).size());
+                     newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
         assertEquals("project.build.sourceEncoding", "UTF-8",
-                     newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding").evaluateAsString(dom));
+                     newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding").evaluateAsString(dom()));
         assertEquals("project.reporting.outputEncoding", "UTF-8",
-                     newXPath("/mvn:project/mvn:properties/mvn:project.reporting.outputEncoding").evaluateAsString(dom));
+                     newXPath("/mvn:project/mvn:properties/mvn:project.reporting.outputEncoding").evaluateAsString(dom()));
     }
 
 
@@ -45,12 +44,23 @@ extends AbstractTransformerTest
     {
         new CommonProps(loadPom("CommonProps2.xml")).transform();
 
-        Document dom = pom.getDom();
         assertEquals("number of properties", 2,
-                     newXPath("/mvn:project/mvn:properties/*").evaluate(dom, Element.class).size());
+                     newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
         assertEquals("project.build.sourceEncoding", "US-ASCII",
-                     newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding").evaluateAsString(dom));
+                     newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding").evaluateAsString(dom()));
         assertEquals("project.reporting.outputEncoding", "UTF-8",
-                     newXPath("/mvn:project/mvn:properties/mvn:project.reporting.outputEncoding").evaluateAsString(dom));
+                     newXPath("/mvn:project/mvn:properties/mvn:project.reporting.outputEncoding").evaluateAsString(dom()));
     }
+
+
+    @Test
+    public void testDisabled() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--noCommonProps");
+        new CommonProps(loadPom("CommonProps1.xml"), args).transform();
+
+        assertEquals("number of properties", 0,
+                     newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
+    }
+
 }

@@ -47,18 +47,25 @@ extends AbstractTransformer
             "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
             };
 
-    private Set<String> groupsToAppendArtifactId;
+
+//----------------------------------------------------------------------------
+//  Instance variables and constructors
+//----------------------------------------------------------------------------
+
+    private boolean disabled;
     private boolean replaceExisting;
+    private Set<String> groupsToAppendArtifactId;
 
 
     /**
      *  Base constructor.
      */
-    public VersionProps(PomWrapper pom, InvocationArgs options)
+    public VersionProps(PomWrapper pom, InvocationArgs args)
     {
-        super(pom, options);
-        groupsToAppendArtifactId = options.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
-        replaceExisting = options.hasOption(Options.VP_REPLACE_EXISTING);
+        super(pom, args);
+        disabled = args.hasOption(Options.NO_VERSION_PROPS);
+        replaceExisting = args.hasOption(Options.VP_REPLACE_EXISTING);
+        groupsToAppendArtifactId = args.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
     }
 
 
@@ -78,6 +85,9 @@ extends AbstractTransformer
     @Override
     public void transform()
     {
+        if (disabled)
+            return;
+
         List<Element> dependencies = selectDependencies();
         Map<String,String> allProps = pom.getProperties();
 

@@ -21,14 +21,12 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestVersionProps
 extends AbstractTransformerTest
 {
-
     @Test
     public void testBasicOperation() throws Exception
     {
@@ -152,5 +150,18 @@ extends AbstractTransformerTest
         // verify that we did not damage to existing non-version property
 
         assertProperty("some.innocuous.propery",            "foo");
+    }
+
+
+    @Test
+    public void testDisabled() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--noVersionProps");
+        new VersionProps(loadPom("VersionProps1.xml"), args).transform();
+
+        assertNull("property should not be added",
+                   newXPath("/mvn:project/mvn:properties/mvn:junit.version").evaluateAsElement(dom()));
+
+        assertDependencyReference("junit", "junit", "4.10");
     }
 }

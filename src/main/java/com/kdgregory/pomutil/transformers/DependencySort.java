@@ -48,7 +48,14 @@ extends AbstractTransformer
           .put("system",   Integer.valueOf(5))
           .toMap();
 
+
+//----------------------------------------------------------------------------
+//  Instance variables and constructors
+//----------------------------------------------------------------------------
+
+    private boolean disabled;
     private boolean orderByGroup;
+
 
     /**
      *  Base constructor.
@@ -56,6 +63,7 @@ extends AbstractTransformer
     public DependencySort(PomWrapper pom, InvocationArgs args)
     {
         super(pom,args);
+        disabled = args.hasOption(Options.NO_DEPENDENCY_SORT);
         orderByGroup = args.hasOption(Options.GROUP_DEPCY_BY_SCOPE);
     }
 
@@ -76,6 +84,9 @@ extends AbstractTransformer
     @Override
     public void transform()
     {
+        if (disabled)
+            return;
+
         processGroup("/mvn:project/mvn:dependencies");
         processGroup("/mvn:project/mvn:dependencyManagement/mvn:dependencies");
     }

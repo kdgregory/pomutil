@@ -20,6 +20,7 @@ import java.util.TreeMap;
 import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.kdgcommons.lang.StringUtil;
 
+import com.kdgregory.pomutil.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
@@ -36,12 +37,19 @@ extends AbstractTransformer
                                                      .toMap();
 
 
+//----------------------------------------------------------------------------
+//  Instance variables and Constuctors
+//----------------------------------------------------------------------------
+
+    private boolean disabled;
+
     /**
      *  Base constructor.
      */
     public CommonProps(PomWrapper pom, InvocationArgs options)
     {
         super(pom, options);
+        disabled = args.hasOption(Options.NO_COMMON_PROPS);
     }
 
 
@@ -61,6 +69,9 @@ extends AbstractTransformer
     @Override
     public void transform()
     {
+        if (disabled)
+            return;
+
         for (Map.Entry<String,String> prop : COMMON_PROPS.entrySet())
         {
             if (StringUtil.isBlank(pom.getProperty(prop.getKey())))

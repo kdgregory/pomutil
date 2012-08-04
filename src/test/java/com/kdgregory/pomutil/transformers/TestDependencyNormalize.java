@@ -24,6 +24,8 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.util.InvocationArgs;
+
 
 public class TestDependencyNormalize
 extends AbstractTransformerTest
@@ -69,5 +71,23 @@ extends AbstractTransformerTest
         assertEquals("child 2", "artifactId", children.get(1).getNodeName());
         assertEquals("child 3", "version",    children.get(2).getNodeName());
         assertEquals("child 4", "argle",      children.get(3).getNodeName());
+    }
+
+
+    @Test
+    public void testDisabled() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--noDependencyNormalize");
+        new DependencyNormalize(loadPom("DependencyNormalize1.xml"), args).transform();
+
+        // one check should be sufficient; we'll pick the one with the most happening
+        Element dep = newXPath("//mvn:artifactId[text()='practicalxml']/..").evaluateAsElement(dom());
+        List<Element> children = DomUtil.getChildren(dep);
+        assertEquals("defaults #/children", 5, children.size());
+        assertEquals("defaults child 1", "artifactId", children.get(0).getNodeName());
+        assertEquals("defaults child 2", "groupId",    children.get(1).getNodeName());
+        assertEquals("defaults child 3", "scope",      children.get(2).getNodeName());
+        assertEquals("defaults child 4", "type",       children.get(3).getNodeName());
+        assertEquals("defaults child 5", "version",    children.get(4).getNodeName());
     }
 }

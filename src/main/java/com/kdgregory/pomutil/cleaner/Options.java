@@ -40,7 +40,6 @@ public class Options
      */
     public final static String  GROUP_DEPCY_BY_SCOPE    = "--groupDependenciesByScope";
 
-
     /**
      *  Disables substitution of properties for explicit version numbers.
      */
@@ -57,6 +56,11 @@ public class Options
      *  replaced by "standardized" properties.
      */
     public final static String  VP_REPLACE_EXISTING     = "--replaceExistingProps";
+
+    /**
+     *  Enables organizing POM sections according to prototype.
+     */
+    public final static String  ORGANIZE_POM            = "--organizePom";
 
     /**
      *  Disables pretty-printing of output.

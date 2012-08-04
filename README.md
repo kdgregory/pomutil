@@ -64,6 +64,22 @@ you can specify an option to do something other than the default. Some steps als
     Existing dependency properties will be checked for collisions but otherwise ignored. To make all of your dependencies
     use the same format, use the `--replaceExistingProps` option.
 
+
+* Organize top-level POM elements (disabled by default)
+
+    Enable with: `--organizePom`
+
+    Re-orders top-level POM elements per the [POM definition](http://maven.apache.org/ref/3.0.4/maven-model/maven.html).
+    Any top-level comments or processing instructions will be removed by this step. The children of these top-level
+    elements will not be affected.
+
+    This operation uses the classpath resource `proto-pom.xml` to control re-organization. Edit this file if you want
+    to see a different layout. Any elements that are in the prototype but not your actual POM are ignored.
+
+    Elements in your POM that are not in the prototype will be re-inserted at the end of the POM. This feature is
+    intended to support new components added by Maven (and not yet incorporated into the prototype).
+
+
 * Pretty-print output
 
     Disable with: `--noPrettyPrint`
@@ -88,7 +104,6 @@ Features still to be implemented:
 *   Add explicit version numbers to plugins (disabled by default). This will be based on a configuration file that's
     irregularly updated from on [Maven documentation](http://maven.apache.org/plugins/index.html), and may be modified
     by the user.
-*   Organize POM sections according to the [Maven documentation](http://maven.apache.org/ref/3.0.4/maven-model/maven.html).
 *   Insert lines between sections in pretty-printed output. This will require abandoning the JAXP pretty-printer, as it
     gets confused when there's already inter-element whitespace.
 

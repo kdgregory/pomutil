@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.transformers;
+package com.kdgregory.pomutil.cleaner;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import com.kdgregory.pomutil.transformers.DependencySort;
+import com.kdgregory.pomutil.cleaner.DependencySort;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
@@ -32,7 +32,7 @@ extends AbstractTransformerTest
     @Test
     public void testBasicOperation() throws Exception
     {
-        new DependencySort(loadPom("DependencySort1.xml")).transform();
+        new DependencySort(loadPom("cleaner/DependencySort1.xml")).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 3, dependencies.size());
@@ -53,7 +53,7 @@ extends AbstractTransformerTest
     public void testGroupByScope() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--groupDependenciesByScope");
-        new DependencySort(loadPom("DependencySort2.xml"), args).transform();
+        new DependencySort(loadPom("cleaner/DependencySort2.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 6, dependencies.size());
@@ -70,7 +70,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noDependencySort");
-        new DependencySort(loadPom("DependencySort1.xml"), args).transform();
+        new DependencySort(loadPom("cleaner/DependencySort1.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
         assertEquals("number of dependencies in <dependencies>", 3, dependencies.size());

@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.transformers;
+package com.kdgregory.pomutil.cleaner;
 
 import org.w3c.dom.Element;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import com.kdgregory.pomutil.cleaner.CommonProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
@@ -28,7 +29,7 @@ extends AbstractTransformerTest
     @Test
     public void testAddPropsIfTheyDontExist() throws Exception
     {
-        new CommonProps(loadPom("CommonProps1.xml")).transform();
+        new CommonProps(loadPom("cleaner/CommonProps1.xml")).transform();
 
         assertEquals("number of properties", 2,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
@@ -42,7 +43,7 @@ extends AbstractTransformerTest
     @Test
     public void testLeaveExistingPropsAlone() throws Exception
     {
-        new CommonProps(loadPom("CommonProps2.xml")).transform();
+        new CommonProps(loadPom("cleaner/CommonProps2.xml")).transform();
 
         assertEquals("number of properties", 2,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());
@@ -57,7 +58,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noCommonProps");
-        new CommonProps(loadPom("CommonProps1.xml"), args).transform();
+        new CommonProps(loadPom("cleaner/CommonProps1.xml"), args).transform();
 
         assertEquals("number of properties", 0,
                      newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class).size());

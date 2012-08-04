@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil;
+package com.kdgregory.pomutil.cleaner;
 
 import java.io.File;
 
@@ -22,10 +22,6 @@ import org.xml.sax.InputSource;
 
 import net.sf.practicalxml.ParseUtil;
 
-import com.kdgregory.pomutil.transformers.CommonProps;
-import com.kdgregory.pomutil.transformers.DependencyNormalize;
-import com.kdgregory.pomutil.transformers.DependencySort;
-import com.kdgregory.pomutil.transformers.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.OutputHandler;
 import com.kdgregory.pomutil.util.PomWrapper;

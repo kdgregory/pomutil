@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.transformers;
+package com.kdgregory.pomutil.cleaner;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.cleaner.DependencyNormalize;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
@@ -33,7 +34,7 @@ extends AbstractTransformerTest
     @Test
     public void testBasicOperation() throws Exception
     {
-        new DependencyNormalize(loadPom("DependencyNormalize1.xml")).transform();
+        new DependencyNormalize(loadPom("cleaner/DependencyNormalize1.xml")).transform();
 
         Element dep1 = newXPath("//mvn:artifactId[text()='junit']/..").evaluateAsElement(dom());
         List<Element> children1 = DomUtil.getChildren(dep1);
@@ -62,7 +63,7 @@ extends AbstractTransformerTest
     @Test
     public void testUnexpectedElmementsArePreserved() throws Exception
     {
-        new DependencyNormalize(loadPom("DependencyNormalize2.xml")).transform();
+        new DependencyNormalize(loadPom("cleaner/DependencyNormalize2.xml")).transform();
 
         Element dep = newXPath("//mvn:artifactId[text()='practicalxml']/..").evaluateAsElement(dom());
         List<Element> children = DomUtil.getChildren(dep);
@@ -78,7 +79,7 @@ extends AbstractTransformerTest
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noDependencyNormalize");
-        new DependencyNormalize(loadPom("DependencyNormalize1.xml"), args).transform();
+        new DependencyNormalize(loadPom("cleaner/DependencyNormalize1.xml"), args).transform();
 
         // one check should be sufficient; we'll pick the one with the most happening
         Element dep = newXPath("//mvn:artifactId[text()='practicalxml']/..").evaluateAsElement(dom());

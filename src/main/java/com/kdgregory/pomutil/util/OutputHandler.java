@@ -30,7 +30,7 @@ import net.sf.kdgcommons.io.IOUtil;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 
-import com.kdgregory.pomutil.Options;
+import com.kdgregory.pomutil.cleaner.Options;
 
 
 /**

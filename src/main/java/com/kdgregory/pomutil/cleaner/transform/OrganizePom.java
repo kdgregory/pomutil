@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.cleaner;
+package com.kdgregory.pomutil.cleaner.transform;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 
+import com.kdgregory.pomutil.cleaner.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 

@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.DependencyNormalize;
+import com.kdgregory.pomutil.cleaner.transform.DependencyNormalize;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

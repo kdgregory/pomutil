@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.VersionProps;
+import com.kdgregory.pomutil.cleaner.transform.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

@@ -1,4 +1,4 @@
-package com.kdgregory.pomutil.cleaner;
+package com.kdgregory.pomutil.cleaner.transform;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.cleaner.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 

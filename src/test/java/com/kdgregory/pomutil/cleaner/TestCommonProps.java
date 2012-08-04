@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.kdgregory.pomutil.cleaner.CommonProps;
+import com.kdgregory.pomutil.cleaner.transform.CommonProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

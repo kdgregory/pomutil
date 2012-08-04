@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import com.kdgregory.pomutil.cleaner.DependencySort;
+import com.kdgregory.pomutil.cleaner.transform.DependencySort;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

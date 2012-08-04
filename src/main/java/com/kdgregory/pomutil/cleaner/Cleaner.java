@@ -22,6 +22,10 @@ import org.xml.sax.InputSource;
 
 import net.sf.practicalxml.ParseUtil;
 
+import com.kdgregory.pomutil.cleaner.transform.CommonProps;
+import com.kdgregory.pomutil.cleaner.transform.DependencyNormalize;
+import com.kdgregory.pomutil.cleaner.transform.DependencySort;
+import com.kdgregory.pomutil.cleaner.transform.VersionProps;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.OutputHandler;
 import com.kdgregory.pomutil.util.PomWrapper;

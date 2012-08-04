@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.cleaner;
+package com.kdgregory.pomutil.cleaner.transform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.cleaner.Options;
 import com.kdgregory.pomutil.util.GAV;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;

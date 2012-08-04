@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
 
+import com.kdgregory.pomutil.cleaner.transform.OrganizePom;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 

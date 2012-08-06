@@ -14,7 +14,6 @@
 
 package com.kdgregory.pomutil.cleaner.transform;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,15 +36,9 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  README for full specification.
  */
 public class ReplaceExplicitVersionsWithProperties
-extends AbstractTransformer
+extends AbstractDependencyTransformer
 {
     Logger logger = Logger.getLogger(getClass());
-
-    private final static String[] DEPENDENCY_LOCATIONS = new String[]
-            {
-            "/mvn:project/mvn:dependencies/mvn:dependency",
-            "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
-            };
 
 
 //----------------------------------------------------------------------------
@@ -88,8 +81,8 @@ extends AbstractTransformer
         if (disabled)
             return;
 
-        List<Element> dependencies = selectDependencies();
         Map<String,String> allProps = pom.getProperties();
+        List<Element> dependencies = selectAllDependencies();
 
         if (replaceExisting)
         {
@@ -105,17 +98,6 @@ extends AbstractTransformer
 //----------------------------------------------------------------------------
 //  Implementation
 //----------------------------------------------------------------------------
-
-    private List<Element> selectDependencies()
-    {
-        List<Element> ret = new ArrayList<Element>();
-        for (String xpath : DEPENDENCY_LOCATIONS)
-        {
-            ret.addAll(pom.selectElements(xpath));
-        }
-        return ret;
-    }
-
 
     private Set<String> replaceExistingDependencyProps(List<Element> dependencies, Map<String,String> properties)
     {

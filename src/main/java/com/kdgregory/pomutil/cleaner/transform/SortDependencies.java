@@ -37,7 +37,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  including scope.
  */
 public class SortDependencies
-extends AbstractTransformer
+extends AbstractDependencyTransformer
 {
     private static Map<String,Integer> SCOPE_GROUPS
         = new MapBuilder<String,Integer>(new HashMap<String,Integer>())
@@ -87,8 +87,8 @@ extends AbstractTransformer
         if (disabled)
             return;
 
-        processGroup("/mvn:project/mvn:dependencies");
-        processGroup("/mvn:project/mvn:dependencyManagement/mvn:dependencies");
+        processGroup(DIRECT_DEPENDENCIES);
+        processGroup(MANAGED_DEPENDENCIES);
     }
 
 
@@ -96,12 +96,10 @@ extends AbstractTransformer
 //  Internals
 //----------------------------------------------------------------------------
 
-    private void processGroup(String parentPath)
+    private void processGroup(String selectionPath)
     {
         TreeMap<GAV,Element> dependencies = new TreeMap<GAV,Element>();
 
-        // note: any exact dupes will disappear in this step
-        String selectionPath = parentPath + "/mvn:dependency";
         for (Element dependency : pom.selectElements(selectionPath))
         {
             GAV gav = pom.extractGAV(dependency);
@@ -116,7 +114,7 @@ extends AbstractTransformer
         if (dependencies.size() == 0)
             return;
 
-        Element container = pom.selectElement(parentPath);
+        Element container = pom.selectElement(selectionPath + "/..");
         DomUtil.removeAllChildren(container);
         for (Map.Entry<GAV,Element> dependency : dependencies.entrySet())
         {

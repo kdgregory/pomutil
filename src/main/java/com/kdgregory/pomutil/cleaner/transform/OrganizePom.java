@@ -28,6 +28,7 @@ import net.sf.practicalxml.ParseUtil;
 import com.kdgregory.pomutil.cleaner.Options;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
+import com.kdgregory.pomutil.util.Utils;
 
 
 /**
@@ -65,21 +66,11 @@ extends AbstractTransformer
         if (!enabled)
             return;
 
-        List<String> expectedElements = loadPrototype();
+        String[] expectedElements = loadPrototype();
 
         Element root = pom.getDom().getDocumentElement();
         Map<String,Element> children = selectElements(root);
-        DomUtil.removeAllChildren(root);
-
-        for (String name : expectedElements)
-        {
-            Element child = children.remove(name);
-            if (child != null)
-                root.appendChild(child);
-        }
-
-        for (Element child : children.values())
-            root.appendChild(child);
+        Utils.reconstruct(root, children, expectedElements);
     }
 
 
@@ -87,7 +78,7 @@ extends AbstractTransformer
 //  Implementation
 //----------------------------------------------------------------------------
 
-    private List<String> loadPrototype()
+    private String[] loadPrototype()
     {
         List<String> result = new ArrayList<String>();
         Document proto = ParseUtil.parseFromClasspath("proto-pom.xml");
@@ -95,7 +86,7 @@ extends AbstractTransformer
         {
             result.add(DomUtil.getLocalName(elem));
         }
-        return result;
+        return result.toArray(new String[result.size()]);
     }
 
 

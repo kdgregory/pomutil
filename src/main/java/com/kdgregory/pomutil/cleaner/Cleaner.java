@@ -43,15 +43,7 @@ public class Cleaner
     {
         try
         {
-            InvocationArgs args = new InvocationArgs(argv);
-            PomWrapper pom = new PomWrapper(readDocument(args));
-
-            new InsertCommonProperties(pom, args).transform();
-            new NormalizeDependencies(pom, args).transform();
-            new SortDependencies(pom, args).transform();
-            new ReplaceExplicitVersionsWithProperties(pom, args).transform();
-
-            new OutputHandler().writeOutput(pom.getDom(), args);
+            new Cleaner(new InvocationArgs(argv)).run();
             System.exit(0);
         }
         catch (Throwable ex)
@@ -60,6 +52,37 @@ public class Cleaner
             System.exit(1);
         }
     }
+
+
+//----------------------------------------------------------------------------
+//  Instance variables and constructor
+//----------------------------------------------------------------------------
+
+    private InvocationArgs args;
+
+    public Cleaner(InvocationArgs args)
+    {
+        this.args = args;
+    }
+
+
+//----------------------------------------------------------------------------
+//  Public methods
+//----------------------------------------------------------------------------
+
+    public void run()
+    throws Exception
+    {
+        PomWrapper pom = new PomWrapper(readDocument(args));
+
+        new InsertCommonProperties(pom, args).transform();
+        new NormalizeDependencies(pom, args).transform();
+        new SortDependencies(pom, args).transform();
+        new ReplaceExplicitVersionsWithProperties(pom, args).transform();
+
+        new OutputHandler().writeOutput(pom.getDom(), args);
+    }
+
 
 
 //----------------------------------------------------------------------------

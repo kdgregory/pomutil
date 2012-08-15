@@ -36,7 +36,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  README for full specification.
  */
 public class ReplaceExplicitVersionsWithProperties
-extends AbstractDependencyTransformer
+extends AbstractTransformer
 {
     Logger logger = Logger.getLogger(getClass());
 
@@ -47,6 +47,8 @@ extends AbstractDependencyTransformer
 
     private boolean disabled;
     private boolean replaceExisting;
+    private boolean disablePlugins;
+
     private Set<String> groupsToAppendArtifactId;
 
 
@@ -58,6 +60,7 @@ extends AbstractDependencyTransformer
         super(pom, args);
         disabled = args.hasOption(Options.NO_VERSION_PROPS);
         replaceExisting = args.hasOption(Options.VP_REPLACE_EXISTING);
+        disablePlugins = args.hasOption(Options.VP_NO_CONVERT_PLUGINS);
         groupsToAppendArtifactId = args.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
     }
 
@@ -83,6 +86,8 @@ extends AbstractDependencyTransformer
 
         Map<String,String> allProps = pom.getProperties();
         List<Element> dependencies = selectAllDependencies();
+        if (! disablePlugins)
+            dependencies.addAll(selectAllPlugins());
 
         if (replaceExisting)
         {
@@ -133,14 +138,14 @@ extends AbstractDependencyTransformer
 
     private Set<String> updateDependencies(List<Element> dependencies, Map<String,String> props)
     {
-        Set<String> newProps = new TreeSet<String>();
+        Set<String> newProps = new TreeSet<String>();   // this gives is our sort automatically
         for (Element dependency : dependencies)
         {
-            GAV gav = pom.extractGAV(dependency);
-            if (gav.version.startsWith("${"))
+            String currentVersion = pom.selectValue(dependency, "mvn:version");
+            if (currentVersion.startsWith("${"))
                 continue;
 
-            String propName = generatePropertyName(props, gav);
+            String propName = generatePropertyName(props, dependency);
             updateDependency(dependency, "${" + propName + "}");
             newProps.add(propName);
         }
@@ -148,13 +153,21 @@ extends AbstractDependencyTransformer
     }
 
 
-    private String generatePropertyName(Map<String,String> props, GAV gav)
+    private String generatePropertyName(Map<String,String> props, Element dependency)
     {
-        String propName = gav.groupId + ".version";
+        GAV gav = pom.extractGAV(dependency);
+
+        boolean isPlugin = DomUtil.getLocalName(dependency).equals("plugin");
+        String propName = isPlugin
+                        ? "plugin." + gav.artifactId + ".version"
+                        : gav.groupId + ".version";
+
         if (props.containsKey(propName) && !gav.version.equals(props.get(propName)))
         {
             String existingVersion = props.get(propName);
-            String newPropName = gav.groupId + "." + gav.artifactId + ".version";
+            String newPropName = isPlugin
+                               ? "plugin." + gav.artifactId + "-" + gav.version + ".version"
+                               : gav.groupId + "." + gav.artifactId + ".version";
             logger.warn("property \"" + propName + "\" already exists with version " + existingVersion
                         + "; creating \"" + newPropName + "\" for version " + gav.version);
             propName = newPropName;
@@ -179,9 +192,18 @@ extends AbstractDependencyTransformer
 
     private void addNewProperties(Map<String,String> props, Set<String> newProps)
     {
+        // two passes, one for normal dependencies and one for plugins
+
         for (String propName : newProps)
         {
-            pom.setProperty(propName, props.get(propName));
+            if (! propName.startsWith("plugin."))
+                pom.setProperty(propName, props.get(propName));
+        }
+
+        for (String propName : newProps)
+        {
+            if (propName.startsWith("plugin."))
+                pom.setProperty(propName, props.get(propName));
         }
     }
 }

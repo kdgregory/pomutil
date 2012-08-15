@@ -13,16 +13,17 @@ import com.kdgregory.pomutil.util.Utils;
 
 
 /**
- *  Normalizes <code>&lt;dependency&gt;</code> entries, ordering the child elements
- *  and removing any children that represent default values.
+ *  Normalizes <code>&lt;plugin&gt;</code> entries, ordering the child elements
+ *  and adding a missing <code>&lt;groupId&gt;</code>. element.
  */
-public class NormalizeDependencies
+public class NormalizePlugins
 extends AbstractTransformer
 {
     private static final String[] STANDARD_CHILDREN = new String[] {
-           "groupId", "artifactId", "version",
-           "classifier", "type", "scope",
-           "systemPath", "exclusions", "optional" };
+            "groupId", "artifactId", "version",
+            "extensions", "inherited", "configuration",
+            "dependencies", "executions"
+            };
 
 
 //----------------------------------------------------------------------------
@@ -35,17 +36,17 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public NormalizeDependencies(PomWrapper pom, InvocationArgs args)
+    public NormalizePlugins(PomWrapper pom, InvocationArgs args)
     {
         super(pom, args);
-        disabled = args.hasOption(Options.NO_DEPENDENCY_NORMALIZE);
+        disabled = args.hasOption(Options.NO_PLUGIN_NORMALIZE);
     }
 
 
     /**
      *  Convenience constructor with no arguments (primarily used for testing).
      */
-    public NormalizeDependencies(PomWrapper pom)
+    public NormalizePlugins(PomWrapper pom)
     {
         this(pom, new InvocationArgs());
     }
@@ -61,11 +62,15 @@ extends AbstractTransformer
         if (disabled)
             return;
 
-        for (Element dependency : selectAllDependencies())
+        for (Element dependency : selectAllPlugins())
         {
             Map<String,Element> children = Utils.getChildrenAsMap(dependency);
-            removeMatchingChild(children, "scope", "compile");
-            removeMatchingChild(children, "type", "jar");
+            if (! children.containsKey("groupId"))
+            {
+                Element groupId = DomUtil.appendChildInheritNamespace(dependency, "groupId");
+                DomUtil.setText(groupId, "org.apache.maven.plugins");
+                children = Utils.getChildrenAsMap(dependency);
+            }
             Utils.reconstruct(dependency, children, STANDARD_CHILDREN);
         }
     }
@@ -73,15 +78,4 @@ extends AbstractTransformer
 //----------------------------------------------------------------------------
 //  Internals
 //----------------------------------------------------------------------------
-
-    private void removeMatchingChild(Map<String,Element> children, String childName, String defaultValue)
-    {
-        Element elem = children.get(childName);
-        if (elem == null)
-            return;
-
-        String curVal = DomUtil.getText(elem).trim();
-        if (curVal.equals(defaultValue))
-            children.remove(childName);
-    }
 }

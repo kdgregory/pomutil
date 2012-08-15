@@ -33,20 +33,34 @@ extends AbstractTransformerTest
     {
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps1.xml")).transform();
 
-        assertProperty("junit.version",                     "4.10");
-        assertProperty("net.sf.kdgcommons.version",         "1.0.6");
+        assertProperty("commons-io.version",        "2.1");
+        assertProperty("junit.version",             "4.10");
 
-        assertDependencyReference("junit",             "junit",      "${junit.version}");
-        assertDependencyReference("net.sf.kdgcommons", "kdgcommons", "${net.sf.kdgcommons.version}");
+        assertDependencyReference("junit",          "junit",      "${junit.version}");
+        assertDependencyReference("commons-io",     "commons-io", "${commons-io.version}");
 
         // verify that we removed the previous dependencies
-        assertNoDependencyReference("junit",             "junit",      "4.10");
-        assertNoDependencyReference("net.sf.kdgcommons", "kdgcommons", "1.0.6");
+        assertNoDependencyReference("junit",        "junit",      "4.10");
+        assertNoDependencyReference("commons-io",   "commons-io", "2.1");
 
         // verify that we didn't damage the existing properties section
+
         String existingProp = newXPath("/mvn:project/mvn:properties/mvn:project.build.sourceEncoding")
                               .evaluateAsString(dom());
         assertEquals("existing property still exists", "UTF-8", existingProp);
+
+        // finally, verify that the new properties are in sorted order
+
+        String lastPropValue = "";
+        for (Element prop : newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class))
+        {
+            String value = DomUtil.getLocalName(prop);
+            if (!value.endsWith(".version"))
+                continue;
+            if (value.compareTo(lastPropValue) < 0)
+                fail("found property " + value + " after " + lastPropValue);
+            lastPropValue = value;
+        }
     }
 
 
@@ -135,7 +149,7 @@ extends AbstractTransformerTest
 
 
     @Test
-    public void testReplaceExistingProperties() throws Exception
+    public void testReplaceExistingVersionProperties() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--replaceExistingProps");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps6.xml"), args).transform();
@@ -155,6 +169,104 @@ extends AbstractTransformerTest
 
 
     @Test
+    public void testReplacePluginVersions() throws Exception
+    {
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps7.xml")).transform();
+
+        assertProperty("commons-io.version",                    "2.1");
+        assertProperty("storm.version",                         "0.7.0");
+        assertProperty("plugin.maven-antrun-plugin.version",    "1.3");
+        assertProperty("plugin.maven-compiler-plugin.version",  "2.3.2");
+        assertProperty("plugin.cobertura-maven-plugin.version", "2.5.1");
+
+        // because not all plugins have groupIds, we can't use assertDependencyReference(), but must
+        // instead use exact paths ... relies on the POM having one plugin per section
+
+        assertEquals("build plugin", "${plugin.maven-antrun-plugin.version}",
+                                     newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "${plugin.maven-compiler-plugin.version}",
+                                     newXPath("/mvn:project/mvn:build/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "${plugin.cobertura-maven-plugin.version}",
+                                     newXPath("/mvn:project/mvn:reporting/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+
+        // verify that plugins are at the end of the property list
+        String lastPluginProp = null;
+        for (Element prop : newXPath("/mvn:project/mvn:properties/*").evaluate(dom(), Element.class))
+        {
+            String value = DomUtil.getLocalName(prop);
+            if (value.startsWith("plugin."))
+                lastPluginProp = value;
+            else if (lastPluginProp != null)
+                fail("found property " + value + " after " + lastPluginProp);
+        }
+    }
+
+
+    @Test
+    public void testLeaveExistingPluginVersions() throws Exception
+    {
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps8.xml")).transform();
+
+        assertProperty("commons-io.version",                    "2.1");
+        assertProperty("storm.version",                         "0.7.0");
+        assertProperty("plugins.maven-antrun-plugin",           "1.3");     // note "plugins", not ".version"
+        assertProperty("plugin.maven-compiler-plugin.version",  "2.3.2");
+
+        assertEquals("build plugin", "${plugins.maven-antrun-plugin}",
+                                     newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "${plugin.maven-compiler-plugin.version}",
+                                     newXPath("/mvn:project/mvn:build/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+    }
+
+
+    @Test
+    public void testPluginsWithSameArtifactId() throws Exception
+    {
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps9.xml")).transform();
+
+        assertProperty("plugin.example-plugin.version",        "1.1");
+        assertProperty("plugin.example-plugin-1.2.version",    "1.2");
+
+        assertEquals("build plugin", "${plugin.example-plugin.version}",
+                                     newXPath("//mvn:plugin/mvn:groupId[text()='com.example']/../mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "${plugin.example-plugin-1.2.version}",
+                                     newXPath("//mvn:plugin/mvn:groupId[text()='com.example.other']/../mvn:version")
+                                     .evaluateAsString(dom()));
+
+        // FIXME - check log
+    }
+
+
+    @Test
+    public void testReplaceExistingPluginVersionProperties() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--replaceExistingProps");
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps8.xml"), args).transform();
+
+        assertProperty("commons-io.version",                    "2.1");
+        assertProperty("storm.version",                         "0.7.0");
+        assertProperty("plugin.maven-antrun-plugin.version",    "1.3");
+        assertProperty("plugin.maven-compiler-plugin.version",  "2.3.2");
+
+        // because not all plugins have groupIds, we can't use assertDependencyReference(), but must
+        // instead use exact paths ... relies on the POM having one plugin per section
+
+        assertEquals("build plugin", "${plugin.maven-antrun-plugin.version}",
+                                     newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "${plugin.maven-compiler-plugin.version}",
+                                     newXPath("/mvn:project/mvn:build/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+    }
+
+
+    @Test
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noVersionProps");
@@ -164,5 +276,29 @@ extends AbstractTransformerTest
                    newXPath("/mvn:project/mvn:properties/mvn:junit.version").evaluateAsElement(dom()));
 
         assertDependencyReference("junit", "junit", "4.10");
+    }
+
+
+    @Test
+    public void testDisablePluginConversion() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--noConvertPluginVersions");
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps7.xml"), args).transform();
+
+        assertProperty("commons-io.version",                    "2.1");
+        assertProperty("storm.version",                         "0.7.0");
+        assertProperty("plugin.maven-antrun-plugin.version",    "");
+        assertProperty("plugin.maven-compiler-plugin.version",  "");
+        assertProperty("plugin.cobertura-maven-plugin.version", "");
+
+        assertEquals("build plugin", "1.3",
+                                     newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "2.3.2",
+                                     newXPath("/mvn:project/mvn:build/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
+        assertEquals("build plugin", "2.5.1",
+                                     newXPath("/mvn:project/mvn:reporting/mvn:plugins/mvn:plugin/mvn:version")
+                                     .evaluateAsString(dom()));
     }
 }

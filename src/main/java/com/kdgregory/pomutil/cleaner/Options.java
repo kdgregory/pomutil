@@ -26,6 +26,11 @@ public class Options
     public final static String  NO_COMMON_PROPS         = "--noCommonProps";
 
     /**
+     *  Disables plugin normalization
+     */
+    public final static String  NO_PLUGIN_NORMALIZE     = "--noPluginNormalize";
+
+    /**
      *  Disables dependency normalization.
      */
     public final static String  NO_DEPENDENCY_NORMALIZE = "--noDependencyNormalize";
@@ -56,6 +61,11 @@ public class Options
      *  replaced by "standardized" properties.
      */
     public final static String  VP_REPLACE_EXISTING     = "--replaceExistingProps";
+
+    /**
+     *  For version properties, enables conversion of plugin versions.
+     */
+    public final static String  VP_NO_CONVERT_PLUGINS   = "--noConvertPluginVersions";
 
     /**
      *  Enables organizing POM sections according to prototype.

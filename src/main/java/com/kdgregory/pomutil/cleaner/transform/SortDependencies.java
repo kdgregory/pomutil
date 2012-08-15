@@ -37,7 +37,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  including scope.
  */
 public class SortDependencies
-extends AbstractDependencyTransformer
+extends AbstractTransformer
 {
     private static Map<String,Integer> SCOPE_GROUPS
         = new MapBuilder<String,Integer>(new HashMap<String,Integer>())
@@ -87,8 +87,8 @@ extends AbstractDependencyTransformer
         if (disabled)
             return;
 
-        processGroup(DIRECT_DEPENDENCIES);
-        processGroup(MANAGED_DEPENDENCIES);
+        processGroup(SELECT_DIRECT_DEPENDENCIES);
+        processGroup(SELECT_MANAGED_DEPENDENCIES);
     }
 
 

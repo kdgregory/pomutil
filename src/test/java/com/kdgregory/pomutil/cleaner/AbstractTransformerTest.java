@@ -77,9 +77,11 @@ public abstract class AbstractTransformerTest
      */
     protected void assertProperty(String propName, String expected)
     {
-        String value = xpFact.newXPath("/mvn:project/mvn:properties/mvn:" + propName)
-                       .evaluateAsString(dom());
-        assertEquals("property " + propName, expected, value);
+        XPathWrapper xpath = xpFact.newXPath("/mvn:project/mvn:properties/mvn:" + propName);
+        if (expected == null)
+            assertNull("property " + propName, xpath.evaluateAsElement(dom()));
+        else
+            assertEquals("property " + propName, expected, xpath.evaluateAsString(dom()));
     }
 
 

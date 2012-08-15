@@ -47,22 +47,38 @@ you can specify an option to do something other than the default. Some steps als
 
     Disable with: `--noVersionProps`
 
-    Modify with: `--addArtifactIdToProp=GROUPID`, `--replaceExistingProps`
+    Modify with: `--addArtifactIdToProp=GROUPID`, `--replaceExistingProps`, `--noConvertPluginVersions`
 
-    Finds all `<dependency>` entries that use explicit numeric versions, and converts those dependencies to use a property.
-    Will append version properties to the end of an existing `<properties>` section, or create a new `<properties>` section
-    at the end of the POM.
-
-    Properties are named by appending ".version" to the dependency's group ID (eg: "`com.example.verson`"). If the same
-    group ID is associated with two version numbers, then the property for *the second and subsequent* instances will be
-    constructed with the artifact ID (eg: first dependency is "`com.example.verson`" second is "`com.example.foo.verson`").
-    These collisions will be logged.
-
-    If you know that you have multiple artifacts with the same group ID and different versions, you can provide one or
-    more "`--addArtifactIdToProp=GROUPID`" options, where `GROUPID` is a group ID that should not appear alone.
+    Finds all dependency references that use explicit numeric versions, and converts those dependencies to use
+    a property. These properties are appended to the `<properties>` section in alphabetical order, with plugin
+    versions following normal dependencies. If there is no existing `<properties>` section, one will be appened
+    to the POM, and the properties added to it.
 
     Existing dependency properties will be checked for collisions but otherwise ignored. To make all of your dependencies
     use the same format, use the `--replaceExistingProps` option.
+
+    Property names for standard dependencies are formed by appending ".version" to the dependency's group ID (eg:
+    "`com.example.verson`"). If the same group ID is associated with two version numbers, then the property for
+    *the second and subsequent* instances will be constructed with the artifact ID (eg: first dependency is
+    "`com.example.verson`" second is "`com.example.foo.verson`").  These collisions will be logged.
+
+    If you know that you have multiple artifacts with the same group ID and different versions, you can provide one or
+    more "`--addArtifactIdToProp=GROUPID`" options. The properties for all dependencies in this group will have the
+    artifact ID as part of their name.
+
+    Because many plugins share the same group ID (`org.apache.maven.plugins`), property names for plugins use the form
+    `plugin.ARTIFACTID.version`, with `plugin.ARTIFACTID-VERSION.version` used if there is a duplicate (which should
+    never happen). You can disable conversion of plugin properties with the `--noConvertPluginVersions` option.
+
+    Note: dependency versions within plugin specifications are *not* replaced by properties. This is because these versions
+    are presumed to differ from the main dependencies.
+
+
+* Normalize `plugin` elements
+
+    Disable with: `--noPluginNormalize`
+
+    Ensures that plugin specifications follow the form shown in the [Maven docs], and adds defaulted `groupId` elements.
 
 
 * Organize top-level POM elements (disabled by default)
@@ -99,8 +115,9 @@ Features still to be implemented:
 **Cleaner**
 
 *   Remove duplicate dependencies (this already happens during sorting)
-*   Version-property replacement for plugins. The algorithm for constructing property names is based on artifactID, not
-    groupId, because most plugins have the same group.
+*   Convert plugin-specific dependency versions to properties. Will use a property name of the form
+    `GROUPID[.ARTIFACTID].pluginversion`.
+*   Create empty version properties for plugins that don't have explicit versions, and flag them.
 *   Add explicit version numbers to plugins (disabled by default). This will be based on a configuration file that's
     irregularly updated from on [Maven documentation](http://maven.apache.org/plugins/index.html), and may be modified
     by the user.

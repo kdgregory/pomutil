@@ -30,9 +30,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>net.sf.kdgcommons</groupId>
-                <artifactId>kdgcommons</artifactId>
-                <version>1.0.6</version>
+                <!-- note: this should sort *before* the direct dependency -->
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -159,18 +159,6 @@ public class PomWrapper
 
 
     /**
-     *  Returns the group/artifact/version tuple from the passed element (which
-     *  may be any type of dependency reference).
-     */
-    public GAV extractGAV(Element elem)
-    {
-        return new GAV(selectValue(elem, "mvn:groupId"),
-                       selectValue(elem, "mvn:artifactId"),
-                       selectValue(elem, "mvn:version"));
-    }
-
-
-    /**
      *  Selects the element identified by the given XPath, and removes all of its
      *  children. Acts as a no-op if the path does not select an element.
      */

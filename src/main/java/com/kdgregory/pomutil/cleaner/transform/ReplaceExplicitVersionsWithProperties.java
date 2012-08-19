@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.Options;
-import com.kdgregory.pomutil.util.GAV;
+import com.kdgregory.pomutil.util.Artifact;
 import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
@@ -155,7 +155,7 @@ extends AbstractTransformer
 
     private String generatePropertyName(Map<String,String> props, Element dependency)
     {
-        GAV gav = pom.extractGAV(dependency);
+        Artifact gav = new Artifact(dependency);
 
         boolean isPlugin = DomUtil.getLocalName(dependency).equals("plugin");
         String propName = isPlugin

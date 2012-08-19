@@ -59,10 +59,10 @@ extends AbstractTransformerTest
         assertEquals("number of dependencies in <dependencies>", 6, dependencies.size());
         assertDependencySpec("dependencies(0)", dependencies.get(0), "commons-io",      "commons-io",       "2.4");
         assertDependencySpec("dependencies(1)", dependencies.get(1), "commons-lang",    "commons-lang",     "2.3");
-        assertDependencySpec("dependencies(2)", dependencies.get(2), "junit",           "junit",            "4.10");
-        assertDependencySpec("dependencies(3)", dependencies.get(3), "org.slf4j",       "slf4j-log4j12",    "1.6.6");
-        assertDependencySpec("dependencies(4)", dependencies.get(4), "commons-logging", "commons-logging",  "1.1");
-        assertDependencySpec("dependencies(5)", dependencies.get(5), "javax.sql",       "jdbc-stdext",      "2.0");
+        assertDependencySpec("dependencies(2)", dependencies.get(2), "org.slf4j",       "slf4j-log4j12",    "1.6.6");
+        assertDependencySpec("dependencies(3)", dependencies.get(3), "junit",           "junit",            "4.10");
+        assertDependencySpec("dependencies(4)", dependencies.get(4), "javax.sql",       "jdbc-stdext",      "2.0");
+        assertDependencySpec("dependencies(5)", dependencies.get(5), "commons-logging", "commons-logging",  "1.1");
     }
 
 

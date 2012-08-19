@@ -117,20 +117,6 @@ public class TestPomWrapper
 
 
     @Test
-    public void testExtractGAV() throws Exception
-    {
-        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
-
-        Element elem = wrapper.selectElement("/mvn:project/mvn:dependencies/mvn:dependency[1]");
-        GAV gav = wrapper.extractGAV(elem);
-
-        assertEquals("groupId",     "junit",    gav.groupId);
-        assertEquals("artifactId",  "junit",    gav.artifactId);
-        assertEquals("version",     "4.10",     gav.version);
-    }
-
-
-    @Test
     public void testClear() throws Exception
     {
         PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));

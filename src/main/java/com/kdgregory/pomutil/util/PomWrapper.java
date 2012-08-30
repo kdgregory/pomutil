@@ -14,6 +14,7 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,8 +23,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import net.sf.kdgcommons.collections.MapBuilder;
+import net.sf.kdgcommons.lang.ObjectUtil;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
+import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
 
@@ -37,6 +41,13 @@ public class PomWrapper
 
     private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
                                          .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
+
+    private Map<String,XPathWrapper> pomPropertyPaths
+            = new MapBuilder<String,XPathWrapper>(new HashMap<String,XPathWrapper>())
+              .put("project.groupId",    xpFact.newXPath("/mvn:project/mvn:groupId"))
+              .put("project.artifactId", xpFact.newXPath("/mvn:project/mvn:artifactId"))
+              .put("project.version",    xpFact.newXPath("/mvn:project/mvn:version"))
+              .toMap();
 
     public PomWrapper(Document dom)
     {
@@ -219,5 +230,65 @@ public class PomWrapper
             return;
 
         elem.getParentNode().removeChild(elem);
+    }
+
+
+    /**
+     *  Performs property substitution on the passed string. Will first look to
+     *  user-defined properties, then a select set of Maven-defined properties.
+     *  <p>
+     *  If passed <code>null</code>, returns an empty string.
+     */
+    public String resolveProperties(String src)
+    {
+        if (src == null)
+            return "";
+
+        StringBuilder dst = new StringBuilder(256).append(src);
+
+        int propIdx = 0;
+        while ((propIdx = dst.indexOf("${", propIdx)) >= 0)
+        {
+            int endPropIdx = dst.indexOf("}", propIdx);
+            if (endPropIdx < 0)
+                break;  // unterminated propname
+            String propName = dst.substring(propIdx+2, endPropIdx);
+            if (propName.contains("{"))
+                break;  // unterminated propname that causes problems with XPath
+            String propValue = lookupPropertyValue(propName);
+            if (! StringUtil.isBlank(propValue))
+            {
+                dst.delete(propIdx, endPropIdx + 1);
+                if (propIdx < dst.length())
+                    dst.insert(propIdx, propValue);
+                else
+                    dst.append(propValue);
+            }
+            else
+            {
+                // leave the unresolved property in place
+                propIdx = endPropIdx;
+            }
+        }
+
+        return dst.toString();
+    }
+
+
+//----------------------------------------------------------------------------
+//  Internals
+//----------------------------------------------------------------------------
+
+    private String lookupPropertyValue(String propName)
+    {
+        String propValue = getProperty(propName);
+        if (! StringUtil.isBlank(propValue))
+            return propValue;
+
+        XPathWrapper xpath = pomPropertyPaths.get(propName);
+        if (xpath != null)
+            return xpath.evaluateAsString(dom);
+
+        return ObjectUtil.defaultValue(System.getProperty(propName), "");
     }
 }

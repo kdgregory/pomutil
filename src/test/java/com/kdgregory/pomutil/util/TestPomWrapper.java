@@ -178,4 +178,51 @@ public class TestPomWrapper
         assertEquals("cross-check", "bar", xpFact.newXPath("//mvn:foo").evaluateAsString(wrapper.getDom()));
     }
 
+
+    @Test
+    public void testResolveUserProperties() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper3.xml"));
+
+        assertEquals("null source",                 "",             wrapper.resolveProperties(null));
+        assertEquals("empty source",                "",             wrapper.resolveProperties(""));
+
+        assertEquals("no substitution required",    "foo",          wrapper.resolveProperties("foo"));
+        assertEquals("simple substitution",         "bar",          wrapper.resolveProperties("${foo}"));
+        assertEquals("embedded substitution",       "arglebargle",  wrapper.resolveProperties("argle${foo}gle"));
+        assertEquals("repeated substitution",       "bar-bar",      wrapper.resolveProperties("${foo}-${foo}"));
+        assertEquals("recursive substitution",      "bar",          wrapper.resolveProperties("${bargle}"));
+
+        assertEquals("missing property",            "${bar}",       wrapper.resolveProperties("${bar}"));
+        assertEquals("missing followed by present", "${bar}bar",    wrapper.resolveProperties("${bar}${foo}"));
+
+        assertEquals("unterminated propname 1",     "${foo",        wrapper.resolveProperties("${foo"));
+        assertEquals("unterminated propname 2",     "bar${foo",     wrapper.resolveProperties("${foo}${foo"));
+        assertEquals("unterminated propname 3",     "${foogle",     wrapper.resolveProperties("${foogle"));
+        assertEquals("unterminated propname 4",     "${foo${foo}",  wrapper.resolveProperties("${foo${foo}"));
+    }
+
+
+    @Test
+    public void testResolveMavenProperties() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper3.xml"));
+
+        // note: this is the complete list of properties that we support
+
+        assertEquals("project.groupId",         "com.example.pom",  wrapper.resolveProperties("${project.groupId}"));
+        assertEquals("project.artifactId",      "wrapper3",         wrapper.resolveProperties("${project.artifactId}"));
+        assertEquals("project.version",         "1.0-SNAPSHOT",     wrapper.resolveProperties("${project.version}"));
+    }
+
+
+    @Test
+    public void testResolveSystemProperties() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper3.xml"));
+
+        // assume if one works, they all will
+        assertEquals("user.dir",    System.getProperty("user.dir"), wrapper.resolveProperties("${user.dir}"));
+    }
+
 }

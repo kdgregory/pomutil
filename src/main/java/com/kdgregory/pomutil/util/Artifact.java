@@ -161,7 +161,7 @@ implements Comparable<Artifact>
     @Override
     public String toString()
     {
-        return groupId + ":" + artifactId + ":" + version;
+        return groupId + ":" + artifactId + ":" + version + ":" + packaging;
     }
 
 

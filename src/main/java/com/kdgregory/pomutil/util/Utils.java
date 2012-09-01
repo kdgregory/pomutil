@@ -14,10 +14,15 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.w3c.dom.Element;
 
@@ -82,5 +87,63 @@ public class Utils
         }
 
         return elem;
+    }
+
+
+    /**
+     *  Returns the local repository file that satisfies the passed dependency,
+     *  <code>null</code> if there is no such file.
+     */
+    public static File getLocalRepositoryFile(Artifact artifact)
+    {
+        File localRepo = new File(new File(System.getProperty("user.home"), ".m2"), "repository");
+        String repoPath = artifact.groupId.replace('.', '/')
+                        + "/" + artifact.artifactId
+                        + "/" + artifact.version
+                        + "/" + artifact.artifactId + "-" + artifact.version + "." + artifact.packaging;
+
+        File file = new File(localRepo, repoPath);
+        return file.exists() ? file : null;
+    }
+
+
+    /**
+     *  Given a JAR, finds all entries that represent classes and converts them to classnames.
+     */
+    public static List<String> extractClassesFromJar(File jarFile)
+    throws IOException
+    {
+        List<String> result = new ArrayList<String>();
+        JarFile jar = null;
+        try
+        {
+            jar = new JarFile(jarFile);
+            for (Enumeration<JarEntry> entryItx = jar.entries() ; entryItx.hasMoreElements() ; )
+            {
+                JarEntry entry = entryItx.nextElement();
+                String filename = entry.getName();
+                if (! filename.endsWith(".class"))
+                    continue;
+                filename = filename.substring(0, filename.length() - 6);
+                filename = filename.replace('/', '.');
+                filename = filename.replace('$', '.');
+                result.add(filename);
+            }
+            return result;
+        }
+        finally
+        {
+            if (jar != null)
+            {
+                try
+                {
+                    jar.close();
+                }
+                catch (IOException ignored)
+                {
+                    // ignored
+                }
+            }
+        }
     }
 }

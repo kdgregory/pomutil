@@ -21,9 +21,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- all dependency versions are specified here -->
-        <commons.lang3.version>3.1</commons.lang3.version>
+        <com.kdgregory.bcelx.version>1.0-SNAPSHOT</com.kdgregory.bcelx.version>
         <junit.version>4.10</junit.version>
-        <kdgcommons.version>1.0.6</kdgcommons.version>
+        <kdgcommons.version>1.0.7</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
         <practicalxml.version>1.1.13</practicalxml.version>
 
@@ -34,11 +34,6 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
-        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -55,9 +50,44 @@
             <version>${practicalxml.version}</version>
         </dependency>
         <dependency>
+            <!-- available at https://github.com/kdgregory/bcelx -->
+            <!-- we rely on the transitive dependency to BCEL for DependencyCheck testing -->
+            <groupId>com.kdgregory.bcelx</groupId>
+            <artifactId>bcelx</artifactId>
+            <version>${com.kdgregory.bcelx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- the following dependencies are used for DependencyCheck testing -->
+        <dependency>
+            <!-- unused compile-scope dependency -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <!-- improperly-scoped dependency -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <!-- unused test-scope dependency -->
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.1.2.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- unused test-scope dependency -->
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>3.1.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

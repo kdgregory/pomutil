@@ -108,6 +108,38 @@ you can specify an option to do something other than the default. Some steps als
 
 ----
 
+# DependencyCheck
+
+Examines the bytecode of project classes to determine which third-party classes are invoked, then examines the
+project dependencies to find those classes. Writes two lists to StdOut: those classes thata are not found in
+any direct dependencies, and those direct dependencies that are not referenced by the application classes.
+
+Invocation:
+
+    java -jar pomutil.jar com.kdgregory.pomutil.dependency.DependencyCheck [OPTIONS]
+
+Options:
+
+* `--projectDirectory=DIR`
+
+    Selects a project directory for the check. By default, checks the current directory.
+
+* `--ignoreUnusedDependency`=GROUPID[:ARTIFACTID]
+
+    Removes dependencies from the "unused dependency" list. This is used if you load classes via
+    reflection: since the dependency scanner looks for explicit references within the classfile,
+    it will report a false positive if you use reflection to load classes (or call methods that
+    do).
+
+
+Notes:
+
+* This utility must be run *after* building the project. It examines project classes in the `target` directory,
+  and looks for dependencies in the local repository. It will not attempt to retrieve any missing dependencies.
+
+
+----
+
 # Roadmap
 
 Features still to be implemented:
@@ -137,7 +169,10 @@ Utility to take a series of POMs, apply the *Cleaner* rules to them, and then ge
 
 **DependencyCheck**
 
-Examines the bytecode of project classes to determine which third-party classes are invoked, then examines the
-project dependencies to find those classes. Reports both on dependencies that aren't used, and those that are
-missing (far too often I've used a class that's available through a transitive dependency, then wondered why
-my build failed when I removed the direct dependency).
+* Maintain a set of "expected" unused dependencies. This is to cover cases (such as `spring-test` and `spring-core`)
+    where the direct dependency has a runtime transitive dependency that is not specified in its own POM (and must
+    therefore be specified as a direct dependency in the project POM).
+* Add option to ignore unused dependencies where the scope is `provided` or `optional`.
+* Handle dependencies with scope `system`.
+* Look at parent POMs to find version properties and shared dependencies
+* Support artifact qualifiers

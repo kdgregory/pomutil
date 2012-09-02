@@ -8,7 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>lib-common</artifactId>
     <packaging>jar</packaging>
 
     <name>Shared Code</name>

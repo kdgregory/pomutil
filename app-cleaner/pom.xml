@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.kdgregory.pomutil</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>lib-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

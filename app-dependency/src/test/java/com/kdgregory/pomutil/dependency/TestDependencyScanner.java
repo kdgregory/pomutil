@@ -52,7 +52,7 @@ public class TestDependencyScanner
     public void testGetDependency() throws Exception
     {
         File pomFile = new File("../test-dependency/pom.xml");
-        assertTrue("running in directory with POM", pomFile.exists());
+        assertTrue("able to access POM", pomFile.exists());
 
         DependencyScanner scanner = new DependencyScanner(pomFile);
 
@@ -69,35 +69,70 @@ public class TestDependencyScanner
     }
 
 
+    @Test
     public void testGetDependencies() throws Exception
     {
-        File pomFile = new File(System.getProperty("user.dir"),"pom.xml");
-        assertTrue("running in directory with POM", pomFile.exists());
+        File pomFile = new File("../test-dependency/pom.xml");
+        assertTrue("able to access POM", pomFile.exists());
 
         DependencyScanner scanner = new DependencyScanner(pomFile);
 
         Map<String,Scope> allDependencies = mapArtifacts(scanner.getDependencies());
-        assertEquals("count of dependencies, general select",           8, allDependencies.size());
-        assertEquals("compile-scope dependency, general select",        Scope.COMPILE, allDependencies.get("practicalxml"));
+        assertEquals("count of dependencies, general select",           6, allDependencies.size());
+        assertEquals("compile-scope dependency, general select",        Scope.COMPILE, allDependencies.get("commons-io"));
         assertEquals("test-scope dependency, general select",           Scope.TEST,    allDependencies.get("junit"));
         assertNull("transitive dependency, general select",             allDependencies.get("bcel"));
 
         Map<String,Scope> allDependencies2 = mapArtifacts(scanner.getDependencies(Scope.COMPILE, Scope.TEST));
-        assertEquals("count of dependencies, scope select",             8, allDependencies2.size());
-        assertEquals("compile-scope dependency, scope select",          Scope.COMPILE, allDependencies2.get("practicalxml"));
+        assertEquals("count of dependencies, scope select",             6, allDependencies2.size());
+        assertEquals("compile-scope dependency, scope select",          Scope.COMPILE, allDependencies2.get("commons-io"));
         assertEquals("test-scope dependency, scope select",             Scope.TEST,    allDependencies2.get("junit"));
         assertNull("transitive dependency, scope select",               allDependencies2.get("bcel"));
 
         Map<String,Scope> compileDependencies = mapArtifacts(scanner.getDependencies(Scope.COMPILE));
 
-        assertEquals("compile-scope select returned expected count",    6, compileDependencies.size());
-        assertTrue("compile-scope select returned expected artifact",   compileDependencies.containsKey("practicalxml"));
+        assertEquals("compile-scope select returned expected count",    3, compileDependencies.size());
+        assertTrue("compile-scope select returned expected artifact",   compileDependencies.containsKey("commons-io"));
         assertFalse("compile-scope select returned test artifact",      compileDependencies.containsKey("junit"));
 
         Map<String,Scope> testDependencies = mapArtifacts(scanner.getDependencies(Scope.TEST));
 
-        assertEquals("compile-scope select returned expected count",    2, testDependencies.size());
+        assertEquals("compile-scope select returned expected count",    3, testDependencies.size());
         assertTrue("compile-scope select returned expected artifact",   testDependencies.containsKey("junit"));
-        assertFalse("compile-scope select returned compile artifact",   testDependencies.containsKey("practicalxml"));
+        assertFalse("compile-scope select returned compile artifact",   testDependencies.containsKey("commons-io"));
+    }
+
+
+    @Test
+    public void testParentPom() throws Exception
+    {
+        File pomFile = new File("../test-dependency-child/pom.xml");
+        assertTrue("able to access POM", pomFile.exists());
+
+        DependencyScanner scanner = new DependencyScanner(pomFile);
+
+        Map<String,Scope> allDependencies = mapArtifacts(scanner.getDependencies());
+        assertEquals("count of dependencies, general select",           6, allDependencies.size());
+        assertEquals("compile-scope dependency, general select",        Scope.COMPILE, allDependencies.get("commons-io"));
+        assertEquals("test-scope dependency, general select",           Scope.TEST,    allDependencies.get("junit"));
+        assertNull("transitive dependency, general select",             allDependencies.get("bcel"));
+
+        Map<String,Scope> allDependencies2 = mapArtifacts(scanner.getDependencies(Scope.COMPILE, Scope.TEST));
+        assertEquals("count of dependencies, scope select",             6, allDependencies2.size());
+        assertEquals("compile-scope dependency, scope select",          Scope.COMPILE, allDependencies2.get("commons-io"));
+        assertEquals("test-scope dependency, scope select",             Scope.TEST,    allDependencies2.get("junit"));
+        assertNull("transitive dependency, scope select",               allDependencies2.get("bcel"));
+
+        Map<String,Scope> compileDependencies = mapArtifacts(scanner.getDependencies(Scope.COMPILE));
+
+        assertEquals("compile-scope select returned expected count",    3, compileDependencies.size());
+        assertTrue("compile-scope select returned expected artifact",   compileDependencies.containsKey("commons-io"));
+        assertFalse("compile-scope select returned test artifact",      compileDependencies.containsKey("junit"));
+
+        Map<String,Scope> testDependencies = mapArtifacts(scanner.getDependencies(Scope.TEST));
+
+        assertEquals("compile-scope select returned expected count",    3, testDependencies.size());
+        assertTrue("compile-scope select returned expected artifact",   testDependencies.containsKey("junit"));
+        assertFalse("compile-scope select returned compile artifact",   testDependencies.containsKey("commons-io"));
     }
 }

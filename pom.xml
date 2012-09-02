@@ -16,6 +16,8 @@
 
     <modules>
         <module>test-dependency</module>
+        <module>test-dependency-parent</module>
+        <module>test-dependency-child</module>
         <module>lib-common</module>
         <module>app-cleaner</module>
         <module>app-dependency</module>

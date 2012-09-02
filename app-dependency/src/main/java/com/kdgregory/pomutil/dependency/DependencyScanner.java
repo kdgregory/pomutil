@@ -16,8 +16,10 @@ package com.kdgregory.pomutil.dependency;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -48,7 +50,9 @@ public class DependencyScanner
 
     private Logger logger = Logger.getLogger(getClass());
 
-    private PomWrapper pom;
+    // first element in this list is invocation POM; subsequent elements are
+    // parent, grand-parent, and so-on
+    private List<PomWrapper> pomList = new ArrayList<PomWrapper>();
 
     private Set<Artifact> dependencies = new TreeSet<Artifact>();
     private Map<String,Artifact> dependencyLookup = new HashMap<String,Artifact>();
@@ -57,8 +61,7 @@ public class DependencyScanner
     public DependencyScanner(File pomFile)
     throws IOException
     {
-        this.pom = new PomWrapper(ParseUtil.parse(pomFile));
-
+        buildPomList(pomFile);
         extractDependencies();
         buildDependencyLookup();
     }
@@ -116,14 +119,48 @@ public class DependencyScanner
 //  Internals
 //----------------------------------------------------------------------------
 
-    private String lookupVersionProperty(String origVersion)
+    private void buildPomList(File pomFile)
     {
-        // FIXME - log if null; in future, check parent POM
-        return pom.resolveProperties(origVersion);
+        if (!pomFile.exists())
+            throw new IllegalArgumentException("can't load POM: " + pomFile);
+
+        PomWrapper pom = new PomWrapper(ParseUtil.parse(pomFile));
+        pomList.add(pom);
+
+        Element parentElem = pom.selectElement("/mvn:project/mvn:parent");
+        if (parentElem != null)
+        {
+            Artifact parent = new Artifact(parentElem);
+            parent.packaging = "pom";
+            File parentFile = Utils.getLocalRepositoryFile(parent);
+            if (parentFile == null)
+                throw new RuntimeException("unable to resolve ancestor POM: " + parent);
+            buildPomList(parentFile);
+        }
+    }
+
+
+    private String resolveProperties(String value)
+    {
+        for (PomWrapper pom : pomList)
+        {
+            value = pom.resolveProperties(value);
+        }
+        return value;
     }
 
 
     private void extractDependencies()
+    throws IOException
+    {
+        for (PomWrapper pom : pomList)
+        {
+            extractDependencies0(pom);
+        }
+    }
+
+
+    private void extractDependencies0(PomWrapper pom)
     throws IOException
     {
         for (Element dependency : pom.selectElements("/mvn:project/mvn:dependencies/mvn:dependency"))
@@ -138,7 +175,7 @@ public class DependencyScanner
                 continue;
 
             if (version.startsWith("${"))
-                version = lookupVersionProperty(version);
+                version = resolveProperties(version);
             if (version == null)
                 continue;
 

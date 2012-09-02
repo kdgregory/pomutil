@@ -93,4 +93,50 @@ public class TestDependencyCheck
         assertTrue("unused test dependency",                    unusedTestDependencies.contains("spring-test"));
     }
 
+
+    @Test
+    public void testParentPom() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency-child");
+        Main checker = new Main(args);
+        checker.run();
+
+        // assertions duplicate the self-contained project; they've just been re-arranged
+
+        assertTrue("unsupported mainline class",                checker.getUnsupportedMainlineClasses().contains("org.apache.bcel.classfile.ClassParser"));
+        assertTrue("unsupported mainline package",              checker.getUnsupportedMainlinePackages().contains("org.apache.bcel.classfile"));
+
+        assertTrue("expected missing test class",               checker.getUnsupportedTestClasses().contains("org.apache.bcel.classfile.ConstantPool"));
+        assertTrue("expected missing test package",             checker.getUnsupportedTestPackages().contains("org.apache.bcel.classfile"));
+
+        assertFalse("doesn't contain in-project reference",     checker.getUnsupportedMainlineClasses().contains("com.kdgregory.pomutil.testdata.AnInterface"));
+
+        Set<String> unusedMainlineDependencies = extractArtifactIds(checker.getUnusedMainlineDependencies());
+        assertEquals("unused mainline dependency count",        2, unusedMainlineDependencies.size());
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("bcelx"));
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("commons-io"));
+
+        Set<String> incorrectMainlineDependencies = extractArtifactIds(checker.getIncorrectMainlineDependencies());
+        assertEquals("incorrect mainline dependency count",     1, incorrectMainlineDependencies.size());
+        assertTrue("incorrect mainline dependency",             incorrectMainlineDependencies.contains("commons-codec"));
+
+        Set<String> unusedTestDependencies = extractArtifactIds(checker.getUnusedTestDependencies());
+        assertEquals("unused test-only dependency count",       2, unusedTestDependencies.size());
+        assertTrue("unused test dependency",                    unusedTestDependencies.contains("spring-core"));
+        assertTrue("unused test dependency",                    unusedTestDependencies.contains("spring-test"));
+    }
+
+
+    public void testSelf() throws Exception
+    {
+        Main checker = new Main();
+        checker.run();
+
+        assertTrue("expected unsupported mainline package",     checker.getUnsupportedMainlinePackages().contains("org.apache.bcel.classfile"));
+        assertEquals("no unused mainline dependencies",         0, checker.getUnusedMainlineDependencies().size());
+        assertEquals("no unused test dependencies",             0, checker.getUnusedTestDependencies().size());
+        assertEquals("no mis-scoped dependencies",              0, checker.getIncorrectMainlineDependencies().size());
+    }
+
+
 }

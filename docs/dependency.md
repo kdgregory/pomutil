@@ -28,7 +28,6 @@ any direct dependencies, and those direct dependencies that are not referenced b
 
 ## Roadmap
 
-* Look at parent POMs to find version properties and shared dependencies
 * Maintain a pre-configured set of "expected" unused dependencies. This is to cover cases (such as `spring-test` and `spring-core`)
     where the direct dependency has a runtime transitive dependency that is not specified in its own POM (and must
     therefore be specified as a direct dependency in the project POM).

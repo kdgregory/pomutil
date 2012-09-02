@@ -26,6 +26,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!--  we'll rely on a transitive dependency to BCEL, use that to test ourself -->
             <groupId>com.kdgregory.bcelx</groupId>
             <artifactId>bcelx</artifactId>
             <version>${com.kdgregory.bcelx.version}</version>

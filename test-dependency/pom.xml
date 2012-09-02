@@ -2,16 +2,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.kdgregory.pomutil</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-
+    <groupId>com.kdgregory.pomutil</groupId>
     <artifactId>test-dependency</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>DependencyCheck Test Data</name>
+    <name>DependencyCheck Test Data - Self-Contained</name>
 
     <description>
         A self-contained project to verify DependencyCheck behavior (without the
@@ -19,14 +15,22 @@
     </description>
 
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
     <dependencies>
-        <dependency>
-            <!-- needed to build the test project -->
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <!-- this will provide a transitive dependency to BCEL; it's otherwised unused -->
@@ -48,6 +52,14 @@
             <artifactId>commons-codec</artifactId>
             <version>1.6</version>
         </dependency>
+        
+        <dependency>
+            <!-- needed to build the test project -->
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <!-- unused test-scope dependency -->
@@ -56,7 +68,7 @@
             <version>3.1.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <!-- the following dependencies are used for DependencyCheck testing -->
+        
         <dependency>
             <!-- unused test-scope dependency -->
             <groupId>org.springframework</groupId>

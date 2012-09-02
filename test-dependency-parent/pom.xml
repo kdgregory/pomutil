@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.kdgregory.pomutil</groupId>
+    <artifactId>test-dependency-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>DependencyCheck Test Data - Parent</name>
+    <description>
+        Parent project for parent-child dependency check. Contains all property versions.
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <com.kdgregory.bcelx.version>1.0-SNAPSHOT</com.kdgregory.bcelx.version>
+        <commons-codec.version>1.6</commons-codec.version>
+        <commons-io.version>2.4</commons-io.version>
+        <junit.version>4.10</junit.version>
+        <org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+    </properties>
+
+    <!-- this dependencies will propagate to child -->
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

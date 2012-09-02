@@ -32,7 +32,7 @@ import com.kdgregory.pomutil.util.InvocationArgs;
  */
 public class Reporter
 {
-    private final static String OUTPUT_FORMAT = "%-32s %s\n";
+    private final static String OUTPUT_FORMAT = "%-32s %s%n";
 
     private InvocationArgs args;
     private Main checker;

@@ -37,4 +37,20 @@
     <build>
     </build>
 
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.4.0</version>
+<!--
+                <configuration>
+                    <excludeFilterFile>src/site/findbugs-filter.xml</excludeFilterFile>
+                </configuration>
+-->
+            </plugin>
+        </plugins>
+    </reporting>
+
 </project>

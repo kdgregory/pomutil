@@ -14,6 +14,7 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.w3c.dom.Element;
@@ -190,8 +191,10 @@ implements Comparable<Artifact>
      *  falls back to the built-in comparator.
      */
     public static class ScopedComparator
-    implements Comparator<Artifact>
+    implements Comparator<Artifact>, Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int compare(Artifact o1, Artifact o2)
         {

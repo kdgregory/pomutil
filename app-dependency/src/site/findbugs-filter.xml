@@ -1,0 +1,10 @@
+<FindBugsFilter>
+
+    <Match>
+        <Class name='com.kdgregory.pomutil.dependency.ClassScanner' />
+        <Method name='processTreeOrFile' />
+        <Bug pattern='OBL_UNSATISFIED_OBLIGATION' />
+        <!-- the called method will close the stream; assuming that there's no throw when building the call stack -->
+    </Match>
+
+</FindBugsFilter>

@@ -3,20 +3,27 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.kdgregory.pomutil</groupId>
-    <artifactId>pomutil</artifactId>
+    <artifactId>parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>PomUtil</name>
+    <name>Parent</name>
 
     <description>
-        Utilities to clean and restructure Maven POMs
+        Utilities to clean and restructure Maven POMs.
     </description>
 
 
+    <modules>
+        <module>test-dependency</module>
+        <module>lib-common</module>
+        <module>app-cleaner</module>
+        <module>app-dependency</module>
+    </modules>
+
+
     <properties>
-        <!-- build configuration props, because Maven can't pick a sensible
-            default -->
+        <!-- build configuration props, because Maven can't pick a sensible default -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -34,62 +41,7 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.kdgcommons</groupId>
-            <artifactId>kdgcommons</artifactId>
-            <version>${kdgcommons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.practicalxml</groupId>
-            <artifactId>practicalxml</artifactId>
-            <version>${practicalxml.version}</version>
-        </dependency>
-        <dependency>
-            <!-- available at https://github.com/kdgregory/bcelx -->
-            <!-- we rely on the transitive dependency to BCEL for DependencyCheck testing -->
-            <groupId>com.kdgregory.bcelx</groupId>
-            <artifactId>bcelx</artifactId>
-            <version>${com.kdgregory.bcelx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- the following dependencies are used for DependencyCheck testing -->
-        <dependency>
-            <!-- unused compile-scope dependency -->
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <!-- improperly-scoped dependency -->
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <!-- unused test-scope dependency -->
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>3.1.2.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <!-- unused test-scope dependency -->
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>3.1.2.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- don't put anything here, lest you break the dependency tests -->
     </dependencies>
 
 
@@ -104,27 +56,6 @@
                     <target>1.6</target>
                     <debug>true</debug>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${plugin.shade.version}</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.kdgregory.pomutil.cleaner.Cleaner</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

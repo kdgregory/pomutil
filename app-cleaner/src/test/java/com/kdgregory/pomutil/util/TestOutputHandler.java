@@ -59,15 +59,35 @@ public class TestOutputHandler
 //----------------------------------------------------------------------------
 
     /**
-     *  Replaces all newlines in the passed string with the platform-dependent
-     *  line separator.
+     *  Replaces all platform-dependent line separators in the source string
+     *  with a newline, and trims any whitespace from the ends of the string.
+     *  This will hopefully let us build on Windows and Mac as well as Linux.
      */
     private static String transformNewlines(String src)
     {
         String lineSep = System.getProperty("line.separator");
         if (StringUtil.isEmpty(lineSep))
             lineSep = "\n";
-        return src.replaceAll("\n", lineSep);
+
+        StringBuilder sb = new StringBuilder(src);
+        int ii = 0;
+        while ((ii = sb.indexOf(lineSep, ii)) >= 0)
+        {
+            sb.insert(ii++, '\n');
+            sb.delete(ii, ii + lineSep.length());
+        }
+        return sb.toString().trim();
+    }
+
+
+    /**
+     *  Extracts the captured output stream and prepares it for use.
+     */
+    private String getOutput()
+    throws Exception
+    {
+        String output = new String(capture.toByteArray(), "UTF-8");
+        return transformNewlines(output);
     }
 
 
@@ -86,8 +106,7 @@ public class TestOutputHandler
         InvocationArgs args = new InvocationArgs("--noPrettyPrint");
         new OutputHandler().writeOutput(dom, args);
 
-        String output = new String(capture.toByteArray());
-        assertEquals("no transform", src, output);
+        assertEquals("no transform", src, getOutput());
     }
 
 
@@ -102,8 +121,7 @@ public class TestOutputHandler
         InvocationArgs args = new InvocationArgs("--prettyPrint=3");
         new OutputHandler().writeOutput(dom, args);
 
-        String output = new String(capture.toByteArray());
-        assertEquals(transformNewlines("<root>\n   <child>value</child>\n</root>"), output.trim());
+        assertEquals("<root>\n   <child>value</child>\n</root>", getOutput());
     }
 
 }

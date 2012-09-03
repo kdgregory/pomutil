@@ -6,6 +6,7 @@
         <groupId>com.kdgregory.pomutil</groupId>
         <artifactId>test-dependency-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../test-dependency-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>test-dependency-child</artifactId>

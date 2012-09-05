@@ -78,7 +78,7 @@ public class TestDependencyScanner
         DependencyScanner scanner = new DependencyScanner(pomFile);
 
         Map<String,Scope> allDependencies = mapArtifacts(scanner.getDependencies());
-        assertEquals("count of dependencies, general select",           6, allDependencies.size());
+        assertEquals("count of dependencies, general select",           7, allDependencies.size());
         assertEquals("compile-scope dependency, general select",        Scope.COMPILE, allDependencies.get("commons-io"));
         assertEquals("test-scope dependency, general select",           Scope.TEST,    allDependencies.get("junit"));
         assertNull("transitive dependency, general select",             allDependencies.get("bcel"));

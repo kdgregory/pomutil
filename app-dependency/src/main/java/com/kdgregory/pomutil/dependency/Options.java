@@ -24,11 +24,16 @@ public class Options
      *  Selects the target directory for the dependency check. By default, checks the
      *  current working directory.
      */
-    public final static String  TARGET_DIRECTORY    = "--projectDirectory";
+    public final static String  TARGET_DIRECTORY            = "--projectDirectory";
 
 
     /**
      *  Ignores the specified depdendency when flagging unused dependencies.
      */
-    public final static String  IGNORE_UNUSED_DPCY   = "--ignoreUnusedDependency";
+    public final static String  IGNORE_UNUSED_DPCY          = "--ignoreUnusedDependency";
+    
+    /**
+     *  Reports unused runtime-scoped dependencies.
+     */
+    public final static String  REPORT_UNUSED_RUNTIME_DPCY  = "--reportUnusedRuntimeDependencies";
 }

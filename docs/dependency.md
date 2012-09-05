@@ -14,12 +14,23 @@ any direct dependencies, and those direct dependencies that are not referenced b
 
     Selects a project directory for the check. By default, checks the current directory.
 
-* `--ignoreUnusedDependency`=GROUPID[:ARTIFACTID]
+* `--ignoreUnusedDependency=GROUPID[:ARTIFACTID]`
 
     Removes dependencies from the "unused dependency" list. This is used if you load classes via
     reflection: since the dependency scanner looks for explicit references within the classfile,
     it will report a false positive if you use reflection to load classes (or call methods that
     do).
+
+    Another source of false positives are libraries, like `spring-test`, that do not properly
+    manage their own dependencies (ie, they mark a dependency as "provided," or assume that it
+    will be fulfilled from a transitive dependency that's marked as such).
+
+* `--reportUnusedRuntimeDependencies`
+
+    By default, dependencies with scope `runtime` are removed from the unused dependencies list;
+    they're expected to be unused. This option is useful if you want to actually see how many of
+    this type of dependency are in your POM (and determine whether they're actually needed at
+    runtime).
 
 ## Notes
 

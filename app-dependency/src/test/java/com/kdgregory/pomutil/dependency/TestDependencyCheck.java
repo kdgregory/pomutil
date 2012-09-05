@@ -101,8 +101,6 @@ public class TestDependencyCheck
         Main checker = new Main(args);
         checker.run();
 
-        // assertions duplicate the self-contained project; they've just been re-arranged
-
         assertTrue("unsupported mainline class",                checker.getUnsupportedMainlineClasses().contains("org.apache.bcel.classfile.ClassParser"));
         assertTrue("unsupported mainline package",              checker.getUnsupportedMainlinePackages().contains("org.apache.bcel.classfile"));
 
@@ -127,6 +125,24 @@ public class TestDependencyCheck
     }
 
 
+    @Test
+    public void testReportUnusedRuntimeDependencies() throws Exception
+    {
+        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency",
+                                                 "--reportUnusedRuntimeDependencies");
+        Main checker = new Main(args);
+        checker.run();
+
+        Set<String> unusedMainlineDependencies = extractArtifactIds(checker.getUnusedMainlineDependencies());
+        assertEquals("unused mainline dependency count",        3, unusedMainlineDependencies.size());
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("bcelx"));
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("commons-io"));
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("commons-logging"));
+
+    }
+
+
+
     public void testSelf() throws Exception
     {
         Main checker = new Main();
@@ -137,6 +153,4 @@ public class TestDependencyCheck
         assertEquals("no unused test dependencies",             0, checker.getUnusedTestDependencies().size());
         assertEquals("no mis-scoped dependencies",              0, checker.getIncorrectMainlineDependencies().size());
     }
-
-
 }

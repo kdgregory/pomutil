@@ -58,6 +58,7 @@ public class Main
     private File cwd;
     private DependencyScanner dependencyScanner;
     private Collection<String> ignoredDependencies;
+    private boolean reportUnusedRuntimeDependences;
 
     private SortedSet<String> mainlineReferencedClasses = new TreeSet<String>();
     private SortedSet<String> testReferencedClasses = new TreeSet<String>();
@@ -82,6 +83,7 @@ public class Main
     public Main(InvocationArgs args)
     {
         ignoredDependencies = args.getOptionValues(Options.IGNORE_UNUSED_DPCY);
+        reportUnusedRuntimeDependences = args.hasOption(Options.REPORT_UNUSED_RUNTIME_DPCY);
         String projectDir = args.getOptionValue(Options.TARGET_DIRECTORY);
         cwd = StringUtil.isBlank(projectDir)
             ? new File(System.getProperty("user.dir"))
@@ -115,9 +117,9 @@ public class Main
         removeJDKClasses();
 
         findReferencedDependencies(mainlineReferencedClasses, mainlineReferencedDependencies, mainlineUnsupportedClasses,
-                                  Scope.COMPILE, Scope.SYSTEM, Scope.RUNTIME, Scope.PROVIDED);
+                                  Scope.COMPILE, Scope.SYSTEM, Scope.PROVIDED);
         findReferencedDependencies(testReferencedClasses, testReferencedDependencies, testUnsupportedClasses,
-                                  Scope.COMPILE, Scope.SYSTEM, Scope.RUNTIME, Scope.PROVIDED, Scope.TEST);
+                                  Scope.COMPILE, Scope.SYSTEM, Scope.PROVIDED, Scope.TEST);
 
         findUnusedDependencies(dependencyScanner.getDependencies(Scope.COMPILE, Scope.SYSTEM, Scope.RUNTIME, Scope.PROVIDED),
                                     mainlineReferencedDependencies,
@@ -128,6 +130,7 @@ public class Main
                                     testUnusedDependencies);
 
         moveImproperlyScopedDependencies();
+        removeRuntimeScopedUnusedDependencies();
         removeIgnoredUnusedDependencies(mainlineUnusedDependencies, testUnusedDependencies);
         convertUnsupportedClassesToPackages(mainlineUnsupportedClasses, mainlineUnsupportedPackages);
         convertUnsupportedClassesToPackages(testUnsupportedClasses, testUnsupportedPackages);
@@ -305,6 +308,21 @@ public class Main
                 mainlineIncorrectDependencies.add(artifact);
                 itx.remove();
             }
+        }
+    }
+
+
+    private void removeRuntimeScopedUnusedDependencies()
+    {
+        if (reportUnusedRuntimeDependences)
+            return;
+
+        Iterator<Artifact> itx = mainlineUnusedDependencies.iterator();
+        while (itx.hasNext())
+        {
+            Artifact artifact = itx.next();
+            if (artifact.scope == Scope.RUNTIME)
+                itx.remove();
         }
     }
 

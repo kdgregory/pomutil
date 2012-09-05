@@ -22,7 +22,7 @@ This project is built with Maven:
 
     `mvn clean install`
 
-Each of the modules is in its own "app" directory. The build process produces a "shared" executable JAR
+Each of the modules is in its own "app" directory. The build process produces a "shaded" executable JAR
 (one that contains all dependencies needed to run), so you can invoke a given app like so:
 
     `java -jar target/application.jar APP_SPECIFIC_ARGUMENTS`

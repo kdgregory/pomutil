@@ -94,9 +94,8 @@ public class Utils
      *  Returns the local repository file that satisfies the passed dependency,
      *  <code>null</code> if there is no such file.
      */
-    public static File getLocalRepositoryFile(Artifact artifact)
+    public static File getLocalRepositoryFile(Artifact artifact, File localRepo)
     {
-        File localRepo = new File(new File(System.getProperty("user.home"), ".m2"), "repository");
         String repoPath = artifact.groupId.replace('.', '/')
                         + "/" + artifact.artifactId
                         + "/" + artifact.version
@@ -104,6 +103,17 @@ public class Utils
 
         File file = new File(localRepo, repoPath);
         return file.exists() ? file : null;
+    }
+
+
+    /**
+     *  Returns the local repository file that satisfies the passed dependency,
+     *  <code>null</code> if there is no such file.
+     */
+    public static File getLocalRepositoryFile(Artifact artifact)
+    {
+        File localRepo = new File(new File(System.getProperty("user.home"), ".m2"), "repository");
+        return getLocalRepositoryFile(artifact, localRepo);
     }
 
 

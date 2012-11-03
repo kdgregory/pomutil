@@ -20,6 +20,12 @@
         available to anyone reading this file.
     </description>
 
+    <properties>
+        <!-- these two properties  used to test ResolvedPom -->
+        <test.prop.child>foo</test.prop.child>
+        <test.prop.combined>${test.prop.child}-${test.prop.parent}-baz</test.prop.combined>
+    </properties>
+
 
     <dependencies>
         <!-- see "test-dependency" project for description of what dependency is for what test -->
@@ -37,6 +43,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

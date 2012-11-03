@@ -112,27 +112,27 @@ public class TestDependencyScanner
         DependencyScanner scanner = new DependencyScanner(pomFile);
 
         Map<String,Scope> allDependencies = mapArtifacts(scanner.getDependencies());
-        assertEquals("count of dependencies, general select",           6, allDependencies.size());
+        assertEquals("count of dependencies, general select",           7, allDependencies.size());
         assertEquals("compile-scope dependency, general select",        Scope.COMPILE, allDependencies.get("commons-io"));
         assertEquals("test-scope dependency, general select",           Scope.TEST,    allDependencies.get("junit"));
         assertNull("transitive dependency, general select",             allDependencies.get("bcel"));
 
         Map<String,Scope> allDependencies2 = mapArtifacts(scanner.getDependencies(Scope.COMPILE, Scope.TEST));
-        assertEquals("count of dependencies, scope select",             6, allDependencies2.size());
+        assertEquals("count of dependencies, scope select",             7, allDependencies2.size());
         assertEquals("compile-scope dependency, scope select",          Scope.COMPILE, allDependencies2.get("commons-io"));
         assertEquals("test-scope dependency, scope select",             Scope.TEST,    allDependencies2.get("junit"));
         assertNull("transitive dependency, scope select",               allDependencies2.get("bcel"));
 
         Map<String,Scope> compileDependencies = mapArtifacts(scanner.getDependencies(Scope.COMPILE));
 
-        assertEquals("compile-scope select returned expected count",    3, compileDependencies.size());
+        assertEquals("compile-scope select returned expected count",    4, compileDependencies.size());
         assertTrue("compile-scope select returned expected artifact",   compileDependencies.containsKey("commons-io"));
         assertFalse("compile-scope select returned test artifact",      compileDependencies.containsKey("junit"));
 
         Map<String,Scope> testDependencies = mapArtifacts(scanner.getDependencies(Scope.TEST));
 
-        assertEquals("compile-scope select returned expected count",    3, testDependencies.size());
-        assertTrue("compile-scope select returned expected artifact",   testDependencies.containsKey("junit"));
-        assertFalse("compile-scope select returned compile artifact",   testDependencies.containsKey("commons-io"));
+        assertEquals("test-scope select returned expected count",       3, testDependencies.size());
+        assertTrue("test-scope select returned expected artifact",      testDependencies.containsKey("junit"));
+        assertFalse("test-scope select returned compile artifact",      testDependencies.containsKey("commons-io"));
     }
 }

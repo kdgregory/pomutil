@@ -132,7 +132,7 @@ implements Comparable<Artifact>
 //----------------------------------------------------------------------------
 
     /**
-     *  Two instances are equal if all of their fields are equal.
+     *  Two instances are equal if the GAV is equal; other fields are just info.
      */
     @Override
     public final boolean equals(Object obj)

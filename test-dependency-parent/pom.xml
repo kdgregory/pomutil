@@ -12,14 +12,19 @@
     </description>
 
     <properties>
+        <!-- this property is used to test ResolvedPom -->
+        <test.prop.parent>bar</test.prop.parent>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <com.kdgregory.bcelx.version>1.0-SNAPSHOT</com.kdgregory.bcelx.version>
         <commons-codec.version>1.6</commons-codec.version>
         <commons-io.version>2.4</commons-io.version>
+        <commons-lang.version>2.3</commons-lang.version>
         <junit.version>4.10</junit.version>
         <org.springframework.version>3.1.2.RELEASE</org.springframework.version>
     </properties>
+
 
     <!-- this dependencies will propagate to child -->
     <dependencies>
@@ -30,6 +35,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+
+    <!-- ResolvedPom needs to figure this one out -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 
     <repositories>

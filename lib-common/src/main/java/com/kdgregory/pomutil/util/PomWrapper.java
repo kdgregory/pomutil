@@ -14,7 +14,6 @@
 
 package com.kdgregory.pomutil.util;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,11 +22,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.kdgcommons.lang.ObjectUtil;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
-import net.sf.practicalxml.xpath.XPathWrapper;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
 
@@ -37,21 +34,30 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  */
 public class PomWrapper
 {
-    private Document dom;
 
     private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
                                          .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
 
-    private Map<String,XPathWrapper> pomPropertyPaths
-            = new MapBuilder<String,XPathWrapper>(new HashMap<String,XPathWrapper>())
-              .put("project.groupId",    xpFact.newXPath("/mvn:project/mvn:groupId"))
-              .put("project.artifactId", xpFact.newXPath("/mvn:project/mvn:artifactId"))
-              .put("project.version",    xpFact.newXPath("/mvn:project/mvn:version"))
-              .toMap();
+    private Document dom;
+
+    private String groupId;
+    private String artifactId;
+    private String version;
+
 
     public PomWrapper(Document dom)
     {
         this.dom = dom;
+
+        groupId = xpFact.newXPath("/mvn:project/mvn:groupId").evaluateAsString(dom);
+        if (StringUtil.isBlank(groupId))
+            groupId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:groupId").evaluateAsString(dom);
+
+        artifactId = xpFact.newXPath("/mvn:project/mvn:artifactId").evaluateAsString(dom);
+
+        version = xpFact.newXPath("/mvn:project/mvn:version").evaluateAsString(dom);
+        if (StringUtil.isBlank(version))
+            version = xpFact.newXPath("/mvn:project/mvn:parent/mvn:version").evaluateAsString(dom);
     }
 
 
@@ -275,20 +281,65 @@ public class PomWrapper
     }
 
 
+    /**
+     *  Returns this POM's GAV. The group and version will be taken from the POM's
+     *  <code>parent</code> reference, if not specified in the POM itself.
+     */
+    public Artifact getGAV()
+    {
+        return new Artifact(groupId, artifactId, version, "", "pom", "");
+    }
+
+
+    /**
+     *  Returns this POM's parent info, <code>null</code> if the POM does not have
+     *  a parent.
+     */
+    public Artifact getParent()
+    {
+        Element parentElem = xpFact.newXPath("/mvn:project/mvn:parent").evaluateAsElement(dom);
+        if (parentElem == null)
+            return null;
+
+        String parentGroupId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:groupId").evaluateAsString(dom);
+        String parentArtifactId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:artifactId").evaluateAsString(dom);
+        String parentVersion = xpFact.newXPath("/mvn:project/mvn:parent/mvn:version").evaluateAsString(dom);
+        return new Artifact(parentGroupId, parentArtifactId, parentVersion, "", "pom", "");
+    }
+
+
+    /**
+     *  Returns this POM's GAV, formatted "group:artifact:version".
+     */
+    @Override
+    public String toString()
+    {
+        return groupId + ":" + artifactId + ":" + version;
+    }
+
+
 //----------------------------------------------------------------------------
 //  Internals
 //----------------------------------------------------------------------------
 
     private String lookupPropertyValue(String propName)
     {
+        // try user-defined properties first
         String propValue = getProperty(propName);
         if (! StringUtil.isBlank(propValue))
             return propValue;
 
-        XPathWrapper xpath = pomPropertyPaths.get(propName);
-        if (xpath != null)
-            return xpath.evaluateAsString(dom);
+        // try to resolve project properties via XPath
+        if (propName.startsWith("project."))
+        {
+            StringBuilder xpath = new StringBuilder(1024);
+            for (String component : propName.split("\\."))
+                xpath.append("/mvn:").append(component);
 
+            return xpFact.newXPath(xpath.toString()).evaluateAsString(dom);
+        }
+
+        // and fall back to system property
         return ObjectUtil.defaultValue(System.getProperty(propName), "");
     }
 }

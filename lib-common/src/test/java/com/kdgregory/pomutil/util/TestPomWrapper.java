@@ -204,11 +204,9 @@ public class TestPomWrapper
 
 
     @Test
-    public void testResolveMavenProperties() throws Exception
+    public void testResolveProjectProperties() throws Exception
     {
         PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper3.xml"));
-
-        // note: this is the complete list of properties that we support
 
         assertEquals("project.groupId",         "com.example.pom",  wrapper.resolveProperties("${project.groupId}"));
         assertEquals("project.artifactId",      "wrapper3",         wrapper.resolveProperties("${project.artifactId}"));
@@ -224,5 +222,55 @@ public class TestPomWrapper
         // assume if one works, they all will
         assertEquals("user.dir",    System.getProperty("user.dir"), wrapper.resolveProperties("${user.dir}"));
     }
+
+
+    @Test
+    public void testGetGAV() throws Exception
+    {
+        PomWrapper wrapper1 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
+        Artifact gav1 = wrapper1.getGAV();
+        assertEquals("groupId, wrapper 1",    "com.example.pom", gav1.groupId);
+        assertEquals("artifactId, wrapper 1", "wrapper1",        gav1.artifactId);
+        assertEquals("version, wrapper 1",    "1.0-SNAPSHOT",    gav1.version);
+        assertEquals("packaging, wrapper 1",  "pom",             gav1.packaging);
+
+        // this one inherits group/version from parent entry
+        PomWrapper wrapper2 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper4.xml"));
+        Artifact gav2 = wrapper2.getGAV();
+        assertEquals("groupId, wrapper 2",    "com.example.pom", gav2.groupId);
+        assertEquals("artifactId, wrapper 2", "wrapper4",        gav2.artifactId);
+        assertEquals("version, wrapper 2",    "1.0-SNAPSHOT",    gav2.version);
+        assertEquals("packaging, wrapper 2",  "pom",             gav2.packaging);
+    }
+
+
+    @Test
+    public void testGetParent() throws Exception
+    {
+        PomWrapper wrapper1 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
+        Artifact gav1 = wrapper1.getParent();
+        assertNull("wrapper 1 has no parent", gav1);
+
+        // this one inherits group/version from parent entry
+        PomWrapper wrapper2 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper4.xml"));
+        Artifact gav2 = wrapper2.getParent();
+        assertEquals("parent groupId, wrapper 2",    "com.example.pom", gav2.groupId);
+        assertEquals("parent artifactId, wrapper 2", "wrapper1",        gav2.artifactId);
+        assertEquals("parent version, wrapper 2",    "1.0-SNAPSHOT",    gav2.version);
+        assertEquals("parent packaging, wrapper 2",  "pom",             gav2.packaging);
+    }
+
+
+    @Test
+    public void testToString() throws Exception
+    {
+        PomWrapper wrapper1 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));
+        assertEquals("com.example.pom:wrapper1:1.0-SNAPSHOT", wrapper1.toString());
+
+        // this one inherits group/version from parent entry
+        PomWrapper wrapper2 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper4.xml"));
+        assertEquals("com.example.pom:wrapper4:1.0-SNAPSHOT", wrapper2.toString());
+    }
+
 
 }

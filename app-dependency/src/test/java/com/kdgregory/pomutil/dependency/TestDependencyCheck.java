@@ -110,9 +110,10 @@ public class TestDependencyCheck
         assertFalse("doesn't contain in-project reference",     checker.getUnsupportedMainlineClasses().contains("com.kdgregory.pomutil.testdata.AnInterface"));
 
         Set<String> unusedMainlineDependencies = extractArtifactIds(checker.getUnusedMainlineDependencies());
-        assertEquals("unused mainline dependency count",        2, unusedMainlineDependencies.size());
+        assertEquals("unused mainline dependency count",        3, unusedMainlineDependencies.size());
         assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("bcelx"));
         assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("commons-io"));
+        assertTrue("unused mainline dependency",                unusedMainlineDependencies.contains("commons-lang"));
 
         Set<String> incorrectMainlineDependencies = extractArtifactIds(checker.getIncorrectMainlineDependencies());
         assertEquals("incorrect mainline dependency count",     1, incorrectMainlineDependencies.size());
@@ -142,9 +143,9 @@ public class TestDependencyCheck
     }
 
 
-
     public void testSelf() throws Exception
     {
+        // running Main without a project directory will use cwd
         Main checker = new Main();
         checker.run();
 

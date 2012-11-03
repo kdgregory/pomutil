@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example.pom</groupId>
+        <artifactId>wrapper1</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>wrapper4</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        This POM has a parent reference, is used to test PomWrapper.getParent()
+    </description>
+
+</project>

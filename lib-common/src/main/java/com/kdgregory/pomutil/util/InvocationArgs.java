@@ -14,7 +14,9 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -149,5 +151,18 @@ public class InvocationArgs
         return (params.size() == 0)
              ? null
              : params.removeFirst();
+    }
+
+
+    /**
+     *  Returns all non-option parameters, removing them from the argument list.
+     */
+    public List<String> shiftAll()
+    {
+        List<String> result = new ArrayList<String>();
+        String param = null;
+        while ((param = shift()) != null)
+            result.add(param);
+        return result;
     }
 }

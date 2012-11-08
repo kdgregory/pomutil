@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -77,11 +76,11 @@ public class ResolvedPom
 //----------------------------------------------------------------------------
 
     /**
-     *  A temporary method to keep DependencyScanner running.
+     *  Returns the project information for the base POM.
      */
-    public List<PomWrapper> getPoms()
+    public Artifact getGAV()
     {
-        return poms;
+        return getPom(0).getGAV();
     }
 
 

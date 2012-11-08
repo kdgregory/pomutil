@@ -43,6 +43,7 @@ public class PomWrapper
     private String groupId;
     private String artifactId;
     private String version;
+    private String packaging;
 
 
     public PomWrapper(Document dom)
@@ -58,6 +59,10 @@ public class PomWrapper
         version = xpFact.newXPath("/mvn:project/mvn:version").evaluateAsString(dom);
         if (StringUtil.isBlank(version))
             version = xpFact.newXPath("/mvn:project/mvn:parent/mvn:version").evaluateAsString(dom);
+
+        packaging = xpFact.newXPath("/mvn:project/mvn:packaging").evaluateAsString(dom);
+        if (StringUtil.isBlank(version))
+            packaging = "jar";
     }
 
 
@@ -287,7 +292,7 @@ public class PomWrapper
      */
     public Artifact getGAV()
     {
-        return new Artifact(groupId, artifactId, version, "", "pom", "");
+        return new Artifact(groupId, artifactId, version, "", packaging, "");
     }
 
 

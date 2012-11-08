@@ -232,7 +232,7 @@ public class TestPomWrapper
         assertEquals("groupId, wrapper 1",    "com.example.pom", gav1.groupId);
         assertEquals("artifactId, wrapper 1", "wrapper1",        gav1.artifactId);
         assertEquals("version, wrapper 1",    "1.0-SNAPSHOT",    gav1.version);
-        assertEquals("packaging, wrapper 1",  "pom",             gav1.packaging);
+        assertEquals("packaging, wrapper 1",  "jar",             gav1.packaging);
 
         // this one inherits group/version from parent entry
         PomWrapper wrapper2 = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper4.xml"));
@@ -240,7 +240,7 @@ public class TestPomWrapper
         assertEquals("groupId, wrapper 2",    "com.example.pom", gav2.groupId);
         assertEquals("artifactId, wrapper 2", "wrapper4",        gav2.artifactId);
         assertEquals("version, wrapper 2",    "1.0-SNAPSHOT",    gav2.version);
-        assertEquals("packaging, wrapper 2",  "pom",             gav2.packaging);
+        assertEquals("packaging, wrapper 2",  "jar",             gav2.packaging);
     }
 
 

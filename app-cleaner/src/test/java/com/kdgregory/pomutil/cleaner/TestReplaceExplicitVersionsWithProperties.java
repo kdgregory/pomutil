@@ -267,6 +267,26 @@ extends AbstractTransformerTest
 
 
     @Test
+    public void testIgnorePluginsWithoutVersions() throws Exception
+    {
+        new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps10.xml")).transform();
+
+        // note: there's only one plugin defined
+        assertEquals("plugin group",    "com.example",
+                                        newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:groupId")
+                                        .evaluateAsString(dom()));
+        assertEquals("plugin artifact", "example-plugin",
+                                        newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:artifactId")
+                                        .evaluateAsString(dom()));
+        assertEquals("plugin version",  "",
+                                        newXPath("/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin/mvn:version")
+                                        .evaluateAsString(dom()));
+
+    }
+
+
+
+    @Test
     public void testDisabled() throws Exception
     {
         InvocationArgs args = new InvocationArgs("--noVersionProps");

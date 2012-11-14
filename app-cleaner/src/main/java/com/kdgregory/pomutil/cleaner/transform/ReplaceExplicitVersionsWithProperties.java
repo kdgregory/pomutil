@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
 
 import org.apache.log4j.Logger;
 
+import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.Options;
@@ -142,6 +143,8 @@ extends AbstractTransformer
         for (Element dependency : dependencies)
         {
             String currentVersion = pom.selectValue(dependency, "mvn:version");
+            if (StringUtil.isBlank(currentVersion))
+                continue;
             if (currentVersion.startsWith("${"))
                 continue;
 

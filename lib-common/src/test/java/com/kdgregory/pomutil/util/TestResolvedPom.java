@@ -32,10 +32,10 @@ public class TestResolvedPom
         ResolvedPom pom = new ResolvedPom(pomFile);
 
         PomWrapper child = pom.getPom(0);
-        assertEquals("com.kdgregory.pomutil:test-dependency-child:1.0-SNAPSHOT", child.toString());
+        assertEquals("com.kdgregory.pomutil:test-dependency-child:0.0.0-SNAPSHOT", child.toString());
 
         PomWrapper parent = pom.getPom(1);
-        assertEquals("com.kdgregory.pomutil:test-dependency-parent:1.0-SNAPSHOT", parent.toString());
+        assertEquals("com.kdgregory.pomutil:test-dependency-parent:0.0.0-SNAPSHOT", parent.toString());
     }
 
 
@@ -60,8 +60,8 @@ public class TestResolvedPom
         assertEquals("number of dependencies", 7, dependencies.size());
 
         // this one is defined by child
-        assertTrue("com.kdgregory.bcelx:bcelx:1.0-SNAPSHOT",
-                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0-SNAPSHOT")));
+        assertTrue("com.kdgregory.bcelx:bcelx:1.0.0",
+                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0.0")));
 
         // this one is defined by parent
         assertTrue("junit:junit:4.10",

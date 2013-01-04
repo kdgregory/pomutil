@@ -3,7 +3,7 @@
 
     <groupId>com.kdgregory.pomutil</groupId>
     <artifactId>test-dependency-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DependencyCheck Test Data - Parent</name>
@@ -17,7 +17,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <com.kdgregory.bcelx.version>1.0-SNAPSHOT</com.kdgregory.bcelx.version>
+        <com.kdgregory.bcelx.version>1.0.0</com.kdgregory.bcelx.version>
         <commons-codec.version>1.6</commons-codec.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-lang.version>2.3</commons-lang.version>

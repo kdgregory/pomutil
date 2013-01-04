@@ -30,7 +30,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- all dependency versions are specified here -->
-        <com.kdgregory.bcelx.version>1.0-SNAPSHOT</com.kdgregory.bcelx.version>
+        <com.kdgregory.bcelx.version>1.0.0</com.kdgregory.bcelx.version>
         <junit.version>4.10</junit.version>
         <kdgcommons.version>1.0.7</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>

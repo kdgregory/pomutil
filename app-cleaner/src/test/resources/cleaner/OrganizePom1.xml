@@ -6,7 +6,7 @@
     </description>
 
     <groupId>com.example.pom</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <artifactId>OrganizePom1</artifactId>
     <packaging>jar</packaging>
 

@@ -55,7 +55,7 @@ extends AbstractTransformerTest
         assertEquals("child 2 text", "OrganizePom1",    DomUtil.getText(children.get(2)));
 
         assertEquals("child 3 name", "version",         children.get(3).getLocalName());
-        assertEquals("child 3 text", "1.0-SNAPSHOT",    DomUtil.getText(children.get(3)));
+        assertEquals("child 3 text", "0.0.0-SNAPSHOT",  DomUtil.getText(children.get(3)));
 
         assertEquals("child 4 name", "packaging",       children.get(4).getLocalName());
         assertEquals("child 4 text", "jar",             DomUtil.getText(children.get(4)));

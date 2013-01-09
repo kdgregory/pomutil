@@ -48,7 +48,7 @@ public class TestDependencyCheck
     @Test
     public void testBasicOperation() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency");
+        InvocationArgs args = new InvocationArgs("../test-dependency");
         Main checker = new Main(args);
         checker.run();
 
@@ -79,8 +79,9 @@ public class TestDependencyCheck
     @Test
     public void testIgnoreUnusedDepenencies() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency",
-                                                 "--ignoreUnusedDependency=commons-io", "--ignoreUnusedDependency=org.springframework:spring-core");
+        InvocationArgs args = new InvocationArgs("../test-dependency",
+                                                 "--ignoreUnusedDependency=commons-io",
+                                                 "--ignoreUnusedDependency=org.springframework:spring-core");
         Main checker = new Main(args);
         checker.run();
 
@@ -97,7 +98,7 @@ public class TestDependencyCheck
     @Test
     public void testParentPom() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency-child");
+        InvocationArgs args = new InvocationArgs("../test-dependency-child");
         Main checker = new Main(args);
         checker.run();
 
@@ -129,7 +130,7 @@ public class TestDependencyCheck
     @Test
     public void testReportUnusedRuntimeDependencies() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--projectDirectory=../test-dependency",
+        InvocationArgs args = new InvocationArgs("../test-dependency",
                                                  "--reportUnusedRuntimeDependencies");
         Main checker = new Main(args);
         checker.run();

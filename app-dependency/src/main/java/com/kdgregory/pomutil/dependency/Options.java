@@ -21,17 +21,11 @@ package com.kdgregory.pomutil.dependency;
 public class Options
 {
     /**
-     *  Selects the target directory for the dependency check. By default, checks the
-     *  current working directory.
-     */
-    public final static String  TARGET_DIRECTORY            = "--projectDirectory";
-
-
-    /**
      *  Ignores the specified depdendency when flagging unused dependencies.
      */
     public final static String  IGNORE_UNUSED_DPCY          = "--ignoreUnusedDependency";
-    
+
+
     /**
      *  Reports unused runtime-scoped dependencies.
      */

@@ -84,10 +84,8 @@ public class Main
     {
         ignoredDependencies = args.getOptionValues(Options.IGNORE_UNUSED_DPCY);
         reportUnusedRuntimeDependences = args.hasOption(Options.REPORT_UNUSED_RUNTIME_DPCY);
-        String projectDir = args.getOptionValue(Options.TARGET_DIRECTORY);
-        cwd = StringUtil.isBlank(projectDir)
-            ? new File(System.getProperty("user.dir"))
-            : new File(projectDir);
+        String projectDir = ObjectUtil.defaultValue(args.shift(), System.getProperty("user.dir"));
+        cwd = new File(projectDir);
     }
 
 

@@ -15,6 +15,8 @@
 package com.kdgregory.pomutil.cleaner;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.w3c.dom.Document;
 
@@ -58,10 +60,30 @@ public class Main
 //----------------------------------------------------------------------------
 
     private InvocationArgs args;
+    private PomWrapper pom;
+    private OutputStream out;
 
+
+    /**
+     *  Constructor for command-line invocation. Will read POM from arguments.
+     */
     public Main(InvocationArgs args)
+    throws Exception
     {
         this.args = args;
+        this.pom = new PomWrapper(readDocument(args));
+    }
+
+
+    /**
+     *  Constructor for programmatic invocation. Output stream is closed
+     *  but input is not.
+     */
+    public Main(InvocationArgs args, InputStream in, OutputStream out)
+    {
+        this.args = args;
+        this.pom = new PomWrapper(ParseUtil.parse(new InputSource(in)));
+        this.out = out;
     }
 
 
@@ -72,14 +94,12 @@ public class Main
     public void run()
     throws Exception
     {
-        PomWrapper pom = new PomWrapper(readDocument(args));
-
         new InsertCommonProperties(pom, args).transform();
         new NormalizeDependencies(pom, args).transform();
         new SortDependencies(pom, args).transform();
         new ReplaceExplicitVersionsWithProperties(pom, args).transform();
 
-        new OutputHandler().writeOutput(pom.getDom(), args);
+        new OutputHandler(args, out).writeOutput(pom.getDom());
     }
 
 

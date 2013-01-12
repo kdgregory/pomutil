@@ -1,0 +1,41 @@
+BODY {
+    background-color: #CCC;
+}
+
+
+FIELDSET {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+LEGEND {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+INPUT, TEXTAREA {
+    background-color: #FFF;
+}
+
+
+#heading {
+}
+
+
+#heading .title {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+
+#request {
+}
+
+#request TH {
+    text-align: right;
+    font-weight: normal;
+}
+
+
+#response {
+}

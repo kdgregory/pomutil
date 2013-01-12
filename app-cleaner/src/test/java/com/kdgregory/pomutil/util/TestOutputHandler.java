@@ -104,7 +104,7 @@ public class TestOutputHandler
         Document dom = ParseUtil.parse(src);
 
         InvocationArgs args = new InvocationArgs("--noPrettyPrint");
-        new OutputHandler().writeOutput(dom, args);
+        new OutputHandler(args).writeOutput(dom);
 
         assertEquals("no transform", src, getOutput());
     }
@@ -119,7 +119,7 @@ public class TestOutputHandler
         Document dom = ParseUtil.parse(src);
 
         InvocationArgs args = new InvocationArgs("--prettyPrint=3");
-        new OutputHandler().writeOutput(dom, args);
+        new OutputHandler(args).writeOutput(dom);
 
         assertEquals("<root>\n   <child>value</child>\n</root>", getOutput());
     }

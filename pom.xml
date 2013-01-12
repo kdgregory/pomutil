@@ -20,6 +20,7 @@
         <module>test-dependency-child</module>
         <module>lib-common</module>
         <module>app-cleaner</module>
+        <module>web-cleaner</module>
         <module>app-dependency</module>
     </modules>
 
@@ -31,10 +32,15 @@
 
         <!-- all dependency versions are specified here -->
         <com.kdgregory.bcelx.version>1.0.0</com.kdgregory.bcelx.version>
+        <commons-fileupload.version>1.2.2</commons-fileupload.version>
+        <commons-io.version>2.4</commons-io.version>
+        <javax.servlet.version>2.4</javax.servlet.version>
+        <javax.jstl.version>1.1.1</javax.jstl.version>
         <junit.version>4.10</junit.version>
         <kdgcommons.version>1.0.7</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
         <practicalxml.version>1.1.13</practicalxml.version>
+        <springframework.version>3.1.1.RELEASE</springframework.version>
 
         <!-- versions for the build tools themselve are here -->
         <plugin.compiler.version>2.3.2</plugin.compiler.version>

@@ -28,7 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import net.sf.kdgcommons.io.IOUtil;
 
-import com.kdgregory.pomutil.cleaner.Main;
+import com.kdgregory.pomutil.cleaner.Cleaner;
 import com.kdgregory.pomutil.util.InvocationArgs;
 
 
@@ -65,7 +65,7 @@ public class MainController
         {
             in = file.getInputStream();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new Main(new InvocationArgs(), in, out).run();
+            new Cleaner(new InvocationArgs(), in, out).run();
             result = new String(out.toByteArray(), "UTF-8");
         }
         catch (Exception ex)

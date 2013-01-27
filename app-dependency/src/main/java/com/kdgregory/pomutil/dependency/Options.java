@@ -16,7 +16,7 @@ package com.kdgregory.pomutil.dependency;
 
 
 /**
- *  Options to control the behavior of {@link Main}.
+ *  Options to control the behavior of {@link DependencyCheck}.
  */
 public class Options
 {

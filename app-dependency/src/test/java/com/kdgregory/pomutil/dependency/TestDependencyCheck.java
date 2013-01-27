@@ -49,7 +49,7 @@ public class TestDependencyCheck
     public void testBasicOperation() throws Exception
     {
         InvocationArgs args = new InvocationArgs("../test-dependency");
-        Main checker = new Main(args);
+        DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
         assertTrue("unsupported mainline class",                checker.getUnsupportedMainlineClasses().contains("org.apache.bcel.classfile.ClassParser"));
@@ -82,7 +82,7 @@ public class TestDependencyCheck
         InvocationArgs args = new InvocationArgs("../test-dependency",
                                                  "--ignoreUnusedDependency=commons-io",
                                                  "--ignoreUnusedDependency=org.springframework:spring-core");
-        Main checker = new Main(args);
+        DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
         Set<String> unusedMainlineDependencies = extractArtifactIds(checker.getUnusedMainlineDependencies());
@@ -99,7 +99,7 @@ public class TestDependencyCheck
     public void testParentPom() throws Exception
     {
         InvocationArgs args = new InvocationArgs("../test-dependency-child");
-        Main checker = new Main(args);
+        DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
         assertTrue("unsupported mainline class",                checker.getUnsupportedMainlineClasses().contains("org.apache.bcel.classfile.ClassParser"));
@@ -132,7 +132,7 @@ public class TestDependencyCheck
     {
         InvocationArgs args = new InvocationArgs("../test-dependency",
                                                  "--reportUnusedRuntimeDependencies");
-        Main checker = new Main(args);
+        DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
         Set<String> unusedMainlineDependencies = extractArtifactIds(checker.getUnusedMainlineDependencies());
@@ -147,7 +147,7 @@ public class TestDependencyCheck
     public void testSelf() throws Exception
     {
         // running Main without a project directory will use cwd
-        Main checker = new Main();
+        DependencyCheck checker = new DependencyCheck();
         checker.run();
 
         assertTrue("expected unsupported mainline package",     checker.getUnsupportedMainlinePackages().contains("org.apache.bcel.classfile"));

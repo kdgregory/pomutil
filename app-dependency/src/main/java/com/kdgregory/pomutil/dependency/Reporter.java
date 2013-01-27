@@ -35,9 +35,9 @@ public class Reporter
     private final static String OUTPUT_FORMAT = "%-32s %s%n";
 
     private InvocationArgs args;
-    private Main checker;
+    private DependencyCheck checker;
 
-    public Reporter(InvocationArgs args, Main checker)
+    public Reporter(InvocationArgs args, DependencyCheck checker)
     {
         this.args = args;
         this.checker = checker;

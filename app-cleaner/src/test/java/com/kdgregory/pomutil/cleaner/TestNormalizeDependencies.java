@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.NormalizeDependencies;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestNormalizeDependencies
@@ -77,7 +76,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisabled() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noDependencyNormalize");
+        CommandLine args = new CommandLine("--noDependencyNormalize");
         new NormalizeDependencies(loadPom("cleaner/DependencyNormalize1.xml"), args).transform();
 
         // one check should be sufficient; we'll pick the one with the most happening

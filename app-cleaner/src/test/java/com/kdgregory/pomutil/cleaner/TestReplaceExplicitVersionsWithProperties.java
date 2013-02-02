@@ -22,7 +22,6 @@ import static org.junit.Assert.*;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.ReplaceExplicitVersionsWithProperties;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestReplaceExplicitVersionsWithProperties
@@ -120,7 +119,7 @@ extends AbstractTransformerTest
     @Test
     public void testAlwaysCombineGroupAndArtifact() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--addArtifactIdToProp=com.example");
+        CommandLine args = new CommandLine("--addArtifactIdToProp=com.example");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps4.xml"), args).transform();
 
         // note that the first dependency gets the regular property name, the second gets
@@ -151,7 +150,7 @@ extends AbstractTransformerTest
     @Test
     public void testReplaceExistingVersionProperties() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--replaceExistingProps");
+        CommandLine args = new CommandLine("--replaceExistingProps");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps6.xml"), args).transform();
 
         assertEquals("post-transform property count", 3, newXPath("/mvn:project/mvn:properties/*").evaluate(dom()).size());
@@ -246,7 +245,7 @@ extends AbstractTransformerTest
     @Test
     public void testReplaceExistingPluginVersionProperties() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--replaceExistingProps");
+        CommandLine args = new CommandLine("--replaceExistingProps");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps8.xml"), args).transform();
 
         assertProperty("commons-io.version",                    "2.1");
@@ -289,7 +288,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisabled() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noVersionProps");
+        CommandLine args = new CommandLine("--noVersionProps");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps1.xml"), args).transform();
 
         assertNull("property should not be added",
@@ -302,7 +301,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisablePluginConversion() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noConvertPluginVersions");
+        CommandLine args = new CommandLine("--noConvertPluginVersions");
         new ReplaceExplicitVersionsWithProperties(loadPom("cleaner/VersionProps7.xml"), args).transform();
 
         assertProperty("commons-io.version",                    "2.1");

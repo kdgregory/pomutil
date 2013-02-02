@@ -37,7 +37,7 @@
         <javax.servlet.version>2.4</javax.servlet.version>
         <javax.jstl.version>1.1.1</javax.jstl.version>
         <junit.version>4.10</junit.version>
-        <kdgcommons.version>1.0.7</kdgcommons.version>
+        <kdgcommons.version>1.0.8-SNAPSHOT</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
         <practicalxml.version>1.1.13</practicalxml.version>
         <springframework.version>3.1.1.RELEASE</springframework.version>

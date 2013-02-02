@@ -28,7 +28,6 @@ import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
 import com.kdgregory.pomutil.cleaner.transform.NormalizeDependencies;
 import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
 import com.kdgregory.pomutil.cleaner.transform.ReplaceExplicitVersionsWithProperties;
-import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -42,7 +41,7 @@ public class Cleaner
 //  Instance variables and constructor
 //----------------------------------------------------------------------------
 
-    private InvocationArgs args;
+    private CommandLine args;
     private PomWrapper pom;
     private OutputStream out;
 
@@ -50,7 +49,7 @@ public class Cleaner
     /**
      *  Constructor for command-line invocation. Will read POM from arguments.
      */
-    public Cleaner(InvocationArgs args)
+    public Cleaner(CommandLine args)
     throws Exception
     {
         this.args = args;
@@ -62,7 +61,7 @@ public class Cleaner
      *  Constructor for programmatic invocation. Output stream is closed
      *  but input is not.
      */
-    public Cleaner(InvocationArgs args, InputStream in, OutputStream out)
+    public Cleaner(CommandLine args, InputStream in, OutputStream out)
     {
         this.args = args;
         this.pom = new PomWrapper(ParseUtil.parse(new InputSource(in)));
@@ -96,7 +95,7 @@ public class Cleaner
      *  (which is then removed), or by reading StdIn (if there aren't any
      *  entries in the list).
      */
-    private static Document readDocument(InvocationArgs args)
+    private static Document readDocument(CommandLine args)
     throws Exception
     {
         String filename = args.shift();

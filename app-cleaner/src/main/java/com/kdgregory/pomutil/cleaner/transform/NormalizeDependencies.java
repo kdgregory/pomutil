@@ -6,8 +6,7 @@ import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomWrapper;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -35,10 +34,10 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public NormalizeDependencies(PomWrapper pom, InvocationArgs args)
+    public NormalizeDependencies(PomWrapper pom, CommandLine args)
     {
         super(pom, args);
-        disabled = args.hasOption(Options.NO_DEPENDENCY_NORMALIZE);
+        disabled = ! args.isOptionEnabled(CommandLine.Options.DEPENDENCY_NORMALIZE);
     }
 
 
@@ -47,7 +46,7 @@ extends AbstractTransformer
      */
     public NormalizeDependencies(PomWrapper pom)
     {
-        this(pom, new InvocationArgs());
+        this(pom, new CommandLine());
     }
 
 

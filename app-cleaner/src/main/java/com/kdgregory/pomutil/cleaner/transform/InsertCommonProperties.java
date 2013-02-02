@@ -20,8 +20,7 @@ import java.util.TreeMap;
 import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.kdgcommons.lang.StringUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -46,10 +45,10 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public InsertCommonProperties(PomWrapper pom, InvocationArgs options)
+    public InsertCommonProperties(PomWrapper pom, CommandLine options)
     {
         super(pom, options);
-        disabled = args.hasOption(Options.NO_COMMON_PROPS);
+        disabled = ! options.isOptionEnabled(CommandLine.Options.COMMON_PROPS);
     }
 
 
@@ -58,7 +57,7 @@ extends AbstractTransformer
      */
     public InsertCommonProperties(PomWrapper pom)
     {
-        this(pom, new InvocationArgs());
+        this(pom, new CommandLine());
     }
 
 

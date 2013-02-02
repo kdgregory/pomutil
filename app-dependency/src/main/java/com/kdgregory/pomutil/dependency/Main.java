@@ -14,8 +14,6 @@
 
 package com.kdgregory.pomutil.dependency;
 
-import com.kdgregory.pomutil.util.InvocationArgs;
-
 
 /**
  *  Command-line invocation for {@link DependencyCheck}.
@@ -25,7 +23,7 @@ public class Main
     public static void main(String[] argv)
     throws Exception
     {
-        InvocationArgs args = new InvocationArgs(argv);
+        CommandLine args = new CommandLine(argv);
         DependencyCheck checker = new DependencyCheck(args).run();
         new Reporter(args, checker).output(System.out);
     }

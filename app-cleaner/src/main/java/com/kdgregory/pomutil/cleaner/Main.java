@@ -14,8 +14,6 @@
 
 package com.kdgregory.pomutil.cleaner;
 
-import com.kdgregory.pomutil.util.InvocationArgs;
-
 
 /**
  *  Driver program for single-file cleanup. See README for invocation instructions.
@@ -29,7 +27,7 @@ public class Main
     {
         try
         {
-            new Cleaner(new InvocationArgs(argv)).run();
+            new Cleaner(new CommandLine(argv)).run();
             System.exit(0);
         }
         catch (Throwable ex)

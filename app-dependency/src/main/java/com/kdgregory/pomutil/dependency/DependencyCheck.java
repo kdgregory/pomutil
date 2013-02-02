@@ -30,7 +30,6 @@ import net.sf.kdgcommons.lang.StringUtil;
 
 import com.kdgregory.pomutil.util.Artifact;
 import com.kdgregory.pomutil.util.Artifact.Scope;
-import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.Utils;
 
 
@@ -67,10 +66,10 @@ public class DependencyCheck
     /**
      *  Standard constructor, which processes invocation arguments.
      */
-    public DependencyCheck(InvocationArgs args)
+    public DependencyCheck(CommandLine args)
     {
-        ignoredDependencies = args.getOptionValues(Options.IGNORE_UNUSED_DPCY);
-        reportUnusedRuntimeDependences = args.hasOption(Options.REPORT_UNUSED_RUNTIME_DPCY);
+        ignoredDependencies = args.getOptionValues(CommandLine.Options.IGNORE_UNUSED);
+        reportUnusedRuntimeDependences = args.isOptionEnabled(CommandLine.Options.REPORT_UNUSED_RUNTIME);
         String projectDir = ObjectUtil.defaultValue(args.shift(), System.getProperty("user.dir"));
         cwd = new File(projectDir);
     }
@@ -81,7 +80,7 @@ public class DependencyCheck
      */
     public DependencyCheck()
     {
-        this(new InvocationArgs());
+        this(new CommandLine());
     }
 
 

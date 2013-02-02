@@ -20,7 +20,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestInsertCommonProperties
@@ -57,7 +56,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisabled() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noCommonProps");
+        CommandLine args = new CommandLine("--noCommonProps");
         new InsertCommonProperties(loadPom("cleaner/CommonProps1.xml"), args).transform();
 
         assertEquals("number of properties", 0,

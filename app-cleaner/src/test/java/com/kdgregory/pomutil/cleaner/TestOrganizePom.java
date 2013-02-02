@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.OrganizePom;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestOrganizePom
@@ -39,7 +38,7 @@ extends AbstractTransformerTest
         List<Element> initialChildren = DomUtil.getChildren(root);
         assertEquals("number of children before organize", 9, initialChildren.size());
 
-        InvocationArgs args = new InvocationArgs("--organizePom");
+        CommandLine args = new CommandLine("--organizePom");
         new OrganizePom(pom, args).transform();
 
         List<Element> children = DomUtil.getChildren(root);
@@ -75,7 +74,7 @@ extends AbstractTransformerTest
         loadPom("cleaner/OrganizePom1.xml");
         Element root = dom().getDocumentElement();
 
-        InvocationArgs args = new InvocationArgs();
+        CommandLine args = new CommandLine();
         new OrganizePom(pom, args).transform();
 
         List<Element> children = DomUtil.getChildren(root);
@@ -96,7 +95,7 @@ extends AbstractTransformerTest
         List<Element> initialChildren = DomUtil.getChildren(root);
         assertEquals("number of children before organize", 7, initialChildren.size());
 
-        InvocationArgs args = new InvocationArgs("--organizePom");
+        CommandLine args = new CommandLine("--organizePom");
         new OrganizePom(pom, args).transform();
 
         List<Element> children = DomUtil.getChildren(root);

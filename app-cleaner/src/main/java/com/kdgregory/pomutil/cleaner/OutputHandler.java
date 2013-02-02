@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.List;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -30,8 +31,6 @@ import net.sf.kdgcommons.io.IOUtil;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 
-import com.kdgregory.pomutil.util.InvocationArgs;
-
 
 /**
  *  Responsible for generating output. The output may be written to a file
@@ -41,7 +40,7 @@ import com.kdgregory.pomutil.util.InvocationArgs;
  */
 public class OutputHandler
 {
-    private InvocationArgs args;
+    private CommandLine args;
     private OutputStream out0;
 
 
@@ -49,7 +48,7 @@ public class OutputHandler
      *  Constructor for output to StdOut or file (specified via
      *  invocation arguments).
      */
-    public OutputHandler(InvocationArgs args)
+    public OutputHandler(CommandLine args)
     {
         this(args, null);
     }
@@ -59,7 +58,7 @@ public class OutputHandler
      *  Constructor for known output stream. Caller is responsible for
      *  closing this stream.
      */
-    public OutputHandler(InvocationArgs args, OutputStream out)
+    public OutputHandler(CommandLine args, OutputStream out)
     {
         this.args = args;
         this.out0 = out;
@@ -104,10 +103,10 @@ public class OutputHandler
      */
     private Document postProcess(Document dom)
     {
-        if (args.hasOption(Options.NO_PRETTY_PRINT))
-            return dom;
-
-        DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
+        if (args.isOptionEnabled(CommandLine.Options.PRETTY_PRINT))
+        {
+            DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
+        }
         return dom;
     }
 
@@ -152,15 +151,17 @@ public class OutputHandler
     private void writeOutput(Document dom, Writer out)
     throws IOException
     {
-        if (args.hasOption(Options.NO_PRETTY_PRINT))
+        if (args.isOptionEnabled(CommandLine.Options.PRETTY_PRINT))
         {
-            OutputUtil.compact(new DOMSource(dom), new StreamResult(out));
+            List<String> indentLevel = args.getOptionValues(CommandLine.Options.PRETTY_PRINT);
+            int indent = indentLevel.size() > 0
+                       ? Integer.parseInt(indentLevel.get(0), 10)
+                       : 4;
+            OutputUtil.indented(new DOMSource(dom), new StreamResult(out), indent);
         }
         else
         {
-            Integer indent0 = args.getNumericOptionValue(Options.PRETTY_PRINT);
-            int indent = (indent0 != null) ? indent0.intValue() : 4;
-            OutputUtil.indented(new DOMSource(dom), new StreamResult(out), indent);
+            OutputUtil.compact(new DOMSource(dom), new StreamResult(out));
         }
     }
 }

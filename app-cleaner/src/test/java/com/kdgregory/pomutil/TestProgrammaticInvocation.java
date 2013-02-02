@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.cleaner.Cleaner;
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 
 
 public class TestProgrammaticInvocation
@@ -39,7 +39,7 @@ public class TestProgrammaticInvocation
                          .getResourceAsStream("cleaner/OrganizePom1.xml");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        new Cleaner(new InvocationArgs(), in, out).run();
+        new Cleaner(new CommandLine(), in, out).run();
 
         // the assertions are going to be minimal; we trust other tests
 

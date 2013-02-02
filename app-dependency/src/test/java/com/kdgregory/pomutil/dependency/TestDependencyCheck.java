@@ -22,7 +22,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.kdgregory.pomutil.util.Artifact;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestDependencyCheck
@@ -48,7 +47,7 @@ public class TestDependencyCheck
     @Test
     public void testBasicOperation() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("../test-dependency");
+        CommandLine args = new CommandLine("../test-dependency");
         DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
@@ -79,9 +78,9 @@ public class TestDependencyCheck
     @Test
     public void testIgnoreUnusedDepenencies() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("../test-dependency",
-                                                 "--ignoreUnusedDependency=commons-io",
-                                                 "--ignoreUnusedDependency=org.springframework:spring-core");
+        CommandLine args = new CommandLine("../test-dependency",
+                                           "--ignoreUnusedDependency=commons-io",
+                                           "--ignoreUnusedDependency=org.springframework:spring-core");
         DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
@@ -98,7 +97,7 @@ public class TestDependencyCheck
     @Test
     public void testParentPom() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("../test-dependency-child");
+        CommandLine args = new CommandLine("../test-dependency-child");
         DependencyCheck checker = new DependencyCheck(args);
         checker.run();
 
@@ -130,7 +129,7 @@ public class TestDependencyCheck
     @Test
     public void testReportUnusedRuntimeDependencies() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("../test-dependency",
+        CommandLine args = new CommandLine("../test-dependency",
                                                  "--reportUnusedRuntimeDependencies");
         DependencyCheck checker = new DependencyCheck(args);
         checker.run();

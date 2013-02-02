@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.util;
+package com.kdgregory.pomutil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -27,6 +27,7 @@ import static org.junit.Assert.*;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.ParseUtil;
 
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.cleaner.OutputHandler;
 
 
@@ -103,7 +104,7 @@ public class TestOutputHandler
         String src = "<root>              <child>value</child> \n </root>";
         Document dom = ParseUtil.parse(src);
 
-        InvocationArgs args = new InvocationArgs("--noPrettyPrint");
+        CommandLine args = new CommandLine("--noPrettyPrint");
         new OutputHandler(args).writeOutput(dom);
 
         assertEquals("no transform", src, getOutput());
@@ -118,7 +119,7 @@ public class TestOutputHandler
         String src = "<root>         <child>value</child> \n </root>";
         Document dom = ParseUtil.parse(src);
 
-        InvocationArgs args = new InvocationArgs("--prettyPrint=3");
+        CommandLine args = new CommandLine("--prettyPrint=3");
         new OutputHandler(args).writeOutput(dom);
 
         assertEquals("<root>\n   <child>value</child>\n</root>", getOutput());

@@ -23,7 +23,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestSortDependencies
@@ -52,7 +51,7 @@ extends AbstractTransformerTest
     @Test
     public void testGroupByScope() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--groupDependenciesByScope");
+        CommandLine args = new CommandLine("--groupDependenciesByScope");
         new SortDependencies(loadPom("cleaner/DependencySort2.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);
@@ -69,7 +68,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisabled() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noDependencySort");
+        CommandLine args = new CommandLine("--noDependencySort");
         new SortDependencies(loadPom("cleaner/DependencySort1.xml"), args).transform();
 
         List<Element> dependencies = newXPath("/mvn:project/mvn:dependencies/*").evaluate(dom(), Element.class);

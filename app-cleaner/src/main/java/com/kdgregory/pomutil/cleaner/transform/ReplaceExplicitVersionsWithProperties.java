@@ -14,6 +14,7 @@
 
 package com.kdgregory.pomutil.cleaner.transform;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,9 +27,8 @@ import org.apache.log4j.Logger;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.Artifact;
-import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -56,13 +56,14 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public ReplaceExplicitVersionsWithProperties(PomWrapper pom, InvocationArgs args)
+    public ReplaceExplicitVersionsWithProperties(PomWrapper pom, CommandLine args)
     {
         super(pom, args);
-        disabled = args.hasOption(Options.NO_VERSION_PROPS);
-        replaceExisting = args.hasOption(Options.VP_REPLACE_EXISTING);
-        disablePlugins = args.hasOption(Options.VP_NO_CONVERT_PLUGINS);
-        groupsToAppendArtifactId = args.getOptionValues(Options.VP_ADD_ARTIFACT_GROUP);
+        disabled = ! args.isOptionEnabled(CommandLine.Options.VERSION_PROPS);
+        replaceExisting = args.isOptionEnabled(CommandLine.Options.VP_REPLACE_EXISTING);
+        disablePlugins = ! args.isOptionEnabled(CommandLine.Options.VP_CONVERT_PLUGINS);
+        groupsToAppendArtifactId = new HashSet<String>(args.getOptionValues(
+                                        CommandLine.Options.VP_ARTIFACT_ID));
     }
 
 
@@ -71,7 +72,7 @@ extends AbstractTransformer
      */
     public ReplaceExplicitVersionsWithProperties(PomWrapper pom)
     {
-        this(pom, new InvocationArgs());
+        this(pom, new CommandLine());
     }
 
 

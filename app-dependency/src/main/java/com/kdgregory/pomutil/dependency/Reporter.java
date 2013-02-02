@@ -24,7 +24,6 @@ import java.util.TreeSet;
 import net.sf.kdgcommons.collections.CollectionUtil;
 
 import com.kdgregory.pomutil.util.Artifact;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 /**
@@ -34,10 +33,10 @@ public class Reporter
 {
     private final static String OUTPUT_FORMAT = "%-32s %s%n";
 
-    private InvocationArgs args;
+    private CommandLine args;
     private DependencyCheck checker;
 
-    public Reporter(InvocationArgs args, DependencyCheck checker)
+    public Reporter(CommandLine args, DependencyCheck checker)
     {
         this.args = args;
         this.checker = checker;

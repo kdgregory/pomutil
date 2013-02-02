@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.NormalizePlugins;
-import com.kdgregory.pomutil.util.InvocationArgs;
 
 
 public class TestNormalizePlugins
@@ -69,7 +68,7 @@ extends AbstractTransformerTest
     @Test
     public void testDisabled() throws Exception
     {
-        InvocationArgs args = new InvocationArgs("--noPluginNormalize");
+        CommandLine args = new CommandLine("--noPluginNormalize");
         new NormalizePlugins(loadPom("cleaner/PluginNormalize1.xml"), args).transform();
 
         Element plug1 = newXPath("//mvn:artifactId[text()='maven-antrun-plugin']/..").evaluateAsElement(dom());

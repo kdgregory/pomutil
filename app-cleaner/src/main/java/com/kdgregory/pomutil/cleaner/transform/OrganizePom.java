@@ -25,8 +25,7 @@ import org.w3c.dom.Element;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.ParseUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomWrapper;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -49,10 +48,10 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public OrganizePom(PomWrapper pom, InvocationArgs args)
+    public OrganizePom(PomWrapper pom, CommandLine args)
     {
         super(pom, args);
-        enabled = args.hasOption(Options.ORGANIZE_POM);
+        enabled = args.isOptionEnabled(CommandLine.Options.ORGANIZE_POM);
     }
 
 

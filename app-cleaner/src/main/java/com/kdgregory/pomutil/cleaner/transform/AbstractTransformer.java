@@ -14,14 +14,11 @@
 
 package com.kdgregory.pomutil.cleaner.transform;
 
-
-
-
 import java.util.List;
 
 import org.w3c.dom.Element;
 
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomWrapper;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -51,9 +48,9 @@ public abstract class AbstractTransformer
 //----------------------------------------------------------------------------
 
     protected PomWrapper pom;
-    protected InvocationArgs args;
+    protected CommandLine args;
 
-    public AbstractTransformer(PomWrapper pom, InvocationArgs args)
+    public AbstractTransformer(PomWrapper pom, CommandLine args)
     {
         this.pom = pom;
         this.args = args;

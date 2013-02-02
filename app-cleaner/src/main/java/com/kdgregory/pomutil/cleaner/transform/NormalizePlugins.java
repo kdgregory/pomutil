@@ -1,3 +1,17 @@
+// Copyright Keith D Gregory
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.kdgregory.pomutil.cleaner.transform;
 
 import java.util.Map;
@@ -6,8 +20,7 @@ import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
-import com.kdgregory.pomutil.util.InvocationArgs;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomWrapper;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -36,10 +49,10 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public NormalizePlugins(PomWrapper pom, InvocationArgs args)
+    public NormalizePlugins(PomWrapper pom, CommandLine args)
     {
         super(pom, args);
-        disabled = args.hasOption(Options.NO_PLUGIN_NORMALIZE);
+        disabled = ! args.isOptionEnabled(CommandLine.Options.PLUGIN_NORMALIZE);
     }
 
 
@@ -48,7 +61,7 @@ extends AbstractTransformer
      */
     public NormalizePlugins(PomWrapper pom)
     {
-        this(pom, new InvocationArgs());
+        this(pom, new CommandLine());
     }
 
 

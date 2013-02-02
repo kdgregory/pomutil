@@ -21,9 +21,8 @@ import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
 
-import com.kdgregory.pomutil.cleaner.Options;
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.Artifact;
-import com.kdgregory.pomutil.util.InvocationArgs;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -46,11 +45,11 @@ extends AbstractTransformer
     /**
      *  Base constructor.
      */
-    public SortDependencies(PomWrapper pom, InvocationArgs args)
+    public SortDependencies(PomWrapper pom, CommandLine args)
     {
         super(pom,args);
-        disabled = args.hasOption(Options.NO_DEPENDENCY_SORT);
-        orderByGroup = args.hasOption(Options.GROUP_DEPCY_BY_SCOPE);
+        disabled = ! args.isOptionEnabled(CommandLine.Options.DEPENDENCY_SORT);
+        orderByGroup = args.isOptionEnabled(CommandLine.Options.DEPENDENCY_SORT_BY_SCOPE);
     }
 
 
@@ -59,7 +58,7 @@ extends AbstractTransformer
      */
     public SortDependencies(PomWrapper pom)
     {
-        this(pom, new InvocationArgs());
+        this(pom, new CommandLine());
     }
 
 

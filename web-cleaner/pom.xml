@@ -48,6 +48,11 @@
             <version>${javax.jstl.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.sf.kdgcommons</groupId>
+            <artifactId>kdgcommons</artifactId>
+            <version>${kdgcommons.version}</version>
+        </dependency>
+        <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
             <version>${javax.jstl.version}</version>

@@ -16,6 +16,8 @@ package com.kdgregory.pomutil.cleaner.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import net.sf.kdgcommons.io.IOUtil;
+import net.sf.kdgcommons.util.SimpleCLIParser.OptionDefinition;
 
 import com.kdgregory.pomutil.cleaner.Cleaner;
 import com.kdgregory.pomutil.cleaner.CommandLine;
@@ -42,12 +45,23 @@ public class MainController
 {
     Logger logger = Logger.getLogger(getClass());
 
+    private List<OptionDefinition> supportedOptions = Arrays.asList(
+            new CommandLine().getDefinition(CommandLine.Options.DEPENDENCY_NORMALIZE),
+            new CommandLine().getDefinition(CommandLine.Options.DEPENDENCY_SORT),
+            new CommandLine().getDefinition(CommandLine.Options.DEPENDENCY_SORT_BY_SCOPE),
+            new CommandLine().getDefinition(CommandLine.Options.ORGANIZE_POM),
+            new CommandLine().getDefinition(CommandLine.Options.COMMON_PROPS),
+            new CommandLine().getDefinition(CommandLine.Options.VP_REPLACE_EXISTING)
+            );
+
 
     @RequestMapping(method=RequestMethod.GET)
     public ModelAndView doGet()
     {
         logger.info("invoked via GET");
-        return new ModelAndView("main");
+        ModelAndView mav = new ModelAndView("main");
+        mav.addObject("options", supportedOptions);
+        return mav;
     }
 
 

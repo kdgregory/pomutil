@@ -32,8 +32,16 @@ INPUT, TEXTAREA {
 }
 
 #request TH {
+    padding: .5em 1em .5em 1em;
     text-align: right;
+    font-weight: bold;
+    vertical-align: top;
+}
+
+#request TD {
+    text-align: left;
     font-weight: normal;
+    vertical-align: top;
 }
 
 

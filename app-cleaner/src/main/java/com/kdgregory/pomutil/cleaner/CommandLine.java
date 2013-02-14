@@ -14,9 +14,18 @@
 
 package com.kdgregory.pomutil.cleaner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.kdgcommons.util.SimpleCLIParser;
 
 
+/**
+ *  Command-line processor and option definitions.
+ *  <p>
+ *  In order to simplify usage from the web application, this class manages its
+ *  option definitions as static data, retrievable by key without an instance.
+ */
 public class CommandLine
 extends SimpleCLIParser
 {
@@ -29,64 +38,88 @@ extends SimpleCLIParser
     }
 
 
+    private static OptionDefinition[] optionDefs = new OptionDefinition[]
+    {
+        new OptionDefinition(
+                Options.ORGANIZE_POM,
+                "--organizePom", "--noOrganizePom", false,
+                "Restructure the entire POM to follow the order in the Maven documentation."
+                + " As a side-effect, removes any comments."),
+        new OptionDefinition(
+                Options.PRETTY_PRINT,
+                "--prettyPrint", "--noPrettyPrint", true,
+                "Pretty-print the cleaned POM. By default, indentation is four spaces;"
+                + " you can control this with \"--prettyPrint=VALUE\"."),
+        new OptionDefinition(
+                Options.COMMON_PROPS,
+                "--commonProps", "--noCommonProps", true,
+                "Insert common build properties (such as source encoding) if not already present."),
+        new OptionDefinition(
+                Options.VERSION_PROPS,
+                "--versionProps", "--noVersionProps", true,
+                "Replace hardcoded dependency versions with properties. These properties normally"
+                + " take the form \"GROUPID.version\"; where there are multiple artifacts with the"
+                + " same group but different versions, they take the form \"GROUPID.ARTIFACTID.version\"."),
+        new OptionDefinition(
+                Options.VP_REPLACE_EXISTING,
+                "--replaceExistingProps", "--noReplaceExistingProps", false,
+                "Replace existing properties used as dependency versions (assures that all"
+                + " version properties follow same form). Do not use if you inherit properties"
+                + " from a parent POM"),
+        new OptionDefinition(
+                Options.VP_CONVERT_PLUGINS,
+                "--convertPluginVersions", "--noConvertPluginVersions", true,
+                "Create properties for plugins as well as normal dependencies. These properties"
+                + " take the form \"plugin.ARTIFACTID.version\"."),
+        new OptionDefinition(
+                Options.VP_ARTIFACT_ID,
+                "--addArtifactIdToProp", 1,
+                "For artifacts in the specified group, always construct version properties named"
+                + " \"GROUPID.ARTIFACTID.version\" (often used for organization-local artifacts)."),
+        new OptionDefinition(
+                Options.DEPENDENCY_NORMALIZE,
+                "--dependencyNormalize", "--noDependencyNormalize", true,
+                "Ensure that the children of a <dependency> element follow the order shown"
+                + " in the Maven POM documentation."),
+        new OptionDefinition(
+                Options.DEPENDENCY_SORT,
+                "--dependencySort", "--noDependencySort", true,
+                "Sort <dependency> elements by groupId and artifactId."),
+        new OptionDefinition(
+                Options.DEPENDENCY_SORT_BY_SCOPE,
+                "--groupDependenciesByScope", "--noGroupDependenciesByScope", false,
+                "When sorting <dependency> elements, sort first by scope."),
+        new OptionDefinition(
+                Options.PLUGIN_NORMALIZE,
+                "--pluginNormalize", "--noPluginNormalize", true,
+                "Ensure that the children of a <plugin> element follow the order shown"
+                + " in the Maven POM documentation, and adds an explicit <groupId> if"
+                + " the specification is relying on the default.")
+    };
+
+    private static Map<Object,OptionDefinition> optionDefsByKey
+            = new HashMap<Object,OptionDefinition>();
+
+    static
+    {
+        for (OptionDefinition optionDef : optionDefs)
+        {
+            optionDefsByKey.put(optionDef.getKey(), optionDef);
+        }
+    }
+
+
+    /**
+     *  Retrieves an option definition by its key.
+     */
+    public static OptionDefinition getDefinition(Options key)
+    {
+        return optionDefsByKey.get(key);
+    }
+
+
     public CommandLine(String... argv)
     {
-        super(argv,
-            new OptionDefinition(
-                    Options.ORGANIZE_POM,
-                    "--organizePom", "--noOrganizePom", false,
-                    "Restructure the entire POM to follow the order in the Maven documentation."
-                    + " As a side-effect, removes any comments."),
-            new OptionDefinition(
-                    Options.PRETTY_PRINT,
-                    "--prettyPrint", "--noPrettyPrint", true,
-                    "Pretty-print the cleaned POM. By default, indentation is four spaces;"
-                    + " you can control this with \"--prettyPrint=VALUE\"."),
-            new OptionDefinition(
-                    Options.COMMON_PROPS,
-                    "--commonProps", "--noCommonProps", true,
-                    "Insert common build properties (such as source encoding) if not already present."),
-            new OptionDefinition(
-                    Options.VERSION_PROPS,
-                    "--versionProps", "--noVersionProps", true,
-                    "Replace hardcoded dependency versions with properties. These properties normally"
-                    + " take the form \"GROUPID.version\"; where there are multiple artifacts with the"
-                    + " same group but different versions, they take the form \"GROUPID.ARTIFACTID.version\"."),
-            new OptionDefinition(
-                    Options.VP_REPLACE_EXISTING,
-                    "--replaceExistingProps", "--noReplaceExistingProps", false,
-                    "Replace existing properties used as dependency versions (assures that all"
-                    + " version properties follow same form). Do not use if you inherit properties"
-                    + " from a parent POM"),
-            new OptionDefinition(
-                    Options.VP_CONVERT_PLUGINS,
-                    "--convertPluginVersions", "--noConvertPluginVersions", true,
-                    "Create properties for plugins as well as normal dependencies. These properties"
-                    + " take the form \"plugin.ARTIFACTID.version\"."),
-            new OptionDefinition(
-                    Options.VP_ARTIFACT_ID,
-                    "--addArtifactIdToProp", 1,
-                    "For artifacts in the specified group, always construct version properties named"
-                    + " \"GROUPID.ARTIFACTID.version\" (often used for organization-local artifacts)."),
-            new OptionDefinition(
-                    Options.DEPENDENCY_NORMALIZE,
-                    "--dependencyNormalize", "--noDependencyNormalize", true,
-                    "Ensure that the children of a <dependency> element follow the order shown"
-                    + " in the Maven POM documentation."),
-            new OptionDefinition(
-                    Options.DEPENDENCY_SORT,
-                    "--dependencySort", "--noDependencySort", true,
-                    "Sort <dependency> elements by groupId and artifactId."),
-            new OptionDefinition(
-                    Options.DEPENDENCY_SORT_BY_SCOPE,
-                    "--groupDependenciesByScope", "--noGroupDependenciesByScope", false,
-                    "When sorting <dependency> elements, sort first by scope."),
-            new OptionDefinition(
-                    Options.PLUGIN_NORMALIZE,
-                    "--pluginNormalize", "--noPluginNormalize", true,
-                    "Ensure that the children of a <plugin> element follow the order shown"
-                    + " in the Maven POM documentation, and adds an explicit <groupId> if"
-                    + " the specification is relying on the default.")
-            );
+        super(argv, optionDefs);
     }
 }

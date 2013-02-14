@@ -25,8 +25,9 @@
                     <td>
                         <table class="optionSelect">
                         <c:forEach var="option" items="${options}">
-                            <tr><td> <input type="checkbox" name="${option.key}" value="1"/> </td>
-                                <td> <c:out value="${option.description}" escapeXml="true"/> </td>
+                            <tr><td> <input type="checkbox" name="${option.definition.key}" value="1"
+                                     ${option.value ? "checked" : ""}/> </td>
+                                <td> <c:out value="${option.definition.description}" escapeXml="true"/> </td>
                             </tr>
                         </c:forEach>
                         </table>

@@ -50,11 +50,12 @@ public class MainController
     Logger logger = Logger.getLogger(getClass());
 
     private static List<Options> supportedOptions = Arrays.asList(
-            Options.DEPENDENCY_NORMALIZE,
-            Options.DEPENDENCY_SORT,
-            Options.DEPENDENCY_SORT_BY_SCOPE,
             Options.ORGANIZE_POM,
             Options.COMMON_PROPS,
+            Options.DEPENDENCY_NORMALIZE,
+            Options.PLUGIN_NORMALIZE,
+            Options.DEPENDENCY_SORT,
+            Options.DEPENDENCY_SORT_BY_SCOPE,
             Options.VP_REPLACE_EXISTING);
 
 
@@ -77,7 +78,7 @@ public class MainController
     {
         OptionTranslator options = new OptionTranslator(request);
         
-        logger.info("invoked via POST: file = " + file.getName() + "; options = " + options);
+        logger.info("invoked via POST, options = " + options);
 
         InputStream in = null;
         String result = "";

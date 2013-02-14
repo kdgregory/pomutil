@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import net.sf.kdgcommons.io.IOUtil;
+import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.kdgcommons.util.SimpleCLIParser.OptionDefinition;
 
 import com.kdgregory.pomutil.cleaner.Cleaner;
@@ -74,9 +75,9 @@ public class MainController
             )
     throws Exception
     {
-        logger.info("invoked via POST");
-
         OptionTranslator options = new OptionTranslator(request);
+        
+        logger.info("invoked via POST: file = " + file.getName() + "; options = " + options);
 
         InputStream in = null;
         String result = "";
@@ -113,7 +114,7 @@ public class MainController
      */
     private static class OptionTranslator
     {
-        List<OptionHolder> options = new ArrayList<MainController.OptionHolder>();
+        ArrayList<OptionHolder> options = new ArrayList<MainController.OptionHolder>();
 
         /**
          *  Constructor invoked by GET requests.
@@ -134,6 +135,12 @@ public class MainController
          */
         public OptionTranslator(WebRequest request)
         {
+            for (Options opt : supportedOptions)
+            {
+                OptionDefinition def = CommandLine.getDefinition(opt);
+                boolean optValue = ! StringUtil.isBlank(request.getParameter(opt.name()));
+                options.add(new OptionHolder(def, optValue));
+            }
         }
 
 
@@ -145,7 +152,32 @@ public class MainController
 
         public CommandLine toCommandLine()
         {
-            return new CommandLine();
+            String[] args = new String[options.size()];
+            for (int ii = 0 ; ii < args.length ; ii++)
+            {
+                OptionHolder opt = options.get(ii);
+                args[ii] = opt.isValue() ? opt.getDefinition().getEnableVal()
+                                         : opt.getDefinition().getDisableVal();
+            }
+            return new CommandLine(args);
+        }
+
+
+        @Override
+        public String toString()
+        {
+            StringBuffer sb = new StringBuffer(256).append("[");
+            for (OptionHolder opt : options)
+            {
+                if (opt.isValue())
+                {
+                    if (sb.length() > 1)
+                        sb.append(",");
+                    sb.append(opt.getDefinition().getKey());
+                }
+            }
+            sb.append("]");
+            return sb.toString();
         }
     }
 

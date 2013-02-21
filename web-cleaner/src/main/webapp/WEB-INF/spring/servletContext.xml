@@ -8,6 +8,7 @@
 
     <mvc:annotation-driven />
     <mvc:resources mapping="/resources/**" location="/resources/" />
+    <mvc:view-controller path="/" view-name="redirect:/cleaner" />
 
     <context:component-scan base-package="com.kdgregory.pomutil.cleaner.web" />
 

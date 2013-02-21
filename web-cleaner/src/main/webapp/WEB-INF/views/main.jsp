@@ -7,7 +7,7 @@
 <html>
 <head>
     <title>POMUtil Cleaner</title>
-    <link type="text/css" rel="stylesheet" href="<c:url value='/css/main.css'/>"/>
+    <link type="text/css" rel="stylesheet" href="<c:url value='/resources/css/main.css'/>"/>
 </head>
 <body>
 

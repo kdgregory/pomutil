@@ -47,3 +47,8 @@ INPUT, TEXTAREA {
 
 #response {
 }
+
+#copyright {
+    font-size: normal;
+    font-style: italic;
+}

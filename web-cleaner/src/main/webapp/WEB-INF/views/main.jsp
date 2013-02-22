@@ -40,8 +40,14 @@
 
     <fieldset id="response">
         <legend>Cleaned POM</legend>
-        <textarea name="cleanPOM" rows="36" cols="120">${cleanedPom}</textarea>
+        <textarea name="cleanPOM" rows="32" cols="120">${cleanedPom}</textarea>
     </fieldset>
+    
+    <p id="copyright"> Copyright 2013, Keith D Gregory
+        <br/>
+        Source available from <a href="http://www.github.com/kdgregory/pomutil" target="_blank">GitHub</a>;
+        licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, version 2.0</a>.
+        </p>
 
 </body>
 </html>

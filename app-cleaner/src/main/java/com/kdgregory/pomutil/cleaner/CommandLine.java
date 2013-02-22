@@ -43,8 +43,8 @@ extends SimpleCLIParser
         new OptionDefinition(
                 Options.ORGANIZE_POM,
                 "--organizePom", "--noOrganizePom", false,
-                "Restructure the entire POM to follow the order in the Maven documentation."
-                + " As a side-effect, removes any comments."),
+                "Restructure the entire POM to follow the order in the Maven documentation"
+                + " (as a side-effect, removes any comments between top-level sections)."),
         new OptionDefinition(
                 Options.PRETTY_PRINT,
                 "--prettyPrint", "--noPrettyPrint", true,

@@ -36,6 +36,7 @@ import net.sf.practicalxml.ParseUtil;
  */
 public class ResolvedPom
 {
+    private File repo;
     private ArrayList<PomWrapper> poms = new ArrayList<PomWrapper>();
     private Set<Artifact> dependencies = new TreeSet<Artifact>();
 
@@ -66,7 +67,8 @@ public class ResolvedPom
         if (!repo.isDirectory())
             throw new FileNotFoundException("invalid repository: " + repo);
 
-        buildPomHierarchy(pom, repo);
+        this.repo = repo;
+        buildPomHierarchy(pom);
         resolveDependencies();
     }
 
@@ -139,6 +141,11 @@ public class ResolvedPom
             this.artifactId = artifactId;
         }
 
+        public GAKey(Artifact artifact)
+        {
+            this(artifact.groupId, artifact.artifactId);
+        }
+
         @Override
         public final boolean equals(Object obj)
         {
@@ -168,7 +175,7 @@ public class ResolvedPom
     }
 
 
-    private void buildPomHierarchy(File pom, File repo)
+    private void buildPomHierarchy(File pom)
     {
         while (pom != null)
         {
@@ -181,6 +188,7 @@ public class ResolvedPom
 
 
     private void resolveDependencies()
+    throws IOException
     {
         Map<GAKey,Artifact> accumulator = new HashMap<GAKey,Artifact>();
         for (PomWrapper wrapper : poms)
@@ -192,20 +200,28 @@ public class ResolvedPom
 
 
     private void extractDependencies(PomWrapper wrapper, Map<GAKey,Artifact> accumulator)
+    throws IOException
     {
         for (Element dependency : wrapper.selectElements("/mvn:project/mvn:dependencies/mvn:dependency"))
         {
             String groupId = wrapper.selectValue(dependency, "mvn:groupId").trim();
             String artifactId = wrapper.selectValue(dependency, "mvn:artifactId").trim();
             String version = wrapper.selectValue(dependency, "mvn:version").trim();
-            String packaging = wrapper.selectValue(dependency, "mvn:packaging").trim();
+            String type = wrapper.selectValue(dependency, "mvn:type").trim();
             String scope = wrapper.selectValue(dependency, "mvn:scope").trim();
 
             GAKey key = new GAKey(groupId, artifactId);
             if (accumulator.containsKey(key))
                 continue;
 
-            if (!StringUtil.isBlank(packaging) && !packaging.equalsIgnoreCase("jar"))
+            if (type.equalsIgnoreCase("pom"))
+            {
+                // FIXME - warn if scope not specified
+                resolveImportedPom(groupId, artifactId, version, accumulator);
+                continue;
+            }
+
+            if (!StringUtil.isBlank(type) && !type.equalsIgnoreCase("jar"))
                 continue;
 
             if (StringUtil.isBlank(version))
@@ -217,7 +233,7 @@ public class ResolvedPom
             if (StringUtil.isEmpty(version))
                 continue;
 
-            accumulator.put(key, new Artifact(groupId, artifactId, version, "", packaging, scope));
+            accumulator.put(key, new Artifact(groupId, artifactId, version, "", type, scope));
         }
     }
 
@@ -240,5 +256,17 @@ public class ResolvedPom
         }
 
         return "";
+    }
+
+
+    private void resolveImportedPom(String groupId, String artifactId, String version,  Map<GAKey,Artifact> accumulator)
+    throws IOException
+    {
+        File importedPom = Utils.getLocalRepositoryFile(new Artifact(groupId, artifactId, version, "", "pom", ""), repo);
+        ResolvedPom resolved = new ResolvedPom(importedPom, repo);
+        for (Artifact artifact : resolved.getDependencies())
+        {
+            accumulator.put(new GAKey(artifact), artifact);
+        }
     }
 }

@@ -39,7 +39,7 @@ implements Comparable<Artifact>
      */
     public enum Scope
     {
-        COMPILE, RUNTIME, TEST, SYSTEM, PROVIDED
+        IMPORT, COMPILE, RUNTIME, TEST, SYSTEM, PROVIDED
     }
 
 

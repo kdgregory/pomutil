@@ -71,4 +71,43 @@ public class TestResolvedPom
         assertTrue("commons-lang:commons-lang:2.3",
                    dependencies.contains(new Artifact("commons-lang", "commons-lang", "2.3")));
     }
+
+
+    @Test
+    public void testImportedPOM() throws Exception
+    {
+        ResolvedPom pom = new ResolvedPom(new File("src/test/resources/ImportingPom.xml"));
+        Set<Artifact> dependencies = pom.getDependencies();
+
+        // should not find the imported POM in the list of dependencies
+
+        assertFalse("contains imported POM",
+                   dependencies.contains(new Artifact("com.kdgregory.pomutil", "test-dependency-child", "0.0.0-SNAPSHOT")));
+
+        // should find the dependencies that POM contains (and that resolution handles parent-child relationships)
+        assertTrue("contains dependency defined by child (imported POM)",
+                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0.0")));
+        assertTrue("contains dependency defined by parent",
+                   dependencies.contains(new Artifact("junit", "junit", "4.10")));
+
+    }
+
+
+    @Test
+    public void testImportedPOMSansImportScope() throws Exception
+    {
+        ResolvedPom pom = new ResolvedPom(new File("src/test/resources/ImportingPomSansImportScope.xml"));
+        Set<Artifact> dependencies = pom.getDependencies();
+
+        // should not find the imported POM in the list of dependencies
+
+        assertFalse("contains imported POM",
+                   dependencies.contains(new Artifact("com.kdgregory.pomutil", "test-dependency-child", "0.0.0-SNAPSHOT")));
+
+        // should find the dependencies that POM contains (and that resolution handles parent-child relationships)
+        assertTrue("contains dependency defined by child (imported POM)",
+                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0.0")));
+        assertTrue("contains dependency defined by parent",
+                   dependencies.contains(new Artifact("junit", "junit", "4.10")));
+    }
 }

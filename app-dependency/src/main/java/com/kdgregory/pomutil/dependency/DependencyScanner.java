@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.kdgregory.pomutil.util.Artifact;
 import com.kdgregory.pomutil.util.Artifact.Scope;
@@ -41,7 +42,7 @@ public class DependencyScanner
 //  Instance Variables and Constructors
 //----------------------------------------------------------------------------
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private ResolvedPom pom;
 
@@ -118,7 +119,7 @@ public class DependencyScanner
             File jarFile = Utils.getLocalRepositoryFile(dependency);
             if (jarFile == null)
                 throw new IOException("dependency not in repository: " + dependency);
-            logger.debug("processing " + dependency + " as " + jarFile);
+            logger.debug("processing {} from {}", dependency, jarFile);
             for (String className : Utils.extractClassesFromJar(jarFile))
             {
                 dependencyLookup.put(className, dependency);

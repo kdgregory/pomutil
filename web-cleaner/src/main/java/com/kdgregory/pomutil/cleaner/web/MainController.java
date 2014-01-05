@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,7 +47,7 @@ import com.kdgregory.pomutil.cleaner.CommandLine.Options;
 @RequestMapping("/cleaner")
 public class MainController
 {
-    Logger logger = Logger.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private static List<Options> supportedOptions = Arrays.asList(
             Options.ORGANIZE_POM,
@@ -78,7 +78,7 @@ public class MainController
     {
         OptionTranslator options = new OptionTranslator(request);
         
-        logger.info("invoked via POST, options = " + options);
+        logger.info("invoked via POST, options = {}", options);
 
         InputStream in = null;
         String result = "";

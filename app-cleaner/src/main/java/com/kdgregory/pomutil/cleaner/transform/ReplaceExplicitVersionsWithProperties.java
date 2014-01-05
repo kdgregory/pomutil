@@ -22,7 +22,8 @@ import java.util.TreeSet;
 
 import org.w3c.dom.Element;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
@@ -39,7 +40,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
 public class ReplaceExplicitVersionsWithProperties
 extends AbstractTransformer
 {
-    Logger logger = Logger.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(getClass());
 
 
 //----------------------------------------------------------------------------
@@ -172,8 +173,8 @@ extends AbstractTransformer
             String newPropName = isPlugin
                                ? "plugin." + gav.artifactId + "-" + gav.version + ".version"
                                : gav.groupId + "." + gav.artifactId + ".version";
-            logger.warn("property \"" + propName + "\" already exists with version " + existingVersion
-                        + "; creating \"" + newPropName + "\" for version " + gav.version);
+            logger.warn("property \"{}\" already exists with version {}; creating \"{}\" for version {}",
+                        propName, existingVersion, newPropName, gav.version);
             propName = newPropName;
         }
 

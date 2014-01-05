@@ -23,7 +23,9 @@ import java.util.TreeSet;
 
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.io.IOUtil;
 
@@ -35,7 +37,7 @@ import com.kdgregory.bcelx.classfile.ClassfileUtil;
  */
 public class ClassScanner
 {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     // we use TreeSet because it's easier to examine in a debugger, and the
     // performance difference vs HashSet doesn't matter here
@@ -95,7 +97,7 @@ public class ClassScanner
         }
         else if (filename.endsWith(".class"))
         {
-            logger.debug("processing " + filename);
+            logger.debug("processing {}", filename);
             processStream(new FileInputStream(file), filename);
         }
     }

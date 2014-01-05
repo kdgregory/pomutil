@@ -22,7 +22,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.collections.CollectionUtil;
 import net.sf.kdgcommons.lang.ObjectUtil;
@@ -39,7 +40,7 @@ import com.kdgregory.pomutil.util.Utils;
  */
 public class DependencyCheck
 {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private File cwd;
     private DependencyScanner dependencyScanner;
@@ -223,7 +224,7 @@ public class DependencyCheck
         File rtJarFile = new File(System.getProperty("java.home"), "lib/rt.jar");
         if (!rtJarFile.exists())
         {
-            logger.warn("unable to find rt.jar; results will have Java classes");
+            logger.warn("unable to find rt.jar; results will include Java classes");
             return;
         }
 

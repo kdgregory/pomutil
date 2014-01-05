@@ -39,6 +39,7 @@
         <junit.version>4.10</junit.version>
         <kdgcommons.version>1.0.8</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
+        <org.slf4j.version>1.7.5</org.slf4j.version>
         <practicalxml.version>1.1.13</practicalxml.version>
         <springframework.version>3.1.1.RELEASE</springframework.version>
 
@@ -54,8 +55,9 @@
 
 
     <repositories>
+        <!-- this repository holds snapshots of BCELX, PracticalXML, and KDGCommons -->
+        <!-- currently not needed
         <repository>
-            <!-- this repository holds snapshots of BCELX, PracticalXML, and KDGCommons -->
             <id>sonatype-nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <releases>
@@ -65,6 +67,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        -->
     </repositories>
 
 

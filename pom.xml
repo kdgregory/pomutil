@@ -46,6 +46,7 @@
         <!-- versions for the build tools themselve are here -->
         <plugin.compiler.version>2.3.2</plugin.compiler.version>
         <plugin.shade.version>1.6</plugin.shade.version>
+        <plugin.jetty.version>6.1.26</plugin.jetty.version>
     </properties>
 
 

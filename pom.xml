@@ -18,6 +18,7 @@
         <module>test-dependency</module>
         <module>test-dependency-parent</module>
         <module>test-dependency-child</module>
+        <module>test-dependency-imported</module>
         <module>lib-common</module>
         <module>app-cleaner</module>
         <module>web-cleaner</module>
@@ -36,11 +37,11 @@
         <commons-io.version>2.4</commons-io.version>
         <javax.servlet.version>2.4</javax.servlet.version>
         <javax.jstl.version>1.1.1</javax.jstl.version>
-        <junit.version>4.10</junit.version>
-        <kdgcommons.version>1.0.8</kdgcommons.version>
+        <junit.version>4.11</junit.version>
+        <kdgcommons.version>1.0.14</kdgcommons.version>
         <log4j.version>1.2.12</log4j.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
-        <practicalxml.version>1.1.13</practicalxml.version>
+        <practicalxml.version>1.1.18</practicalxml.version>
         <springframework.version>3.1.1.RELEASE</springframework.version>
 
         <!-- versions for the build tools themselve are here -->
@@ -57,7 +58,6 @@
 
     <repositories>
         <!-- this repository holds snapshots of BCELX, PracticalXML, and KDGCommons -->
-        <!-- currently not needed
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -68,7 +68,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        -->
     </repositories>
 
 

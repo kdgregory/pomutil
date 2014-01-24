@@ -14,6 +14,8 @@
 
 package com.kdgregory.pomutil.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +27,7 @@ import org.w3c.dom.Node;
 import net.sf.kdgcommons.lang.ObjectUtil;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
+import net.sf.practicalxml.ParseUtil;
 import net.sf.practicalxml.xpath.XPathWrapperFactory;
 import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
 
@@ -34,11 +37,11 @@ import net.sf.practicalxml.xpath.XPathWrapperFactory.CacheType;
  */
 public class PomWrapper
 {
+    private Document dom;
 
     private XPathWrapperFactory xpFact = new XPathWrapperFactory(CacheType.SIMPLE)
                                          .bindNamespace("mvn", "http://maven.apache.org/POM/4.0.0");
-
-    private Document dom;
+    private boolean pomWithoutNamespace;
 
     private String groupId;
     private String artifactId;
@@ -46,23 +49,40 @@ public class PomWrapper
     private String packaging;
 
 
+    /**
+     *  Constructs an instance from an already-parsed DOM.
+     */
     public PomWrapper(Document dom)
     {
         this.dom = dom;
 
-        groupId = xpFact.newXPath("/mvn:project/mvn:groupId").evaluateAsString(dom);
+        pomWithoutNamespace = StringUtil.isBlank(dom.getDocumentElement().getNamespaceURI());
+
+        groupId = selectValue(dom, PomPaths.PROJECT_GROUP);
         if (StringUtil.isBlank(groupId))
-            groupId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:groupId").evaluateAsString(dom);
+            groupId = selectValue(dom, PomPaths.PARENT_GROUP);
 
-        artifactId = xpFact.newXPath("/mvn:project/mvn:artifactId").evaluateAsString(dom);
+        artifactId = selectValue(dom, PomPaths.PROJECT_ARTIFACT);
 
-        version = xpFact.newXPath("/mvn:project/mvn:version").evaluateAsString(dom);
+        version = selectValue(dom, PomPaths.PROJECT_VERSION);
         if (StringUtil.isBlank(version))
-            version = xpFact.newXPath("/mvn:project/mvn:parent/mvn:version").evaluateAsString(dom);
+            version = selectValue(dom, PomPaths.PARENT_VERSION);
 
-        packaging = xpFact.newXPath("/mvn:project/mvn:packaging").evaluateAsString(dom);
+        packaging = selectValue(dom, PomPaths.PROJECT_PACKAGING);
         if (StringUtil.isBlank(version))
             packaging = "jar";
+    }
+
+
+    /**
+     *  Constructs an instance from a file.
+     *
+     *  @throws XmlException if unable to parse (for any reason).
+     */
+    public PomWrapper(File file)
+    throws FileNotFoundException
+    {
+        this(ParseUtil.parse(file));
     }
 
 
@@ -104,6 +124,7 @@ public class PomWrapper
      */
     public String selectValue(Node node, String xpath)
     {
+        xpath = mungePath(xpath);
         return xpFact.newXPath(xpath).evaluateAsString(node);
     }
 
@@ -126,6 +147,7 @@ public class PomWrapper
      */
     public Element selectElement(Node node, String xpath)
     {
+        xpath = mungePath(xpath);
         return xpFact.newXPath(xpath).evaluateAsElement(node);
     }
 
@@ -148,6 +170,7 @@ public class PomWrapper
      */
     public List<Element> selectElements(Node node, String xpath)
     {
+        xpath = mungePath(xpath);
         return xpFact.newXPath(xpath).evaluate(node, Element.class);
     }
 
@@ -163,6 +186,7 @@ public class PomWrapper
      */
     public Element selectOrCreateElement(String xpath)
     {
+        xpath = mungePath(xpath);
         Element elem = selectElement(xpath);
         if (elem != null)
             return elem;
@@ -199,7 +223,7 @@ public class PomWrapper
     public Map<String,String> getProperties()
     {
         Map<String,String> properties = new TreeMap<String,String>();
-        for (Element propElem : selectElements("/mvn:project/mvn:properties/*"))
+        for (Element propElem : selectElements(PomPaths.PROJECT_PROPERTIES))
         {
             properties.put(DomUtil.getLocalName(propElem), DomUtil.getText(propElem));
         }
@@ -213,8 +237,7 @@ public class PomWrapper
      */
     public String getProperty(String name)
     {
-        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
-        return selectValue(xpath);
+        return selectValue(pathToProp(name));
     }
 
 
@@ -224,8 +247,7 @@ public class PomWrapper
      */
     public void setProperty(String name, String value)
     {
-        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
-        Element elem = selectOrCreateElement(xpath);
+        Element elem = selectOrCreateElement(pathToProp(name));
         DomUtil.setText(elem, value);
     }
 
@@ -235,8 +257,7 @@ public class PomWrapper
      */
     public void deleteProperty(String name)
     {
-        String xpath = "/mvn:project/mvn:properties/mvn:" + name;
-        Element elem = selectElement(xpath);
+        Element elem = selectElement(pathToProp(name));
         if (elem == null)
             return;
 
@@ -292,7 +313,7 @@ public class PomWrapper
      */
     public Artifact getGAV()
     {
-        return new Artifact(groupId, artifactId, version, "", packaging, "");
+        return new Artifact(groupId, artifactId, version, packaging);
     }
 
 
@@ -302,14 +323,14 @@ public class PomWrapper
      */
     public Artifact getParent()
     {
-        Element parentElem = xpFact.newXPath("/mvn:project/mvn:parent").evaluateAsElement(dom);
+        Element parentElem = selectElement(dom, PomPaths.PARENT);
         if (parentElem == null)
             return null;
 
-        String parentGroupId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:groupId").evaluateAsString(dom);
-        String parentArtifactId = xpFact.newXPath("/mvn:project/mvn:parent/mvn:artifactId").evaluateAsString(dom);
-        String parentVersion = xpFact.newXPath("/mvn:project/mvn:parent/mvn:version").evaluateAsString(dom);
-        return new Artifact(parentGroupId, parentArtifactId, parentVersion, "", "pom", "");
+        String parentGroupId = selectValue(dom, PomPaths.PARENT_GROUP);
+        String parentArtifactId = selectValue(dom, PomPaths.PARENT_ARTIFACT);
+        String parentVersion = selectValue(dom, PomPaths.PARENT_VERSION);
+        return new Artifact(parentGroupId, parentArtifactId, parentVersion, "pom");
     }
 
 
@@ -327,6 +348,13 @@ public class PomWrapper
 //  Internals
 //----------------------------------------------------------------------------
 
+    private String mungePath(String xpath)
+    {
+        if (pomWithoutNamespace) xpath = xpath.replace("mvn:", "");
+        return xpath;
+    }
+
+
     private String lookupPropertyValue(String propName)
     {
         // try user-defined properties first
@@ -341,10 +369,16 @@ public class PomWrapper
             for (String component : propName.split("\\."))
                 xpath.append("/mvn:").append(component);
 
-            return xpFact.newXPath(xpath.toString()).evaluateAsString(dom);
+            return selectValue(dom, xpath.toString());
         }
 
         // and fall back to system property
         return ObjectUtil.defaultValue(System.getProperty(propName), "");
+    }
+
+
+    private static String pathToProp(String propName)
+    {
+        return PomPaths.PROPERTIES_BASE + "/mvn:" + propName;
     }
 }

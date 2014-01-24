@@ -15,34 +15,39 @@
 package com.kdgregory.pomutil.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import org.w3c.dom.Element;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.ParseUtil;
 
 
 /**
- *  Holds information abouta project and its dependencies, including the parent
+ *  Holds information about a project and its dependencies, including the parent
  *  chain. This class may only be used after a project has been built, as it
  *  examines the local repository.
  */
 public class ResolvedPom
 {
-    private File repo;
+    private static Logger logger = LoggerFactory.getLogger(ResolvedPom.class);
+
+    private LocalRepository repo;
     private ArrayList<PomWrapper> poms = new ArrayList<PomWrapper>();
-    private Set<Artifact> dependencies = new TreeSet<Artifact>();
+    private Map<GAKey,Artifact> directDependencies = new TreeMap<GAKey,Artifact>();
+    private List<ResolvedPom> importedPoms = new ArrayList<ResolvedPom>();
 
 
     /**
-     *  Creates an instance that resolves dependencies in the user's local repository.
+     *  Creates an instance that resolves dependencies in the user's default repository.
      *
      *  @param  pom     The project's POM. This is presumed to reside at the root of
      *                  the project directory.
@@ -50,26 +55,36 @@ public class ResolvedPom
     public ResolvedPom(File pom)
     throws IOException
     {
-        this(pom, userRepo());
+        this(pom, new LocalRepository());
     }
 
 
     /**
-     *  Creates an instance that resolves dependencies in the user's local repository.
+     *  Creates an instance that resolves dependencies in the specified repository.
      *
      *  @param  pom     The project's POM. This is presumed to reside at the root of
      *                  the project directory.
      *  @param  repo    The location of the Maven repository.
      */
-    public ResolvedPom(File pom, File repo)
+    public ResolvedPom(File pom, LocalRepository repo)
     throws IOException
     {
-        if (!repo.isDirectory())
-            throw new FileNotFoundException("invalid repository: " + repo);
+        this(new PomWrapper(ParseUtil.parse(pom)), repo);
+    }
 
+
+    /**
+     *  Internal/testing constructor: takes pre-parsed POM.
+     */
+    public ResolvedPom(PomWrapper pom, LocalRepository repo)
+    throws IOException
+    {
         this.repo = repo;
         buildPomHierarchy(pom);
-        resolveDependencies();
+        for (PomWrapper wrapper : poms)
+        {
+            extractDependencies(wrapper);
+        }
     }
 
 
@@ -99,13 +114,22 @@ public class ResolvedPom
 
 
     /**
-     *  Returns all dependencies, including those defined by the parent POM.
-     *  Where the same dependency is specified in multiple levels, the lowest
-     *  level wins. At present, dependency management entries are not used.
+     *  Returns all direct dependencies, including those defined by ancestor POMs.
+     *  Where the same dependency is specified in multiple levels, the lowest level
+     *  (closest to the project POM) wins.
      */
-    public Set<Artifact> getDependencies()
+    public Map<GAKey,Artifact> getDirectDependencies()
     {
-        return dependencies;
+        return directDependencies;
+    }
+
+
+    /**
+     *  Returns all imported POMs.
+     */
+    public Collection<ResolvedPom> getImportedPoms()
+    {
+        return importedPoms;
     }
 
 
@@ -126,103 +150,49 @@ public class ResolvedPom
 //  Internals (primarily called by constructor)
 //----------------------------------------------------------------------------
 
-    /**
-     *  A helper class for extracting dependencies, used for lookups by group
-     *  and artifact IDs.
-     */
-    private static class GAKey
-    {
-        private String groupId;
-        private String artifactId;
-
-        public GAKey(String groupId, String artifactId)
-        {
-            this.groupId = groupId;
-            this.artifactId = artifactId;
-        }
-
-        public GAKey(Artifact artifact)
-        {
-            this(artifact.groupId, artifact.artifactId);
-        }
-
-        @Override
-        public final boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            else if (obj instanceof ResolvedPom.GAKey)
-            {
-                ResolvedPom.GAKey that = (ResolvedPom.GAKey)obj;
-                return this.groupId.equals(that.groupId)
-                    && this.artifactId.equals(that.artifactId);
-            }
-            return false;
-        }
-
-        @Override
-        public final int hashCode()
-        {
-            return artifactId.hashCode();
-        }
-    }
-
-
-    private static File userRepo()
-    {
-        String homeDir = System.getProperty("user.home");
-        return new File(new File(homeDir, ".m2"), "repository");
-    }
-
-
-    private void buildPomHierarchy(File pom)
+    private void buildPomHierarchy(PomWrapper pom)
+    throws IOException
     {
         while (pom != null)
         {
-            PomWrapper wrapper = new PomWrapper(ParseUtil.parse(pom));
-            poms.add(wrapper);
-            Artifact parentRef = wrapper.getParent();
-            pom = (parentRef != null) ? Utils.getLocalRepositoryFile(parentRef, repo) : null;
+            logger.debug("adding {} to POM hierarchy", pom);
+            poms.add(pom);
+            Artifact parentRef = pom.getParent();
+            pom = (parentRef == null) ? null : resolvePom(parentRef);
         }
     }
 
 
-    private void resolveDependencies()
+    /**
+     *  Attempts to load a POM from the repository, returning null (and warning)
+     *  if it doesn't exist.
+     */
+    private PomWrapper resolvePom(Artifact pomRef)
     throws IOException
     {
-        Map<GAKey,Artifact> accumulator = new HashMap<GAKey,Artifact>();
-        for (PomWrapper wrapper : poms)
+        File pomFile = repo.resolve(pomRef);
+        if (pomFile == null)
         {
-            extractDependencies(wrapper, accumulator);
+            logger.warn("unresolvable POM: {}", pomRef);
+            return null;
         }
-        dependencies.addAll(accumulator.values());
+        return new PomWrapper(ParseUtil.parse(pomFile));
     }
 
 
-    private void extractDependencies(PomWrapper wrapper, Map<GAKey,Artifact> accumulator)
+    private void extractDependencies(PomWrapper wrapper)
     throws IOException
     {
-        for (Element dependency : wrapper.selectElements("/mvn:project/mvn:dependencies/mvn:dependency"))
+        for (Element dependency : wrapper.selectElements(PomPaths.PROJECT_DEPENDENCIES))
         {
-            String groupId = wrapper.selectValue(dependency, "mvn:groupId").trim();
-            String artifactId = wrapper.selectValue(dependency, "mvn:artifactId").trim();
-            String version = wrapper.selectValue(dependency, "mvn:version").trim();
-            String type = wrapper.selectValue(dependency, "mvn:type").trim();
-            String scope = wrapper.selectValue(dependency, "mvn:scope").trim();
-
-            GAKey key = new GAKey(groupId, artifactId);
-            if (accumulator.containsKey(key))
+            Artifact artifact = new Artifact(dependency);
+            GAKey key = artifact.toGAKey();
+            if (directDependencies.containsKey(key))
                 continue;
 
-            if (type.equalsIgnoreCase("pom"))
-            {
-                // FIXME - warn if scope not specified
-                resolveImportedPom(groupId, artifactId, version, accumulator);
-                continue;
-            }
-
-            if (!StringUtil.isBlank(type) && !type.equalsIgnoreCase("jar"))
-                continue;
+            String groupId = artifact.getGroupId();
+            String artifactId = artifact.getArtifactId();
+            String version = artifact.getVersion();
 
             if (StringUtil.isBlank(version))
                 version = getVersionFromDependencyManagement(groupId, artifactId);
@@ -230,10 +200,25 @@ public class ResolvedPom
             if (version.contains("${"))
                 version = resolveProperties(version);
 
-            if (StringUtil.isEmpty(version))
+            if (StringUtil.isBlank(version))
+            {
+                logger.warn("unable to resolve dependency version: {}", artifact);
+                continue;
+            }
+
+            if (! version.equals(artifact.getVersion()))
+                artifact = artifact.withVersion(version);
+
+            if (artifact.getPackaging().equals("pom"))
+            {
+                // FIXME - warn if scope not specified
+                resolveImportedPom(groupId, artifactId, version);
+            }
+
+            if (! artifact.getPackaging().equals("jar"))
                 continue;
 
-            accumulator.put(key, new Artifact(groupId, artifactId, version, "", type, scope));
+            directDependencies.put(key, artifact);
         }
     }
 
@@ -243,7 +228,7 @@ public class ResolvedPom
         // FIXME - deal with version ranges
         //          (maybe; I'm not sure if a valid POM can only use a range)
 
-        String path = "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency"
+        String path = PomPaths.MANAGED_DEPENDENCIES
                     + "/mvn:groupId[normalize-space(text())='" + groupId + "']"
                     + "/../mvn:artifactId[normalize-space(text())='" + artifactId + "']"
                     + "/../mvn:version";
@@ -259,14 +244,11 @@ public class ResolvedPom
     }
 
 
-    private void resolveImportedPom(String groupId, String artifactId, String version,  Map<GAKey,Artifact> accumulator)
+    private void resolveImportedPom(String groupId, String artifactId, String version)
     throws IOException
     {
-        File importedPom = Utils.getLocalRepositoryFile(new Artifact(groupId, artifactId, version, "", "pom", ""), repo);
+        File importedPom = repo.resolve(new Artifact(groupId, artifactId, version, "pom"));
         ResolvedPom resolved = new ResolvedPom(importedPom, repo);
-        for (Artifact artifact : resolved.getDependencies())
-        {
-            accumulator.put(new GAKey(artifact), artifact);
-        }
+        importedPoms.add(resolved);
     }
 }

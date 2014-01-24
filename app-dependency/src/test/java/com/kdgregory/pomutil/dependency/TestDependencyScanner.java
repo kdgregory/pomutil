@@ -39,7 +39,7 @@ public class TestDependencyScanner
     {
         Map<String,Scope> result = new TreeMap<String,Artifact.Scope>();
         for (Artifact artifact : artifacts)
-            result.put(artifact.artifactId, artifact.scope);
+            result.put(artifact.getArtifactId(), artifact.getScope());
         return result;
     }
 
@@ -58,11 +58,11 @@ public class TestDependencyScanner
 
         assertEquals("compile-scope dependency",
                      "bcelx",
-                     scanner.getDependency("com.kdgregory.bcelx.classfile.Annotation", Scope.COMPILE).artifactId);
+                     scanner.getDependency("com.kdgregory.bcelx.classfile.Annotation", Scope.COMPILE).getArtifactId());
 
         assertEquals("test-scope dependency",
                      "junit",
-                     scanner.getDependency("org.junit.Test", Scope.TEST).artifactId);
+                     scanner.getDependency("org.junit.Test", Scope.TEST).getArtifactId());
 
         assertNull("transitive dependency",
                    scanner.getDependency("org.apache.bcel.classfile.ClassParser", Scope.TEST));

@@ -58,13 +58,12 @@ public class Cleaner
 
 
     /**
-     *  Constructor for programmatic invocation. Output stream is closed
-     *  but input is not.
+     *  Constructor for programmatic invocation.
      */
     public Cleaner(CommandLine args, InputStream in, OutputStream out)
     {
         this.args = args;
-        this.pom = new PomWrapper(ParseUtil.parse(new InputSource(in)));
+        this.pom = new PomWrapper(ParseUtil.parse(in));
         this.out = out;
     }
 

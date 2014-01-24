@@ -15,10 +15,12 @@
 package com.kdgregory.pomutil.util;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Collection;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import net.sf.practicalxml.ParseUtil;
 
 
 public class TestResolvedPom
@@ -54,7 +56,7 @@ public class TestResolvedPom
     public void testResolveDependencies() throws Exception
     {
         ResolvedPom pom = new ResolvedPom(new File("../test-dependency-child/pom.xml"));
-        Set<Artifact> dependencies = pom.getDependencies();
+        Collection<Artifact> dependencies = pom.getDirectDependencies().values();
 
         // we'll spot-check the actual dependencies
         assertEquals("number of dependencies", 7, dependencies.size());
@@ -74,40 +76,40 @@ public class TestResolvedPom
 
 
     @Test
-    public void testImportedPOM() throws Exception
+    public void testImportedPom() throws Exception
     {
-        ResolvedPom pom = new ResolvedPom(new File("src/test/resources/ImportingPom.xml"));
-        Set<Artifact> dependencies = pom.getDependencies();
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("Importer.xml"));
+        ResolvedPom pom = new ResolvedPom(wrapper, new LocalRepository());
 
-        // should not find the imported POM in the list of dependencies
+        // direct dependencies should not contain the imported PO
+        Collection<Artifact> directDependencies = pom.getDirectDependencies().values();
+        assertEquals("number of direct dependencies", 1, directDependencies.size());
+        assertTrue("direct dependency contains practicalxml",
+                   directDependencies.contains(new Artifact("net.sf.practicalxml", "practicalxml", "1.1.13")));
+        assertFalse("direct dependency does not contain imported POM",
+                   directDependencies.contains(new Artifact("com.kdgregory.pomutil", "test-dependency-imported", "0.0.0-SNAPSHOT")));
 
-        assertFalse("contains imported POM",
-                   dependencies.contains(new Artifact("com.kdgregory.pomutil", "test-dependency-child", "0.0.0-SNAPSHOT")));
-
-        // should find the dependencies that POM contains (and that resolution handles parent-child relationships)
-        assertTrue("contains dependency defined by child (imported POM)",
-                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0.0")));
-        assertTrue("contains dependency defined by parent",
-                   dependencies.contains(new Artifact("junit", "junit", "4.10")));
-
+        assertEquals("number of imported POMs", 1, pom.getImportedPoms().size());
+        ResolvedPom imported = pom.getImportedPoms().iterator().next();
+        assertEquals("imported POM GAV",
+                     new Artifact("com.kdgregory.pomutil", "test-dependency-imported", "0.0.0-SNAPSHOT"),
+                     imported.getGAV());
     }
 
 
     @Test
-    public void testImportedPOMSansImportScope() throws Exception
+    public void testOptionalDependency() throws Exception
     {
-        ResolvedPom pom = new ResolvedPom(new File("src/test/resources/ImportingPomSansImportScope.xml"));
-        Set<Artifact> dependencies = pom.getDependencies();
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("OptionalDependency.xml"));
+        ResolvedPom pom = new ResolvedPom(wrapper, new LocalRepository());
 
-        // should not find the imported POM in the list of dependencies
+        Artifact a1 = pom.getDirectDependencies().get(new GAKey("net.sf.practicalxml", "practicalxml"));
+        assertFalse("practicalxml: default non-optional", a1.isOptional());
 
-        assertFalse("contains imported POM",
-                   dependencies.contains(new Artifact("com.kdgregory.pomutil", "test-dependency-child", "0.0.0-SNAPSHOT")));
+        Artifact a2 = pom.getDirectDependencies().get(new GAKey("net.sf.kdgcommons", "kdgcommons"));
+        assertTrue("kdgcommons: explicit optional", a2.isOptional());
 
-        // should find the dependencies that POM contains (and that resolution handles parent-child relationships)
-        assertTrue("contains dependency defined by child (imported POM)",
-                   dependencies.contains(new Artifact("com.kdgregory.bcelx", "bcelx", "1.0.0")));
-        assertTrue("contains dependency defined by parent",
-                   dependencies.contains(new Artifact("junit", "junit", "4.10")));
+        Artifact a3 = pom.getDirectDependencies().get(new GAKey("junit", "junit"));
+        assertFalse("junit: explicit non-optional", a3.isOptional());
     }
 }

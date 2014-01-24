@@ -91,33 +91,6 @@ public class Utils
 
 
     /**
-     *  Returns the local repository file that satisfies the passed dependency,
-     *  <code>null</code> if there is no such file.
-     */
-    public static File getLocalRepositoryFile(Artifact artifact, File localRepo)
-    {
-        String repoPath = artifact.groupId.replace('.', '/')
-                        + "/" + artifact.artifactId
-                        + "/" + artifact.version
-                        + "/" + artifact.artifactId + "-" + artifact.version + "." + artifact.packaging;
-
-        File file = new File(localRepo, repoPath);
-        return file.exists() ? file : null;
-    }
-
-
-    /**
-     *  Returns the local repository file that satisfies the passed dependency,
-     *  <code>null</code> if there is no such file.
-     */
-    public static File getLocalRepositoryFile(Artifact artifact)
-    {
-        File localRepo = new File(new File(System.getProperty("user.home"), ".m2"), "repository");
-        return getLocalRepositoryFile(artifact, localRepo);
-    }
-
-
-    /**
      *  Given a JAR, finds all entries that represent classes and converts them to classnames.
      */
     public static List<String> extractClassesFromJar(File jarFile)

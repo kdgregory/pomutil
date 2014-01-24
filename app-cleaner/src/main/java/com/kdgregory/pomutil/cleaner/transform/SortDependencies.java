@@ -23,6 +23,7 @@ import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.Artifact;
+import com.kdgregory.pomutil.util.PomPaths;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -72,8 +73,8 @@ extends AbstractTransformer
         if (disabled)
             return;
 
-        processGroup(SELECT_DIRECT_DEPENDENCIES);
-        processGroup(SELECT_MANAGED_DEPENDENCIES);
+        processGroup(PomPaths.PROJECT_DEPENDENCIES);
+        processGroup(PomPaths.MANAGED_DEPENDENCIES);
     }
 
 

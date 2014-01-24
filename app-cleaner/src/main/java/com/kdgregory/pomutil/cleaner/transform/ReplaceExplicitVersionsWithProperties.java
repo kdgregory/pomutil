@@ -164,26 +164,26 @@ extends AbstractTransformer
 
         boolean isPlugin = DomUtil.getLocalName(dependency).equals("plugin");
         String propName = isPlugin
-                        ? "plugin." + gav.artifactId + ".version"
-                        : gav.groupId + ".version";
+                        ? "plugin." + gav.getArtifactId() + ".version"
+                        : gav.getGroupId() + ".version";
 
-        if (props.containsKey(propName) && !gav.version.equals(props.get(propName)))
+        if (props.containsKey(propName) && !gav.getVersion().equals(props.get(propName)))
         {
             String existingVersion = props.get(propName);
             String newPropName = isPlugin
-                               ? "plugin." + gav.artifactId + "-" + gav.version + ".version"
-                               : gav.groupId + "." + gav.artifactId + ".version";
+                               ? "plugin." + gav.getArtifactId() + "-" + gav.getVersion() + ".version"
+                               : gav.getGroupId() + "." + gav.getArtifactId() + ".version";
             logger.warn("property \"{}\" already exists with version {}; creating \"{}\" for version {}",
-                        propName, existingVersion, newPropName, gav.version);
+                        propName, existingVersion, newPropName, gav.getVersion());
             propName = newPropName;
         }
 
-        if (groupsToAppendArtifactId.contains(gav.groupId))
+        if (groupsToAppendArtifactId.contains(gav.getGroupId()))
         {
-            propName = gav.groupId + "." + gav.artifactId + ".version";
+            propName = gav.getGroupId() + "." + gav.getArtifactId() + ".version";
         }
 
-        props.put(propName, gav.version);
+        props.put(propName, gav.getVersion());
         return propName;
     }
 

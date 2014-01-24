@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.kdgregory.pomutil.util.Artifact;
 import com.kdgregory.pomutil.util.Artifact.Scope;
+import com.kdgregory.pomutil.util.LocalRepository;
 import com.kdgregory.pomutil.util.ResolvedPom;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -44,6 +45,7 @@ public class DependencyScanner
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    private LocalRepository repo;
     private ResolvedPom pom;
 
     private Set<Artifact> dependencies = new TreeSet<Artifact>();
@@ -53,8 +55,13 @@ public class DependencyScanner
     public DependencyScanner(File pomFile)
     throws IOException
     {
-        pom = new ResolvedPom(pomFile);
-        dependencies = pom.getDependencies();
+        repo = new LocalRepository();
+        pom = new ResolvedPom(pomFile, repo);
+        for (ResolvedPom imported : pom.getImportedPoms())
+        {
+            dependencies.addAll(imported.getDirectDependencies().values());
+        }
+        dependencies.addAll(pom.getDirectDependencies().values());
         buildDependencyLookup();
     }
 
@@ -82,7 +89,7 @@ public class DependencyScanner
         {
             for (Scope scope : scopes)
             {
-                if (artifact.scope == scope)
+                if (artifact.getScope() == scope)
                 {
                     result.add(artifact);
                     break;
@@ -101,7 +108,7 @@ public class DependencyScanner
     public Artifact getDependency(String className, Scope scope)
     {
         Artifact dependency = dependencyLookup.get(className);
-        if ((dependency == null) || (dependency.scope != scope))
+        if ((dependency == null) || (dependency.getScope() != scope))
             return null;
         return dependency;
     }
@@ -116,7 +123,7 @@ public class DependencyScanner
     {
         for (Artifact dependency : dependencies)
         {
-            File jarFile = Utils.getLocalRepositoryFile(dependency);
+            File jarFile = repo.resolve(dependency);
             if (jarFile == null)
                 throw new IOException("dependency not in repository: " + dependency);
             logger.debug("processing {} from {}", dependency, jarFile);

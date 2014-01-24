@@ -4,14 +4,15 @@
 
     <groupId>com.kdgregory.pomutil</groupId>
     <artifactId>test-dependency</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>DependencyCheck Test Data - Self-Contained</name>
 
     <description>
         A self-contained project to verify DependencyCheck behavior (without the
-        ugliness of having it examine itself).
+        ugliness of having it examine itself). Note all some dependencies overlap
+        with those of mainline code, and are fixed to (older) versions.
     </description>
 
 
@@ -85,20 +86,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-
-    <repositories>
-        <repository>
-            <!-- this repository holds snapshots of BCELX, PracticalXML, and KDGCommons -->
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>

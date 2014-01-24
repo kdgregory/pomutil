@@ -3,22 +3,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.kdgregory.pomutil</groupId>
-    <artifactId>test-dependency-import</artifactId>
     <version>0.0.0-SNAPSHOT</version>
+    <artifactId>test-dependency-importee</artifactId>
     <packaging>jar</packaging>
 
-    <name>Importing POM</name>
+    <name>DependencyCheck Test Data - Importee</name>
 
     <description>
-        Receives all dependencies from an imported POM. 
+        Test POM that imports dependencies from another POM.
     </description>
+
+    <properties>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.kdgregory.pomutil</groupId>
-            <artifactId>test-dependency-child</artifactId>
             <version>0.0.0-SNAPSHOT</version>
+            <artifactId>test-dependency-imported</artifactId>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <!-- this dependency is also a specified in imported -->
+            <groupId>net.sf.practicalxml</groupId>
+            <artifactId>practicalxml</artifactId>
+            <version>1.1.13</version>
         </dependency>
     </dependencies>
 

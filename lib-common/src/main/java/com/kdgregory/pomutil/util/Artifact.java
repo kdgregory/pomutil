@@ -47,44 +47,49 @@ implements Comparable<Artifact>
 //  Instance variables and constructor
 //----------------------------------------------------------------------------
 
-    public String groupId;
-    public String artifactId;
-    public String version;
-    public String classifier;
-    public String packaging;
-    public Scope scope;
+    private String groupId;
+    private String artifactId;
+    private String version;
+    private String classifier;
+    private String packaging;
+    private Scope scope;
+    private boolean optional;
 
 
     /**
      *  Base constructor, allowing explicit specification of all fields.
-     *  The following defaults will be applied:
-     *  <ul>
-     *  <li> packaging: "jar"
-     *  <li> scope: "compile"
-     *  </ul>
+     *
      *  @throws IllegalArgumentException if passed a scope that does not match
      *          one of the enumerated values.
      */
     public Artifact(String groupId, String artifactId, String version,
-                    String classifier, String packaging, String scope)
+                    String classifier, String packaging, String scope, boolean isOptional)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.classifier = classifier;
-        this.packaging = StringUtil.isBlank(packaging) ? "jar" : packaging;
+        this.packaging = packaging.toLowerCase();
         this.scope = lookupScope(scope);
+        this.optional = isOptional;
     }
 
 
     /**
-     *  Simplified constructor, used when all you care about is the GAV.
+     *  Convenience constructor, used for arbitrary compile-scope artifacts.
+     */
+    public Artifact(String groupId, String artifactId, String version, String packaging)
+    {
+        this(groupId, artifactId, version, "", packaging, "compile", false);
+    }
+
+
+    /**
+     *  Convenience constructor, used for compile-scope JARs.
      */
     public Artifact(String groupId, String artifactId, String version)
     {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
+        this(groupId, artifactId, version, "", "jar", "compile", false);
     }
 
 
@@ -93,11 +98,11 @@ implements Comparable<Artifact>
      */
     public Artifact(Element dependency)
     {
-        this("", "", "", "", "", "");
+        this("", "", "");
         for (Element child : DomUtil.getChildren(dependency))
         {
             String localName = DomUtil.getLocalName(child);
-            String value = DomUtil.getText(child).trim();
+            String value = StringUtil.trim(DomUtil.getText(child));
             if (localName.equals("groupId"))
                 this.groupId = value;
             else if (localName.equals("artifactId"))
@@ -105,12 +110,29 @@ implements Comparable<Artifact>
             else if (localName.equals("version"))
                 this.version = value;
             else if (localName.equals("type"))
-                this.packaging = value;
+                this.packaging = value.toLowerCase();
             else if (localName.equals("classifier"))
                 this.classifier = value;
             else if (localName.equals("scope"))
                 this.scope = lookupScope(value);
+            else if (localName.equals("optional"))
+                this.optional = value.equalsIgnoreCase("true");
         }
+    }
+
+
+    /**
+     *  Internal constructor, used for the various copy operations.
+     */
+    public Artifact(Artifact that)
+    {
+        this.groupId = that.groupId;
+        this.artifactId = that.artifactId;
+        this.version = that.version;
+        this.classifier = that.classifier;
+        this.packaging = that.packaging;
+        this.scope = that.scope;
+        this.optional = that.optional;
     }
 
 
@@ -126,6 +148,85 @@ implements Comparable<Artifact>
         }
     }
 
+
+//----------------------------------------------------------------------------
+//  Accessors
+//----------------------------------------------------------------------------
+
+    public String getGroupId()
+    {
+        return groupId;
+    }
+
+
+    public String getArtifactId()
+    {
+        return artifactId;
+    }
+
+
+    public String getVersion()
+    {
+        return version;
+    }
+
+
+    public String getClassifier()
+    {
+        return classifier;
+    }
+
+
+    public String getPackaging()
+    {
+        return packaging;
+    }
+
+
+    public Scope getScope()
+    {
+        return scope;
+    }
+
+
+    public boolean isOptional()
+    {
+        return optional;
+    }
+
+
+//----------------------------------------------------------------------------
+//  Other Public methods
+//----------------------------------------------------------------------------
+
+    /**
+     *  Returns the groupId/artifactId of this artifact, to key a dependency
+     *  map.
+     */
+    public GAKey toGAKey()
+    {
+        return new GAKey(groupId, artifactId);
+    }
+
+
+    /**
+     *  Returns a new artifact, representing the POM for this artifact.
+     */
+    public Artifact toPom()
+    {
+        return new  Artifact(groupId, artifactId, version, "", "pom", "", optional);
+    }
+
+
+    /**
+     *  Returns a copy of this artifact, with a different version.
+     */
+    public Artifact withVersion(String newVersion)
+    {
+        Artifact rslt = new Artifact(this);
+        rslt.version = newVersion;
+        return rslt;
+    }
 
 //----------------------------------------------------------------------------
 //  Object overrides

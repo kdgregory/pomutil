@@ -19,6 +19,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import com.kdgregory.pomutil.cleaner.CommandLine;
+import com.kdgregory.pomutil.util.PomPaths;
 import com.kdgregory.pomutil.util.PomWrapper;
 import com.kdgregory.pomutil.util.Utils;
 
@@ -33,20 +34,6 @@ import com.kdgregory.pomutil.util.Utils;
  */
 public abstract class AbstractTransformer
 {
-//----------------------------------------------------------------------------
-//  Common XPath selectors
-//----------------------------------------------------------------------------
-
-    protected final static String  SELECT_DIRECT_DEPENDENCIES   = "/mvn:project/mvn:dependencies/mvn:dependency";
-    protected final static String  SELECT_MANAGED_DEPENDENCIES  = "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency";
-    protected final static String  SELECT_BUILD_PLUGINS         = "/mvn:project/mvn:build/mvn:plugins/mvn:plugin";
-    protected final static String  SELECT_REPORTING_PLUGINS     = "/mvn:project/mvn:reporting/mvn:plugins/mvn:plugin";
-    protected final static String  SELECT_MANAGED_PLUGINS       = "/mvn:project/mvn:build/mvn:pluginManagement/mvn:plugins/mvn:plugin";
-
-//----------------------------------------------------------------------------
-//  Instance variables and Constructor
-//----------------------------------------------------------------------------
-
     protected PomWrapper pom;
     protected CommandLine args;
 
@@ -66,7 +53,7 @@ public abstract class AbstractTransformer
      */
     protected List<Element> selectAllDependencies()
     {
-        return Utils.multiSelect(pom, SELECT_DIRECT_DEPENDENCIES, SELECT_MANAGED_DEPENDENCIES);
+        return Utils.multiSelect(pom, PomPaths.PROJECT_DEPENDENCIES, PomPaths.MANAGED_DEPENDENCIES);
     }
 
 
@@ -75,7 +62,7 @@ public abstract class AbstractTransformer
      */
     protected List<Element> selectAllPlugins()
     {
-        return Utils.multiSelect(pom, SELECT_BUILD_PLUGINS, SELECT_REPORTING_PLUGINS, SELECT_MANAGED_PLUGINS);
+        return Utils.multiSelect(pom, PomPaths.BUILD_PLUGINS, PomPaths.REPORTING_PLUGINS, PomPaths.MANAGED_PLUGINS);
     }
 
 

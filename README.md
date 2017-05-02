@@ -7,6 +7,10 @@ Utilities to clean, organize, and restructure Maven POMs.
 
     There is also a version of this tool that [[WebCleaner|runs as a web-app]]. 
 
+* [Version Updater](docs/AppVersion.md) (in process)
+
+    Updates the version for a project, either to a specified version or the next sequential version.
+
 * [Dependency Check](docs/AppDependency.md) (in process)
 
     Examines a project to find dependencies that are specified but unused, and those that are used but

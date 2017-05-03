@@ -23,6 +23,7 @@
         <module>app-cleaner</module>
         <module>web-cleaner</module>
         <module>app-dependency</module>
+        <module>app-version</module>
     </modules>
 
 

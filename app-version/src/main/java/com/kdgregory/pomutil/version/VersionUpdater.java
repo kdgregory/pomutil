@@ -2,6 +2,8 @@ package com.kdgregory.pomutil.version;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -56,9 +58,9 @@ public class VersionUpdater {
     public void run()
     throws Exception
     {
-        for (String filename : files)
+        List<File> pomFiles = findValidPoms(files);
+        for (File file : pomFiles)
         {
-            File file = new File(filename);
             PomWrapper wrapped = new PomWrapper(file);
             boolean changed = possiblyUpdateVersion(wrapped);
             if (changed)
@@ -74,6 +76,40 @@ public class VersionUpdater {
                 }
             }
         }
+    }
+
+
+    private List<File> findValidPoms(List<String> filenames)
+    throws IOException
+    {
+        List<File> result = new ArrayList(filenames.size());
+        for (String filename : filenames)
+        {
+            File file = new File(filename);
+            if (file.isDirectory())
+            {
+                List<String> subdirs = new ArrayList<String>();
+                for (String child : file.list())
+                {
+                    File childFile = new File(file, child);
+                    if (childFile.isDirectory())
+                    {
+                        subdirs.add(child);
+                    }
+                    if (childFile.getName().equals("pom.xml"))
+                    {
+                        result.add(childFile);
+                    }
+                }
+                result.addAll(findValidPoms(subdirs));
+            }
+            else
+            {
+                result.add(file);
+            }
+        }
+        // TODO - open files, verify that they're POMS, remove those that aren't
+        return result;
     }
 
 

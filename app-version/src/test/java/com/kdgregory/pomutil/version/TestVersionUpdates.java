@@ -3,6 +3,7 @@ package com.kdgregory.pomutil.version;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,31 @@ public class TestVersionUpdates
                     Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName),
                     getClass().getName() + "-");
             result.add(file.getCanonicalPath());
+        }
+        return result;
+    }
+
+
+    private List<String> createTestPomsInDirectory(String resourceName, int numCopies)
+    throws IOException
+    {
+        List<String> result = new ArrayList<String>(numCopies);
+        File systemTmpdir = new File(System.getProperty("java.io.tmpdir"));
+        for (int ii = 0 ; ii < numCopies ; ii++)
+        {
+            // this is a hack but should work almost all of the time
+            String testDirName = getClass().getName() + "-" + System.currentTimeMillis() + "-" + ii;
+            File testDir = new File(systemTmpdir, testDirName);
+            testDir.mkdir();
+            testDir.deleteOnExit();
+            File testFile = new File(testDir, "pom.xml");
+            testFile.deleteOnExit();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+            FileOutputStream out = new FileOutputStream(testFile);
+            IOUtil.copy(in, out);
+            IOUtil.closeQuietly(in);
+            IOUtil.closeQuietly(out);
+            result.add(testDir.getAbsolutePath());
         }
         return result;
     }
@@ -78,4 +104,18 @@ public class TestVersionUpdates
     }
 
 
+    @Test
+    public void testDirectory() throws Exception
+    {
+        List<String> dirs = createTestPomsInDirectory("basepom.xml", 2);
+
+        String newVersion = "1.1.0";
+        new VersionUpdater(TESTPOM_VERSION, newVersion, false, dirs).run();
+
+        for (String dir : dirs)
+        {
+            PomWrapper wrapped = new PomWrapper(new File(dir, "pom.xml"));
+            assertEquals(newVersion, wrapped.getGAV().getVersion());
+        }
+    }
 }

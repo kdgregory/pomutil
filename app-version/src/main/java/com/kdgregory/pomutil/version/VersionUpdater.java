@@ -62,7 +62,8 @@ public class VersionUpdater {
         for (File file : pomFiles)
         {
             PomWrapper wrapped = new PomWrapper(file);
-            boolean changed = possiblyUpdateVersion(wrapped);
+            boolean changed = possiblyUpdateVersion(wrapped)
+                            | possiblyUpdateParentVersion(wrapped);
             if (changed)
             {
                 FileOutputStream out = new FileOutputStream(file);
@@ -116,6 +117,12 @@ public class VersionUpdater {
     private boolean possiblyUpdateVersion(PomWrapper wrapped)
     {
         Element pomVersionElement = wrapped.selectElement(PomPaths.PROJECT_VERSION);
+        if (pomVersionElement == null)
+        {
+            // this is either a child POM or not a POM at all; do nothing
+            return false;
+        }
+
         if (ObjectUtil.equals(fromVersion, DomUtil.getText(pomVersionElement)))
         {
             pomVersionElement.setTextContent(toVersion);
@@ -124,4 +131,25 @@ public class VersionUpdater {
         return false;
     }
 
+
+    private boolean possiblyUpdateParentVersion(PomWrapper wrapped)
+    {
+        if (! updateParentRef)
+        {
+            return false;
+        }
+
+        Element parentVersionElement = wrapped.selectElement(PomPaths.PARENT_VERSION);
+        if (parentVersionElement == null)
+        {
+            return false;
+        }
+
+        if (ObjectUtil.equals(fromVersion, DomUtil.getText(parentVersionElement)))
+        {
+            parentVersionElement.setTextContent(toVersion);
+            return true;
+        }
+        return false;
+    }
 }

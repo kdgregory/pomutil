@@ -73,8 +73,8 @@ public class TestVersionUpdates
 
         for (String pom : poms)
         {
-            PomWrapper wrapped = new PomWrapper(new File(pom));
-            assertEquals(newVersion, wrapped.getGAV().getVersion());
+            PomWrapper check = new PomWrapper(new File(pom));
+            assertEquals(newVersion, check.getGAV().getVersion());
         }
     }
 
@@ -114,8 +114,34 @@ public class TestVersionUpdates
 
         for (String dir : dirs)
         {
-            PomWrapper wrapped = new PomWrapper(new File(dir, "pom.xml"));
-            assertEquals(newVersion, wrapped.getGAV().getVersion());
+            PomWrapper check = new PomWrapper(new File(dir, "pom.xml"));
+            assertEquals(newVersion, check.getGAV().getVersion());
         }
+    }
+
+
+    @Test
+    public void testChildNoUpdate() throws Exception
+    {
+        List<String> poms = createTestPoms("childpom.xml", 1);
+
+        String newVersion = "1.0.1-SNAPSHOT";
+        new VersionUpdater(TESTPOM_VERSION, newVersion, false, poms).run();
+
+        PomWrapper check = new PomWrapper(new File(poms.get(0)));
+        assertEquals(TESTPOM_VERSION, check.selectValue(PomPaths.PARENT_VERSION));
+    }
+
+
+    @Test
+    public void testChildUpdate() throws Exception
+    {
+        List<String> poms = createTestPoms("childpom.xml", 1);
+
+        String newVersion = "1.0.1-SNAPSHOT";
+        new VersionUpdater(TESTPOM_VERSION, newVersion, true, poms).run();
+
+        PomWrapper check = new PomWrapper(new File(poms.get(0)));
+        assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
     }
 }

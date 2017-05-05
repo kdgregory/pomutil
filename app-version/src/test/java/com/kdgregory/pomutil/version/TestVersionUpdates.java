@@ -1,10 +1,12 @@
 package com.kdgregory.pomutil.version;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -143,5 +145,22 @@ public class TestVersionUpdates
 
         PomWrapper check = new PomWrapper(new File(poms.get(0)));
         assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
+    }
+
+
+    @Test
+    public void testBogusFile() throws Exception
+    {
+        File file = IOUtil.createTempFile(new ByteArrayInputStream("test".getBytes()),
+                                          getClass().getName());
+
+        // we'll verify properties of the file to make sure it wasn't written
+        long originalModificationTime = file.lastModified();
+        long originalSize = file.length();
+
+        new VersionUpdater(TESTPOM_VERSION, "1.0", true, Arrays.asList(file.getAbsolutePath())).run();
+
+        assertEquals("modification time unchanged", originalModificationTime, file.lastModified());
+        assertEquals("size unchanged",              originalSize,             file.length());
     }
 }

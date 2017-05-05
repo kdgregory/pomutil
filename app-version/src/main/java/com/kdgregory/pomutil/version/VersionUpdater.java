@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.collections.CollectionUtil;
 import net.sf.kdgcommons.io.IOUtil;
@@ -23,6 +28,8 @@ import com.kdgregory.pomutil.util.PomWrapper;
  *  them to a new version.
  */
 public class VersionUpdater {
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private String fromVersion;
     private String toVersion;
@@ -58,10 +65,10 @@ public class VersionUpdater {
     public void run()
     throws Exception
     {
-        List<File> pomFiles = findValidPoms(files);
-        for (File file : pomFiles)
+        Map<File,PomWrapper> pomFiles = findValidPoms(files);
+        for (File file : pomFiles.keySet())
         {
-            PomWrapper wrapped = new PomWrapper(file);
+            PomWrapper wrapped = pomFiles.get(file);
             boolean changed = possiblyUpdateVersion(wrapped)
                             | possiblyUpdateParentVersion(wrapped);
             if (changed)
@@ -80,36 +87,52 @@ public class VersionUpdater {
     }
 
 
-    private List<File> findValidPoms(List<String> filenames)
+    private Map<File,PomWrapper> findValidPoms(List<String> filenames)
     throws IOException
     {
-        List<File> result = new ArrayList(filenames.size());
+        Map<File,PomWrapper> result = new HashMap<File,PomWrapper>();
         for (String filename : filenames)
         {
-            File file = new File(filename);
-            if (file.isDirectory())
+            for (File file : recursivelyLookForPoms(new File(filename)))
             {
-                List<String> subdirs = new ArrayList<String>();
-                for (String child : file.list())
+                try
                 {
-                    File childFile = new File(file, child);
-                    if (childFile.isDirectory())
-                    {
-                        subdirs.add(child);
-                    }
-                    if (childFile.getName().equals("pom.xml"))
-                    {
-                        result.add(childFile);
-                    }
+                    result.put(file, new PomWrapper(file));
                 }
-                result.addAll(findValidPoms(subdirs));
-            }
-            else
-            {
-                result.add(file);
+                catch (Exception ex)
+                {
+                    logger.warn("unable to process file: " + file, ex);
+                }
             }
         }
-        // TODO - open files, verify that they're POMS, remove those that aren't
+        return result;
+    }
+
+
+    private List<File> recursivelyLookForPoms(File file)
+    throws IOException
+    {
+        List<File> result = new ArrayList<File>();
+        if (file.isDirectory())
+        {
+            for (File child : file.listFiles())
+            {
+                if (child.isDirectory())
+                {
+                    result.addAll(recursivelyLookForPoms(child));
+                }
+                else if (child.getName().equals("pom.xml"))
+                {
+                    result.add(child);
+                }
+            }
+        }
+        else
+        {
+            // an explicit file can have any name
+            result.add(file);
+        }
+
         return result;
     }
 

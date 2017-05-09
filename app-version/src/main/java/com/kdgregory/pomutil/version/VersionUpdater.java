@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import net.sf.kdgcommons.collections.CollectionUtil;
 import net.sf.kdgcommons.io.IOUtil;
 import net.sf.kdgcommons.lang.ObjectUtil;
+import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 
@@ -137,20 +138,62 @@ public class VersionUpdater {
     }
 
 
+    private boolean oldVersionMatches(Element versionElement)
+    {
+        // this is a bogus file
+        if (versionElement == null)
+            return false;
+
+        // we update whatever is there
+        if (fromVersion == null)
+            return true;
+
+        String oldVersion = DomUtil.getText(versionElement);
+        return ObjectUtil.equals(fromVersion, oldVersion);
+    }
+
+
+    private void updateVersion(Element versionElement)
+    {
+        if (toVersion != null)
+        {
+            DomUtil.setText(versionElement, toVersion);
+            return;
+        }
+
+        String existingVersion = DomUtil.getText(versionElement);
+        if (existingVersion.endsWith("-SNAPSHOT"))
+        {
+            String newVersion = StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
+            DomUtil.setText(versionElement, newVersion);
+            return;
+        }
+
+        String preservedPart = StringUtil.extractLeftOfLast(existingVersion, ".");
+        String updatedPart = StringUtil.extractRightOfLast(existingVersion, ".");
+        try
+        {
+            int oldValue = Integer.parseInt(updatedPart);
+            String newVersion = preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
+            DomUtil.setText(versionElement, newVersion);
+            return;
+        }
+        catch (NumberFormatException ex)
+        {
+            logger.error("unable to update version: " + existingVersion);
+        }
+    }
+
+
     private boolean possiblyUpdateVersion(PomWrapper wrapped)
     {
         Element pomVersionElement = wrapped.selectElement(PomPaths.PROJECT_VERSION);
-        if (pomVersionElement == null)
+        if (oldVersionMatches(pomVersionElement))
         {
-            // this is either a child POM or not a POM at all; do nothing
-            return false;
-        }
-
-        if (ObjectUtil.equals(fromVersion, DomUtil.getText(pomVersionElement)))
-        {
-            pomVersionElement.setTextContent(toVersion);
+            updateVersion(pomVersionElement);
             return true;
         }
+
         return false;
     }
 
@@ -158,21 +201,15 @@ public class VersionUpdater {
     private boolean possiblyUpdateParentVersion(PomWrapper wrapped)
     {
         if (! updateParentRef)
-        {
             return false;
-        }
 
         Element parentVersionElement = wrapped.selectElement(PomPaths.PARENT_VERSION);
-        if (parentVersionElement == null)
+        if (oldVersionMatches(parentVersionElement))
         {
-            return false;
-        }
-
-        if (ObjectUtil.equals(fromVersion, DomUtil.getText(parentVersionElement)))
-        {
-            parentVersionElement.setTextContent(toVersion);
+            updateVersion(parentVersionElement);
             return true;
         }
+
         return false;
     }
 }

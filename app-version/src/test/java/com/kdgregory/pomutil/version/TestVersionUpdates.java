@@ -65,6 +65,18 @@ public class TestVersionUpdates
     }
 
 
+    private void updateVersion(File file, String path, String newVersion)
+    throws Exception
+    {
+        PomWrapper updateWrapper = new PomWrapper(file);
+        DomUtil.setText(updateWrapper.selectElement(path), newVersion);
+        FileOutputStream out = new FileOutputStream(file);
+        OutputUtil.compactStream(updateWrapper.getDom(), out);
+        out.close();
+
+    }
+
+
     @Test
     public void testBasicOperation() throws Exception
     {
@@ -89,11 +101,7 @@ public class TestVersionUpdates
         File pomToIgnore = new File(poms.get(1));
 
         String testVersion = "1.2.3-SNAPSHOT";
-        PomWrapper updateWrapper = new PomWrapper(pomToIgnore);
-        DomUtil.setText(updateWrapper.selectElement(PomPaths.PROJECT_VERSION), testVersion);
-        FileOutputStream out = new FileOutputStream(pomToIgnore);
-        OutputUtil.compactStream(updateWrapper.getDom(), out);
-        out.close();
+        updateVersion(pomToIgnore, PomPaths.PROJECT_VERSION, testVersion);
 
         String newVersion = "1.0.1-SNAPSHOT";
         new VersionUpdater(TESTPOM_VERSION, newVersion, false, poms).run();
@@ -144,6 +152,70 @@ public class TestVersionUpdates
         new VersionUpdater(TESTPOM_VERSION, newVersion, true, poms).run();
 
         PomWrapper check = new PomWrapper(new File(poms.get(0)));
+        assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
+    }
+
+
+    @Test
+    public void testAutomaticVersionDetectionSnapshotToRegular() throws Exception
+    {
+        String oldVersion = "1.0.1-SNAPSHOT";
+        String newVersion = "1.0.1";
+
+        List<String> poms = createTestPoms("basepom.xml", 1);
+        File pom = new File(poms.get(0));
+        updateVersion(pom, PomPaths.PROJECT_VERSION, oldVersion);
+
+        new VersionUpdater(null, null, false, poms).run();
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals(newVersion, check.getGAV().getVersion());
+    }
+
+
+    @Test
+    public void testAutomaticVersionDetectionRegulaToSnapshot() throws Exception
+    {
+        String oldVersion = "1.0.1";
+        String newVersion = "1.0.2-SNAPSHOT";
+
+        List<String> poms = createTestPoms("basepom.xml", 1);
+        File pom = new File(poms.get(0));
+        updateVersion(pom, PomPaths.PROJECT_VERSION, oldVersion);
+
+        new VersionUpdater(null, null, false, poms).run();
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals(newVersion, check.getGAV().getVersion());
+    }
+
+
+    @Test
+    public void testAutomaticVersionDetectionParentSnapshotToRegular() throws Exception
+    {
+        String oldVersion = "1.0.1-SNAPSHOT";
+        String newVersion = "1.0.1";
+
+        List<String> poms = createTestPoms("childpom.xml", 1);
+        File pom = new File(poms.get(0));
+        updateVersion(pom, PomPaths.PARENT_VERSION, oldVersion);
+
+        new VersionUpdater(null, null, true, poms).run();
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
+    }
+
+
+    @Test
+    public void testAutomaticVersionDetectionParentRegulaToSnapshot() throws Exception
+    {
+        String oldVersion = "1.0.1";
+        String newVersion = "1.0.2-SNAPSHOT";
+
+        List<String> poms = createTestPoms("childpom.xml", 1);
+        File pom = new File(poms.get(0));
+        updateVersion(pom, PomPaths.PARENT_VERSION, oldVersion);
+
+        new VersionUpdater(null, null, true, poms).run();
+        PomWrapper check = new PomWrapper(pom);
         assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
     }
 

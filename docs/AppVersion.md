@@ -19,6 +19,9 @@ the version before merging into master.
   POMs that don't specify the `fromVersion` are ignored; the others are updated to
   `toVersion`
 
+  You can combine this flag with `--autoVersion`, to specify either the starting or
+  ending version and let the other be automatically updated.
+
 * Automatically determine old and new versions: `--autoVersion`
 
   Disabled by default.
@@ -28,15 +31,17 @@ the version before merging into master.
 
   * If the POM version ends in `-SNAPSHOT`, that is removed (this is prep for a
     release).
-  * If the POM version ends in a number, the least-singificant number is incremented
-    and `-SNAPSHOT` is appended (this is prep for an integration branch).
+  * If the POM version ends in a number, the least-significant portion of the
+    version is incremented and `-SNAPSHOT` is appended (this is prep for an
+    integration branch).
 
-  Note that different POMs may have different versions (although this is a bad idea).
+  Note that different POMs may have different versions (although updating independent
+  projects is generally a bad idea).
 
 * Update parent reference: `--updateParentRef`
+  
+  Disabled by default.
 
-  If used, parent references are updated along with the project version.
-
-
-## Roadmap
-
+  If used, parent references are updated along with the project version. The same
+  rules apply: either the parent must match the specified `fromVersion` or you must
+  enable auto-update.

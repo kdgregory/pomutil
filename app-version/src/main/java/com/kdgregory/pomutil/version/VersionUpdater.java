@@ -13,7 +13,6 @@ import org.w3c.dom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.kdgcommons.collections.CollectionUtil;
 import net.sf.kdgcommons.io.IOUtil;
 import net.sf.kdgcommons.lang.ObjectUtil;
 import net.sf.kdgcommons.lang.StringUtil;
@@ -38,22 +37,6 @@ public class VersionUpdater {
     List<String> files;
 
 
-    /**
-     *  Constructor for command-line invocation.
-     */
-    public VersionUpdater(CommandLine commandLine)
-    {
-        this(
-            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
-            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
-            commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
-            commandLine.getParameters());
-    }
-
-
-    /**
-     *  Constructor for programmatic invocation.
-     */
     public VersionUpdater(String fromVersion, String toVersion, boolean updateParentRef, List<String> files)
     {
         this.fromVersion = fromVersion;

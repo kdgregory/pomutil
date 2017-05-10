@@ -14,6 +14,7 @@
 
 package com.kdgregory.pomutil.version;
 
+import net.sf.kdgcommons.collections.CollectionUtil;
 
 /**
  *  Driver program for POM version changes. See README for invocation instructions.
@@ -27,7 +28,19 @@ public class Main
     {
         try
         {
-            new VersionUpdater(new CommandLine(argv)).run();
+            CommandLine commandLine = new CommandLine(argv);
+            if (! commandLine.isValid())
+            {
+                // TODO - print usage
+                System.exit(1);
+            }
+
+            new VersionUpdater(
+                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
+                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
+                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
+                commandLine.getParameters())
+                .run();
             System.exit(0);
         }
         catch (Throwable ex)

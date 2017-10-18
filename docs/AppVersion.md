@@ -45,3 +45,12 @@ the version before merging into master.
   If used, parent references are updated along with the project version. The same
   rules apply: either the parent must match the specified `fromVersion` or you must
   enable auto-update.
+
+* Update dependency reference: `--updateDependency`
+  
+  This flag is used to update references to a dependency, which is useful when
+  propagating release versions to other projects. It takes two parameters, group ID
+  and artifact ID; it will update either explicit dependencies (or dependency
+  management specifications) or make a best effort to update properties referenced
+  in dependencies (simple properties can be updated, properties that themselves
+  depend on properties or use substitution logic cannot be updated).

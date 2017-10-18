@@ -205,7 +205,7 @@ public class TestVersionUpdates
 
 
     @Test
-    public void testAutomaticVersionDetectionParentRegulaToSnapshot() throws Exception
+    public void testAutomaticVersionDetectionParentRegularToSnapshot() throws Exception
     {
         String oldVersion = "1.0.1";
         String newVersion = "1.0.2-SNAPSHOT";

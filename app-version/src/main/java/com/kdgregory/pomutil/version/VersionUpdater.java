@@ -34,14 +34,32 @@ public class VersionUpdater {
     private String fromVersion;
     private String toVersion;
     private boolean updateParentRef;
+    private boolean updateDependencies;
+    private String dependencyGroupId;
+    private String dependencyArtifactId;
     List<String> files;
 
 
-    public VersionUpdater(String fromVersion, String toVersion, boolean updateParentRef, List<String> files)
+    /**
+     *  @param fromVersion          The version to update; anything with a different version is ignored.
+     *  @param toVersion            The desired new version.
+     *  @param updateParentRef      Flag to indicate that parent references should be updated as well.
+     *  @param updateDependencyRef  Flag to indicate that dependency references should be updated as well.
+     *  @param dependencyGroupId    The group ID of the dependency to update (ignored if null).
+     *  @param dependencyArtifactId The artifact ID of the dependency to update (ignored if null).
+     *  @param files                The list of POM files to update.
+     */
+    public VersionUpdater(
+        String fromVersion, String toVersion,
+        boolean updateParentRef, boolean updateDependencyRef, String dependencyGroupId, String dependencyArtifactId,
+        List<String> files)
     {
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
         this.updateParentRef = updateParentRef;
+        this.updateDependencies = updateDependencyRef && (dependencyGroupId != null) && (dependencyArtifactId != null);
+        this.dependencyGroupId = dependencyGroupId;
+        this.dependencyArtifactId = dependencyArtifactId;
         this.files = files;
     }
 
@@ -54,7 +72,8 @@ public class VersionUpdater {
         {
             PomWrapper wrapped = pomFiles.get(file);
             boolean changed = possiblyUpdateVersion(wrapped)
-                            | possiblyUpdateParentVersion(wrapped);
+                            | possiblyUpdateParentVersion(wrapped)
+                            | possiblyUpdateDependencies(wrapped);
             if (changed)
             {
                 FileOutputStream out = new FileOutputStream(file);
@@ -136,7 +155,7 @@ public class VersionUpdater {
     }
 
 
-    private void updateVersion(Element versionElement)
+    private void updateVersionElement(Element versionElement)
     {
         if (toVersion != null)
         {
@@ -173,7 +192,7 @@ public class VersionUpdater {
         Element pomVersionElement = wrapped.selectElement(PomPaths.PROJECT_VERSION);
         if (oldVersionMatches(pomVersionElement))
         {
-            updateVersion(pomVersionElement);
+            updateVersionElement(pomVersionElement);
             return true;
         }
 
@@ -189,10 +208,40 @@ public class VersionUpdater {
         Element parentVersionElement = wrapped.selectElement(PomPaths.PARENT_VERSION);
         if (oldVersionMatches(parentVersionElement))
         {
-            updateVersion(parentVersionElement);
+            updateVersionElement(parentVersionElement);
             return true;
         }
 
         return false;
+    }
+
+
+    private boolean possiblyUpdateDependencies(PomWrapper wrapped)
+    {
+        if (! updateDependencies)
+            return false;
+
+        boolean result = false;
+
+        List<Element> allReferencedDependencies = new ArrayList<Element>();
+        allReferencedDependencies.addAll(wrapped.selectElements(PomPaths.PROJECT_DEPENDENCIES));
+        allReferencedDependencies.addAll(wrapped.selectElements(PomPaths.MANAGED_DEPENDENCIES));
+
+        for (Element dependencyElement : allReferencedDependencies)
+        {
+            Element dependencyVersionElement = wrapped.selectElement(dependencyElement, "mvn:version");
+            if (oldVersionMatches(dependencyVersionElement))
+            {
+                String groupId = wrapped.selectValue(dependencyVersionElement, "../mvn:groupId");
+                String artifactId = wrapped.selectValue(dependencyVersionElement, "../mvn:artifactId");
+                if (groupId.equals(dependencyGroupId) && artifactId.equals(dependencyArtifactId))
+                {
+                    updateVersionElement(dependencyVersionElement);
+                    result = true;
+                }
+            }
+        }
+
+        return result;
     }
 }

@@ -39,6 +39,9 @@ public class Main
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
                 commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
+                false,
+                null, 
+                null, 
                 commandLine.getParameters())
                 .run();
             System.exit(0);

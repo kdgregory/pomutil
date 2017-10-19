@@ -14,7 +14,7 @@ extends SimpleCLIParser
 {
     public enum Options
     {
-        OLD_VERSION, NEW_VERSION, AUTO_VERSION, UPDATE_PARENT
+        OLD_VERSION, NEW_VERSION, AUTO_VERSION, UPDATE_PARENT, UPDATE_DEPENDENCIES
     }
 
 

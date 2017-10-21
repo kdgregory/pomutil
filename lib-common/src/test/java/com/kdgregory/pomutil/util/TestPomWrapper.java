@@ -127,6 +127,28 @@ public class TestPomWrapper
 
 
     @Test
+    public void testFindDependencies() throws Exception
+    {
+        PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper7.xml"));
+
+        List<Element> foundInDependencies = wrapper.selectDependenciesByGroupAndArtifact("junit", "junit");
+        assertEquals("found dependency", 1, foundInDependencies.size());
+        assertEquals("found dependency version", "4.10", wrapper.selectValue(foundInDependencies.get(0), "mvn:version"));
+
+        List<Element> foundInDependencyMgmt = wrapper.selectDependenciesByGroupAndArtifact("net.sf.kdgcommons", "kdgcommons");
+        assertEquals("found dependency mgmt", 1, foundInDependencyMgmt.size());
+        assertEquals("found dependency mgmt version", "1.0.6", wrapper.selectValue(foundInDependencyMgmt.get(0), "mvn:version"));
+
+        // note: relies on XPath returning elements in document order
+        List<Element> foundByGroupId = wrapper.selectDependenciesByGroupAndArtifact("org.apache.httpcomponents", null);
+        assertEquals("found by group ID", 2, foundByGroupId.size());
+        assertEquals("found by group ID #1 version", "4.4.8", wrapper.selectValue(foundByGroupId.get(0), "mvn:version"));
+        assertEquals("found by group ID #2 version", "4.5.3", wrapper.selectValue(foundByGroupId.get(1), "mvn:version"));
+    }
+
+
+
+    @Test
     public void testGetAndSetProperties() throws Exception
     {
         PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper1.xml"));

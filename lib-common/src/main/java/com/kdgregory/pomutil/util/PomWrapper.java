@@ -16,6 +16,7 @@ package com.kdgregory.pomutil.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -341,6 +342,37 @@ public class PomWrapper
     public String toString()
     {
         return groupId + ":" + artifactId + ":" + version;
+    }
+
+
+    /**
+     *  Finds all dependencies (including those inside dependencyManagement)
+     *  that have the specified group and optional artifact IDs.
+     *
+     *  @param  withGroupId     The dependency's groupId; must be specified.
+     *  @param  withArtifactId  The dependency's artifactId; if null, selects
+     *                          all dependencies for the specified group.
+     */
+    public List<Element> selectDependenciesByGroupAndArtifact(String withGroupId, String withArtifactId)
+    {
+        List<Element> result = new ArrayList<Element>();
+
+        List<Element> allDependencies = new ArrayList<Element>();
+        allDependencies.addAll(selectElements(PomPaths.PROJECT_DEPENDENCIES));
+        allDependencies.addAll(selectElements(PomPaths.MANAGED_DEPENDENCIES));
+
+        for (Element dependency : allDependencies)
+        {
+            String dependencyGroupId    = selectValue(dependency, "mvn:groupId");
+            String dependencyArtifactId = selectValue(dependency, "mvn:artifactId");
+            if (withGroupId.equals(dependencyGroupId)
+                && ((withArtifactId == null) || withArtifactId.equals(dependencyArtifactId)))
+            {
+                result.add(dependency);
+            }
+        }
+
+        return result;
     }
 
 

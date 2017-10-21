@@ -31,8 +31,7 @@ public class PomPaths
     public final static String  PARENT_ARTIFACT      = "/mvn:project/mvn:parent/mvn:artifactId";
     public final static String  PARENT_VERSION       = "/mvn:project/mvn:parent/mvn:version";
 
-    public final static String  PROPERTIES_BASE      = "/mvn:project/mvn:properties";
-    public final static String  PROJECT_PROPERTIES   = PROPERTIES_BASE + "/*";
+    public final static String  PROJECT_PROPERTIES      = "/mvn:project/mvn:properties";
 
     public final static String  PROJECT_DEPENDENCIES = "/mvn:project/mvn:dependencies/mvn:dependency";
     public final static String  MANAGED_DEPENDENCIES = "/mvn:project/mvn:dependencyManagement/mvn:dependencies/mvn:dependency";

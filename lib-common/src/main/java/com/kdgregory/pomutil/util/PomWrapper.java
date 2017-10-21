@@ -223,7 +223,7 @@ public class PomWrapper
     public Map<String,String> getProperties()
     {
         Map<String,String> properties = new TreeMap<String,String>();
-        for (Element propElem : selectElements(PomPaths.PROJECT_PROPERTIES))
+        for (Element propElem : selectElements(PomPaths.PROJECT_PROPERTIES + "/*"))
         {
             properties.put(DomUtil.getLocalName(propElem), DomUtil.getText(propElem));
         }
@@ -379,6 +379,6 @@ public class PomWrapper
 
     private static String pathToProp(String propName)
     {
-        return PomPaths.PROPERTIES_BASE + "/mvn:" + propName;
+        return PomPaths.PROJECT_PROPERTIES + "/mvn:" + propName;
     }
 }

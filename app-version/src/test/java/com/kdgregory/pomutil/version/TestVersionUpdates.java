@@ -221,20 +221,46 @@ public class TestVersionUpdates
 
 
     @Test
-    public void testUpdateDependencies() throws Exception
+    public void testUpdateExplicitDependencies() throws Exception
     {
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
-        List<String> poms = createTestPoms("dependencypom.xml", 1);
+        List<String> poms = createTestPoms("explicitDependencyPom.xml", 1);
         File pom = new File(poms.get(0));
 
         new VersionUpdater(oldVersion, newVersion, false, true, "com.example.pomutil.test", "updated-dependency", poms).run();
+
         PomWrapper check = new PomWrapper(pom);
-        assertEquals(newVersion, check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version"));
-        assertEquals(oldVersion, check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version"));
-        assertEquals(newVersion, check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version"));
-        assertEquals(oldVersion, check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version"));
+        assertEquals("updated dependency version",          newVersion, check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version"));
+        assertEquals("nonupdated dependency version",       oldVersion, check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version"));
+        assertEquals("updated dependency mgmt version",     newVersion, check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version"));
+        assertEquals("non-updated dependency mgmt version", oldVersion, check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version"));
+    }
+
+
+    @Test
+    public void testUpdatePropertyDependencies() throws Exception
+    {
+        String oldVersion = "1.0.1-SNAPSHOT";
+        String newVersion = "1.0.1";
+
+        List<String> poms = createTestPoms("propertyDependencyPom.xml", 1);
+        File pom = new File(poms.get(0));
+
+        new VersionUpdater(oldVersion, newVersion, false, true, "com.example.pomutil.test", "updated-dependency", poms).run();
+
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals("updated dependency version",      newVersion, check.getProperty("expectUpdate.version"));
+        assertEquals("non-updated dependency version",  oldVersion, check.getProperty("expectNoUpdate.version"));
+        assertTrue("version still uses property, updated dependency",
+                   check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version").startsWith("${"));
+        assertTrue("version still uses property, non-updated dependency",
+                   check.selectValue(PomPaths.PROJECT_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version").startsWith("${"));
+        assertTrue("version still uses property, updated dependency mgmt",
+                   check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='updated-dependency']/mvn:version").startsWith("${"));
+        assertTrue("version still uses property, nonupdated dependency mgmt",
+                   check.selectValue(PomPaths.MANAGED_DEPENDENCIES + "[mvn:artifactId='non-updated-dependency']/mvn:version").startsWith("${"));
     }
 
 

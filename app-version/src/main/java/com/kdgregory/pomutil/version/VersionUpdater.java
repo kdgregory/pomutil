@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
@@ -150,7 +152,7 @@ public class VersionUpdater {
         if (fromVersion == null)
             return true;
 
-        String oldVersion = DomUtil.getText(versionElement);
+        String oldVersion = DomUtil.getText(versionElement).trim();
         return ObjectUtil.equals(fromVersion, oldVersion);
     }
 
@@ -223,25 +225,39 @@ public class VersionUpdater {
 
         boolean result = false;
 
-        List<Element> allReferencedDependencies = new ArrayList<Element>();
-        allReferencedDependencies.addAll(wrapped.selectElements(PomPaths.PROJECT_DEPENDENCIES));
-        allReferencedDependencies.addAll(wrapped.selectElements(PomPaths.MANAGED_DEPENDENCIES));
-
-        for (Element dependencyElement : allReferencedDependencies)
+        List<Element> targetDependencies = wrapped.selectDependenciesByGroupAndArtifact(dependencyGroupId, dependencyArtifactId);
+        Set<String> targetProperties = new HashSet<String>();
+        for (Element dependencyElement : targetDependencies)
         {
             Element dependencyVersionElement = wrapped.selectElement(dependencyElement, "mvn:version");
-            if (oldVersionMatches(dependencyVersionElement))
+            String dependencyVersion = DomUtil.getText(dependencyVersionElement).trim();
+            if (dependencyVersion.equals(fromVersion))
             {
-                String groupId = wrapped.selectValue(dependencyVersionElement, "../mvn:groupId");
-                String artifactId = wrapped.selectValue(dependencyVersionElement, "../mvn:artifactId");
-                if (groupId.equals(dependencyGroupId) && artifactId.equals(dependencyArtifactId))
-                {
-                    updateVersionElement(dependencyVersionElement);
-                    result = true;
-                }
+                updateVersionElement(dependencyVersionElement);
+                result = true;
+            }
+            else if (dependencyVersion.startsWith("${"))
+            {
+                targetProperties.add(dependencyVersion.substring(2, dependencyVersion.length() - 1));
             }
         }
 
+        return result || possiblyUpdateProperties(wrapped, targetProperties);
+    }
+
+
+    private boolean possiblyUpdateProperties(PomWrapper wrapped, Set<String> targetProperties)
+    {
+        boolean result = false;
+
+        for (String property : targetProperties)
+        {
+            if (fromVersion.equals(wrapped.getProperty(property)))
+            {
+                wrapped.setProperty(property, toVersion);
+                result = true;
+            }
+        }
         return result;
     }
 }

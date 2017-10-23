@@ -88,7 +88,7 @@ public class TestVersionUpdates
         for (String pom : poms)
         {
             PomWrapper check = new PomWrapper(new File(pom));
-            assertEquals(newVersion, check.getGAV().getVersion());
+            assertEquals(newVersion, check.getGAV().version);
         }
     }
 
@@ -107,10 +107,10 @@ public class TestVersionUpdates
         new VersionUpdater(TESTPOM_VERSION, newVersion, false, false, null, null, poms).run();
 
         PomWrapper check1 = new PomWrapper(pomToUpdate);
-        assertEquals("expected updated version", newVersion, check1.getGAV().getVersion());
+        assertEquals("expected updated version", newVersion, check1.getGAV().version);
 
         PomWrapper check2 = new PomWrapper(pomToIgnore);
-        assertEquals("expected original version", testVersion, check2.getGAV().getVersion());
+        assertEquals("expected original version", testVersion, check2.getGAV().version);
     }
 
 
@@ -125,7 +125,7 @@ public class TestVersionUpdates
         for (String dir : dirs)
         {
             PomWrapper check = new PomWrapper(new File(dir, "pom.xml"));
-            assertEquals(newVersion, check.getGAV().getVersion());
+            assertEquals(newVersion, check.getGAV().version);
         }
     }
 
@@ -168,7 +168,7 @@ public class TestVersionUpdates
 
         new VersionUpdater(null, null, false, false, null, null, poms).run();
         PomWrapper check = new PomWrapper(pom);
-        assertEquals(newVersion, check.getGAV().getVersion());
+        assertEquals(newVersion, check.getGAV().version);
     }
 
 
@@ -184,7 +184,7 @@ public class TestVersionUpdates
 
         new VersionUpdater(null, null, false, false, null, null, poms).run();
         PomWrapper check = new PomWrapper(pom);
-        assertEquals(newVersion, check.getGAV().getVersion());
+        assertEquals(newVersion, check.getGAV().version);
     }
 
 

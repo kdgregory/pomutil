@@ -306,7 +306,7 @@ public class DependencyCheck
         while (itx.hasNext())
         {
             Artifact artifact = itx.next();
-            if (artifact.getScope() == Scope.RUNTIME)
+            if (artifact.scope == Scope.RUNTIME)
                 itx.remove();
         }
     }
@@ -324,9 +324,9 @@ public class DependencyCheck
                 while (itx.hasNext())
                 {
                     Artifact dependency = itx.next();
-                    if (!ObjectUtil.equals(groupId, dependency.getGroupId()))
+                    if (!ObjectUtil.equals(groupId, dependency.groupId))
                         continue;
-                    if (!StringUtil.isBlank(artifactId) && !ObjectUtil.equals(artifactId, dependency.getArtifactId()))
+                    if (!StringUtil.isBlank(artifactId) && !ObjectUtil.equals(artifactId, dependency.artifactId))
                         continue;
                     itx.remove();
                 }

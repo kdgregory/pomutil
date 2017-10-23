@@ -47,13 +47,13 @@ implements Comparable<Artifact>
 //  Instance variables and constructor
 //----------------------------------------------------------------------------
 
-    private String groupId;
-    private String artifactId;
-    private String version;
-    private String classifier;
-    private String packaging;
-    private Scope scope;
-    private boolean optional;
+    public String groupId;
+    public String artifactId;
+    public String version;
+    public String classifier;
+    public String packaging;
+    public Scope scope;
+    public boolean optional;
 
 
     /**
@@ -146,52 +146,6 @@ implements Comparable<Artifact>
         {
             return Scope.valueOf(scope.toUpperCase());
         }
-    }
-
-
-//----------------------------------------------------------------------------
-//  Accessors
-//----------------------------------------------------------------------------
-
-    public String getGroupId()
-    {
-        return groupId;
-    }
-
-
-    public String getArtifactId()
-    {
-        return artifactId;
-    }
-
-
-    public String getVersion()
-    {
-        return version;
-    }
-
-
-    public String getClassifier()
-    {
-        return classifier;
-    }
-
-
-    public String getPackaging()
-    {
-        return packaging;
-    }
-
-
-    public Scope getScope()
-    {
-        return scope;
-    }
-
-
-    public boolean isOptional()
-    {
-        return optional;
     }
 
 

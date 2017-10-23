@@ -85,12 +85,12 @@ public class Reporter
     {
         for (Artifact artifact : checker.getUnusedMainlineDependencies())
         {
-            out.format(OUTPUT_FORMAT, "UNUSED_MAINLINE_DEPENDENCY", artifact.getArtifactId());
+            out.format(OUTPUT_FORMAT, "UNUSED_MAINLINE_DEPENDENCY", artifact.artifactId);
         }
 
         for (Artifact artifact : checker.getUnusedTestDependencies())
         {
-            out.format(OUTPUT_FORMAT, "UNUSED_TEST_DEPENDENCY", artifact.getArtifactId());
+            out.format(OUTPUT_FORMAT, "UNUSED_TEST_DEPENDENCY", artifact.artifactId);
         }
     }
 
@@ -100,7 +100,7 @@ public class Reporter
 
         for (Artifact artifact : checker.getIncorrectMainlineDependencies())
         {
-            out.format(OUTPUT_FORMAT, "UNSCOPED_TEST_DEPENDENCY", artifact.getArtifactId());
+            out.format(OUTPUT_FORMAT, "UNSCOPED_TEST_DEPENDENCY", artifact.artifactId);
         }
     }
 }

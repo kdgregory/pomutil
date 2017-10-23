@@ -35,7 +35,7 @@ public class TestDependencyCheck
     {
         Set<String> result = new TreeSet<String>();
         for (Artifact artifact : artifacts)
-            result.add(artifact.getArtifactId());
+            result.add(artifact.artifactId);
         return result;
     }
 

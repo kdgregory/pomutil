@@ -27,10 +27,10 @@ import net.sf.practicalxml.DomUtil;
  *  Holds the data identifying an artifact, either stand-alone or in the context
  *  of a dependency. Instances may be used as map keys, and may be sorted. As this
  *  is intended as a data holder, there are no accessor methods; all members are
- *  public.
+ *  public and mutable.
  */
 public class Artifact
-implements Comparable<Artifact>
+extends GAV
 {
     /**
      *  For artifacts that represent dependencies, identifies the scope to which the
@@ -47,12 +47,9 @@ implements Comparable<Artifact>
 //  Instance variables and constructor
 //----------------------------------------------------------------------------
 
-    public String groupId;
-    public String artifactId;
-    public String version;
-    public String classifier;
-    public String packaging;
-    public Scope scope;
+    public String classifier    = "";
+    public String packaging     = "jar";
+    public Scope scope          = Scope.COMPILE;
     public boolean optional;
 
 
@@ -65,9 +62,7 @@ implements Comparable<Artifact>
     public Artifact(String groupId, String artifactId, String version,
                     String classifier, String packaging, String scope, boolean isOptional)
     {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
+        super(groupId, artifactId, version);
         this.classifier = classifier;
         this.packaging = packaging.toLowerCase();
         this.scope = lookupScope(scope);
@@ -80,7 +75,8 @@ implements Comparable<Artifact>
      */
     public Artifact(String groupId, String artifactId, String version, String packaging)
     {
-        this(groupId, artifactId, version, "", packaging, "compile", false);
+        super(groupId, artifactId, version);
+        this.packaging = packaging;
     }
 
 
@@ -89,7 +85,7 @@ implements Comparable<Artifact>
      */
     public Artifact(String groupId, String artifactId, String version)
     {
-        this(groupId, artifactId, version, "", "jar", "compile", false);
+        super(groupId, artifactId, version);
     }
 
 
@@ -98,18 +94,13 @@ implements Comparable<Artifact>
      */
     public Artifact(Element dependency)
     {
-        this("", "", "");
+        super(dependency);
         for (Element child : DomUtil.getChildren(dependency))
         {
             String localName = DomUtil.getLocalName(child);
             String value = StringUtil.trim(DomUtil.getText(child));
-            if (localName.equals("groupId"))
-                this.groupId = value;
-            else if (localName.equals("artifactId"))
-                this.artifactId = value;
-            else if (localName.equals("version"))
-                this.version = value;
-            else if (localName.equals("type"))
+
+            if (localName.equals("type"))
                 this.packaging = value.toLowerCase();
             else if (localName.equals("classifier"))
                 this.classifier = value;
@@ -126,9 +117,7 @@ implements Comparable<Artifact>
      */
     public Artifact(Artifact that)
     {
-        this.groupId = that.groupId;
-        this.artifactId = that.artifactId;
-        this.version = that.version;
+        super(that.groupId, that.artifactId, that.version);
         this.classifier = that.classifier;
         this.packaging = that.packaging;
         this.scope = that.scope;
@@ -177,39 +166,12 @@ implements Comparable<Artifact>
      */
     public Artifact withVersion(String newVersion)
     {
-        Artifact rslt = new Artifact(this);
-        rslt.version = newVersion;
-        return rslt;
+        return new Artifact(groupId, artifactId, newVersion, classifier, packaging, scope.name(), optional);
     }
 
 //----------------------------------------------------------------------------
 //  Object overrides
 //----------------------------------------------------------------------------
-
-    /**
-     *  Two instances are equal if the GAV is equal; other fields are just info.
-     */
-    @Override
-    public final boolean equals(Object obj)
-    {
-        if (obj instanceof Artifact)
-        {
-            Artifact that = (Artifact)obj;
-            return this.groupId.equals(that.groupId)
-                && this.artifactId.equals(that.artifactId)
-                && this.version.equals(that.version);
-        }
-
-        return false;
-    }
-
-
-    @Override
-    public int hashCode()
-    {
-        return artifactId.hashCode();
-    }
-
 
     /**
      *  Returns a string that is useful for debugging.
@@ -218,22 +180,6 @@ implements Comparable<Artifact>
     public String toString()
     {
         return groupId + ":" + artifactId + ":" + version + ":" + packaging;
-    }
-
-
-    /**
-     *  Compares artifacts based on their groupId, artifactId, and version (in that order).
-     *  At present, version comparison is textual; we do not interpret bounded ranges.
-     */
-    @Override
-    public int compareTo(Artifact that)
-    {
-        int cmp = this.groupId.compareTo(that.groupId);
-        if (cmp == 0)
-            cmp = this.artifactId.compareTo(that.artifactId);
-        if (cmp == 0)
-            cmp = this.version.compareTo(that.version);
-        return cmp;
     }
 
 

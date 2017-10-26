@@ -225,7 +225,7 @@ public class VersionUpdater {
 
         boolean result = false;
 
-        List<Element> targetDependencies = wrapped.selectDependenciesByGroupAndArtifact(dependencyGroupId, dependencyArtifactId);
+        Set<Element> targetDependencies = new HashSet<Element>(wrapped.selectDependenciesByGroupAndArtifact(dependencyGroupId, dependencyArtifactId));
         Set<String> targetProperties = new HashSet<String>();
         for (Element dependencyElement : targetDependencies)
         {
@@ -238,25 +238,37 @@ public class VersionUpdater {
             }
             else if (dependencyVersion.startsWith("${"))
             {
-                targetProperties.add(dependencyVersion.substring(2, dependencyVersion.length() - 1));
+                String propertyName = dependencyVersion.substring(2, dependencyVersion.length() - 1);
+                targetProperties.add(propertyName);
             }
         }
 
-        return result || possiblyUpdateProperties(wrapped, targetProperties);
+        return result || possiblyUpdateProperties(wrapped, targetDependencies, targetProperties);
     }
 
 
-    private boolean possiblyUpdateProperties(PomWrapper wrapped, Set<String> targetProperties)
+    private boolean possiblyUpdateProperties(PomWrapper wrapped, Set<Element> targetDependencies, Set<String> targetProperties)
     {
         boolean result = false;
 
         for (String property : targetProperties)
         {
-            if (fromVersion.equals(wrapped.getProperty(property)))
+            if (! fromVersion.equals(wrapped.getProperty(property)))
             {
-                wrapped.setProperty(property, toVersion);
-                result = true;
+                continue;
             }
+
+            Set<Element> elementsWithProperty = new HashSet<Element>();
+            elementsWithProperty.addAll(wrapped.selectElements(PomPaths.PROJECT_DEPENDENCIES + "[mvn:version='${" + property + "}']"));
+            elementsWithProperty.addAll(wrapped.selectElements(PomPaths.MANAGED_DEPENDENCIES + "[mvn:version='${" + property + "}']"));
+
+            if (! elementsWithProperty.equals(targetDependencies))
+            {
+                continue;
+            }
+
+            wrapped.setProperty(property, toVersion);
+            result = true;
         }
         return result;
     }

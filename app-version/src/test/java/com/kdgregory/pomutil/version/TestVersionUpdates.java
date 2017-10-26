@@ -265,6 +265,22 @@ public class TestVersionUpdates
 
 
     @Test
+    public void testUpdateSharedPropertyDependencies() throws Exception
+    {
+        String oldVersion = "1.0.1-SNAPSHOT";
+        String newVersion = "1.0.1";
+
+        List<String> poms = createTestPoms("sharedPropertyDependencyPom.xml", 1);
+        File pom = new File(poms.get(0));
+
+        new VersionUpdater(oldVersion, newVersion, false, true, "com.example.pomutil.test", "updated-dependency", poms).run();
+
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals("property was not updated", oldVersion, check.getProperty("expectNoUpdate.version"));
+    }
+
+
+    @Test
     public void testBogusFile() throws Exception
     {
         File file = IOUtil.createTempFile(new ByteArrayInputStream("test".getBytes()),

@@ -26,42 +26,44 @@ import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
- *  Version updater: identifies POMs that match a specified version and updates
- *  them to a new version.
+ *  Version updater: identifies POMs or dependencies that match a 
+ *  specified version and updates them to a new version.
  */
 public class VersionUpdater {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
+    private String groupId;
+    private String artifactId;
     private String fromVersion;
     private String toVersion;
-    private boolean updateParentRef;
+    private boolean updateParent;
     private boolean updateDependencies;
-    private String dependencyGroupId;
-    private String dependencyArtifactId;
     List<String> files;
 
 
     /**
-     *  @param fromVersion          The version to update; anything with a different version is ignored.
-     *  @param toVersion            The desired new version.
-     *  @param updateParentRef      Flag to indicate that parent references should be updated as well.
-     *  @param updateDependencyRef  Flag to indicate that dependency references should be updated as well.
-     *  @param dependencyGroupId    The group ID of the dependency to update (ignored if null).
-     *  @param dependencyArtifactId The artifact ID of the dependency to update (ignored if null).
-     *  @param files                The list of POM files to update.
+     * @param groupId               If not-null, updates are restricted to POMs/dependencies that
+     *                              have a matching group ID.
+     * @param artifactId            If not-null, updates are restricted to POMs/dependencies that
+     *                              have a matching artifact ID.
+     * @param fromVersion           If not-null, updates are restricted to POMs/dependencies that
+     *                              have a matching version ID.
+     * @param toVersion             The desired new version.
+     * @param updateParent          Flag to indicate that parent references should be updated.
+     * @param updateDependencies    Flag to indicate that dependency references should be updated.
+     * @param files                 The list of POM files to update.
      */
     public VersionUpdater(
-        String fromVersion, String toVersion,
-        boolean updateParentRef, boolean updateDependencyRef, String dependencyGroupId, String dependencyArtifactId,
-        List<String> files)
+        String groupId, String artifactId, String fromVersion, String toVersion, 
+        boolean updateParent, boolean updateDependencies, List<String> files)
     {
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
-        this.updateParentRef = updateParentRef;
-        this.updateDependencies = updateDependencyRef && (dependencyGroupId != null) && (dependencyArtifactId != null);
-        this.dependencyGroupId = dependencyGroupId;
-        this.dependencyArtifactId = dependencyArtifactId;
+        this.updateParent = updateParent;
+        this.updateDependencies = updateDependencies && (groupId != null) && (artifactId != null);
+        this.groupId = groupId;
+        this.artifactId = artifactId;
         this.files = files;
     }
 
@@ -204,7 +206,7 @@ public class VersionUpdater {
 
     private boolean possiblyUpdateParentVersion(PomWrapper wrapped)
     {
-        if (! updateParentRef)
+        if (! updateParent)
             return false;
 
         Element parentVersionElement = wrapped.selectElement(PomPaths.PARENT_VERSION);
@@ -225,7 +227,7 @@ public class VersionUpdater {
 
         boolean result = false;
 
-        Set<Element> targetDependencies = new HashSet<Element>(wrapped.selectDependenciesByGroupAndArtifact(dependencyGroupId, dependencyArtifactId));
+        Set<Element> targetDependencies = new HashSet<Element>(wrapped.selectDependenciesByGroupAndArtifact(groupId, artifactId));
         Set<String> targetProperties = new HashSet<String>();
         for (Element dependencyElement : targetDependencies)
         {

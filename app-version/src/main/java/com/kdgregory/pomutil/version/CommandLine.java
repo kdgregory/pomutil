@@ -14,27 +14,33 @@ extends SimpleCLIParser
 {
     public enum Options
     {
-        OLD_VERSION, NEW_VERSION, AUTO_VERSION, UPDATE_PARENT, UPDATE_DEPENDENCIES
+        GROUP_ID, ARTIFACT_ID, OLD_VERSION, NEW_VERSION, AUTO_VERSION, UPDATE_PARENT, UPDATE_DEPENDENCIES
     }
 
 
     private static OptionDefinition[] optionDefs = new OptionDefinition[]
     {
         new OptionDefinition(
+                Options.GROUP_ID, "--groupId", 1,
+                "Only POMs/dependencies with this group ID will be updated (required)"),
+        new OptionDefinition(
+                Options.ARTIFACT_ID, "--artifactId", 1,
+                "Only POMs/dependencies with this artifact ID will be updated (optional)"),
+        new OptionDefinition(
                 Options.OLD_VERSION, "--fromVersion", 1,
-                "The original version to update; POMs with a different version are ignored"),
+                "Only POMs/dependencies with this artifact ID will be updated (optional)"),
         new OptionDefinition(
                 Options.NEW_VERSION, "--toVersion", 1,
-                "The new version value"),
+                "The new version value (optional)"),
         new OptionDefinition(
                 Options.AUTO_VERSION, "--autoVersion", "", false,
-                "If enabled, automatically updates between release and development versions."
-                + " You can combine with and explicit from- or to-version to apply those"
-                + " options as filters"),
+                "If enabled, automatically updates between release and development versions"),
         new OptionDefinition(
-                Options.UPDATE_PARENT, "--updateParentRef", "", false,
-                "If enabled, updates all parent references that match the \"from\" version "
-                    + "(this is needed for hierarchical projects).")
+                Options.UPDATE_PARENT, "--updateParent", "", false,
+                "If enabled, updates all parent references that match the selection criteria"),
+        new OptionDefinition(
+                Options.UPDATE_DEPENDENCIES, "--updateDependencies", "", false,
+                "If enabled, updates all dependency references that match the selection criteria")
     };
 
 
@@ -46,15 +52,18 @@ extends SimpleCLIParser
 
     public boolean isValid()
     {
-        // the only validity problems are missing explicit versions without auto-version
-
-        List<String> oldVersion = getOptionValues(CommandLine.Options.OLD_VERSION);
+        // must specify group ID
+        List<String> groupId = getOptionValues(CommandLine.Options.OLD_VERSION);
+        if (CollectionUtil.isEmpty(groupId))
+            return false;
+        
+        // must specify new version if not auto-versioning
         List<String> newVersion = getOptionValues(CommandLine.Options.NEW_VERSION);
         boolean autoVersion = isOptionEnabled(CommandLine.Options.AUTO_VERSION);
-
-        if ((! autoVersion) && (CollectionUtil.isEmpty(oldVersion) || CollectionUtil.isEmpty(newVersion)))
+        if ((! autoVersion) && (CollectionUtil.isEmpty(newVersion)))
             return false;
 
+        // must specify list of POMs/directories
         if (CollectionUtil.isEmpty(getParameters()))
             return false;
 

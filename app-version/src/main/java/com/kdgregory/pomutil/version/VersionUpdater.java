@@ -26,7 +26,7 @@ import com.kdgregory.pomutil.util.PomWrapper;
 
 
 /**
- *  Version updater: identifies POMs or dependencies that match a 
+ *  Version updater: identifies POMs or dependencies that match a
  *  specified version and updates them to a new version.
  */
 public class VersionUpdater {
@@ -39,7 +39,6 @@ public class VersionUpdater {
     private String toVersion;
     private boolean updateParent;
     private boolean updateDependencies;
-    List<String> files;
 
 
     /**
@@ -52,26 +51,24 @@ public class VersionUpdater {
      * @param toVersion             The desired new version.
      * @param updateParent          Flag to indicate that parent references should be updated.
      * @param updateDependencies    Flag to indicate that dependency references should be updated.
-     * @param files                 The list of POM files to update.
      */
     public VersionUpdater(
-        String groupId, String artifactId, String fromVersion, String toVersion, 
-        boolean updateParent, boolean updateDependencies, List<String> files)
+        String groupId, String artifactId, String fromVersion, String toVersion,
+        boolean updateParent, boolean updateDependencies)
     {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
         this.updateParent = updateParent;
-        this.updateDependencies = updateDependencies && (groupId != null) && (artifactId != null);
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.files = files;
+        this.updateDependencies = updateDependencies;
     }
 
 
-    public void run()
+    public void run(List<String> filenames)
     throws Exception
     {
-        Map<File,PomWrapper> pomFiles = findValidPoms(files);
+        Map<File,PomWrapper> pomFiles = findValidPoms(filenames);
         for (File file : pomFiles.keySet())
         {
             PomWrapper wrapped = pomFiles.get(file);

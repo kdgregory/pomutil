@@ -35,15 +35,16 @@ public class Main
                 System.exit(1);
             }
 
+            // TODO - create a utility function to find files
+
             new VersionUpdater(
-                null,
-                null,
+                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.GROUP_ID)),
+                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.ARTIFACT_ID)),
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
-                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT), 
-                false, 
-                commandLine.getParameters())
-                .run();
+                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
+                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_DEPENDENCIES))
+                .run(commandLine.getParameters());
             System.exit(0);
         }
         catch (Throwable ex)

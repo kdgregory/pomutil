@@ -53,14 +53,15 @@ extends SimpleCLIParser
     public boolean isValid()
     {
         // must specify group ID
-        List<String> groupId = getOptionValues(CommandLine.Options.OLD_VERSION);
+        List<String> groupId = getOptionValues(CommandLine.Options.GROUP_ID);
         if (CollectionUtil.isEmpty(groupId))
             return false;
-        
-        // must specify new version if not auto-versioning
+
+        // must specify old and new version if not auto-versioning
+        List<String> oldVersion = getOptionValues(CommandLine.Options.OLD_VERSION);
         List<String> newVersion = getOptionValues(CommandLine.Options.NEW_VERSION);
         boolean autoVersion = isOptionEnabled(CommandLine.Options.AUTO_VERSION);
-        if ((! autoVersion) && (CollectionUtil.isEmpty(newVersion)))
+        if ((! autoVersion) && (CollectionUtil.isEmpty(oldVersion) || CollectionUtil.isEmpty(newVersion)))
             return false;
 
         // must specify list of POMs/directories

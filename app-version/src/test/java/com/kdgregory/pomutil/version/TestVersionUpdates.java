@@ -22,9 +22,6 @@ import com.kdgregory.pomutil.util.PomWrapper;
 
 public class TestVersionUpdates
 {
-    private static String TESTPOM_VERSION = "1.0.0";
-
-
     private List<String> createTestPoms(String resourceName, int numCopies)
     throws IOException
     {
@@ -78,12 +75,14 @@ public class TestVersionUpdates
 
 
     @Test
-    public void testBasicOperation() throws Exception
+    public void testExplicitUpdate() throws Exception
     {
         List<String> poms = createTestPoms("basepom.xml", 2);
-
+        
+        String oldVersion = "1.0.0";
         String newVersion = "1.1.0";
-        new VersionUpdater(null, null, TESTPOM_VERSION, newVersion, false, false).run(poms);
+
+        new VersionUpdater("com.example.pomutil.test", "example", oldVersion, newVersion, false, false).run(poms);
 
         for (String pom : poms)
         {
@@ -99,12 +98,14 @@ public class TestVersionUpdates
         List<String> poms = createTestPoms("basepom.xml", 2);
         File pomToUpdate = new File(poms.get(0));
         File pomToIgnore = new File(poms.get(1));
-
+        
+        String oldVersion = "1.0.0";
+        String newVersion = "1.0.1-SNAPSHOT";
+        
         String testVersion = "1.2.3-SNAPSHOT";
         updateVersion(pomToIgnore, PomPaths.PROJECT_VERSION, testVersion);
 
-        String newVersion = "1.0.1-SNAPSHOT";
-        new VersionUpdater(null, null, TESTPOM_VERSION, newVersion, false, false).run(poms);
+        new VersionUpdater("com.example.pomutil.test", "example", oldVersion, newVersion, false, false).run(poms);
 
         PomWrapper check1 = new PomWrapper(pomToUpdate);
         assertEquals("expected updated version", newVersion, check1.getGAV().version);
@@ -118,9 +119,11 @@ public class TestVersionUpdates
     public void testDirectory() throws Exception
     {
         List<String> dirs = createTestPomsInDirectory("basepom.xml", 2);
-
+        
+        String oldVersion = "1.0.0";
         String newVersion = "1.1.0";
-        new VersionUpdater(null, null, TESTPOM_VERSION, newVersion, false, false).run(dirs);
+
+        new VersionUpdater("com.example.pomutil.test", "example", oldVersion, newVersion, false, false).run(dirs);
 
         for (String dir : dirs)
         {
@@ -135,11 +138,13 @@ public class TestVersionUpdates
     {
         List<String> poms = createTestPoms("childpom.xml", 1);
 
+        String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
-        new VersionUpdater(null, null, TESTPOM_VERSION, newVersion, false, false).run(poms);
+        
+        new VersionUpdater("com.example.pomutil.test", "example", oldVersion, newVersion, false, false).run(poms);
 
         PomWrapper check = new PomWrapper(new File(poms.get(0)));
-        assertEquals(TESTPOM_VERSION, check.selectValue(PomPaths.PARENT_VERSION));
+        assertEquals(oldVersion, check.selectValue(PomPaths.PARENT_VERSION));
     }
 
 
@@ -148,8 +153,10 @@ public class TestVersionUpdates
     {
         List<String> poms = createTestPoms("childpom.xml", 1);
 
+        String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
-        new VersionUpdater(null, null, TESTPOM_VERSION, newVersion, true, false).run(poms);
+        
+        new VersionUpdater("com.example.pomutil.test", "example", oldVersion, newVersion, true, false).run(poms);
 
         PomWrapper check = new PomWrapper(new File(poms.get(0)));
         assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
@@ -166,7 +173,7 @@ public class TestVersionUpdates
         File pom = new File(poms.get(0));
         updateVersion(pom, PomPaths.PROJECT_VERSION, oldVersion);
 
-        new VersionUpdater(null, null, null, null, false, false).run(poms);
+        new VersionUpdater("com.example.pomutil.test", "example", null, null, false, false).run(poms);
         PomWrapper check = new PomWrapper(pom);
         assertEquals(newVersion, check.getGAV().version);
     }
@@ -182,7 +189,7 @@ public class TestVersionUpdates
         File pom = new File(poms.get(0));
         updateVersion(pom, PomPaths.PROJECT_VERSION, oldVersion);
 
-        new VersionUpdater(null, null, null, null, false, false).run(poms);
+        new VersionUpdater("com.example.pomutil.test", "example", null, null, false, false).run(poms);
         PomWrapper check = new PomWrapper(pom);
         assertEquals(newVersion, check.getGAV().version);
     }
@@ -198,7 +205,7 @@ public class TestVersionUpdates
         File pom = new File(poms.get(0));
         updateVersion(pom, PomPaths.PARENT_VERSION, oldVersion);
 
-        new VersionUpdater(null, null, null, null, true, false).run(poms);
+        new VersionUpdater("com.example.pomutil.test", "example", null, null, true, false).run(poms);
         PomWrapper check = new PomWrapper(pom);
         assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
     }
@@ -214,7 +221,7 @@ public class TestVersionUpdates
         File pom = new File(poms.get(0));
         updateVersion(pom, PomPaths.PARENT_VERSION, oldVersion);
 
-        new VersionUpdater(null, null, null, null, true, false).run(poms);
+        new VersionUpdater("com.example.pomutil.test", "example", null, null, true, false).run(poms);
         PomWrapper check = new PomWrapper(pom);
         assertEquals(newVersion, check.selectValue(PomPaths.PARENT_VERSION));
     }
@@ -290,7 +297,7 @@ public class TestVersionUpdates
         long originalModificationTime = file.lastModified();
         long originalSize = file.length();
 
-        new VersionUpdater(null, null, TESTPOM_VERSION, "1.0", true, false).run(Arrays.asList(file.getAbsolutePath()));
+        new VersionUpdater("com.example.pomutil.test", "example", "0.1", "1.0", true, false).run(Arrays.asList(file.getAbsolutePath()));
 
         assertEquals("modification time unchanged", originalModificationTime, file.lastModified());
         assertEquals("size unchanged",              originalSize,             file.length());

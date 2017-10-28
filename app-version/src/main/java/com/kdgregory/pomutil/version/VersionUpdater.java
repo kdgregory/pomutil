@@ -37,6 +37,7 @@ public class VersionUpdater {
     private String artifactId;
     private String fromVersion;
     private String toVersion;
+    private boolean autoVersion;
     private boolean updateParent;
     private boolean updateDependencies;
 
@@ -49,17 +50,27 @@ public class VersionUpdater {
      * @param fromVersion           If not-null, updates are restricted to POMs/dependencies that
      *                              have a matching version ID.
      * @param toVersion             The desired new version.
+     * @param autoVersion           Flag to indicate that versions should be automatically updated.
      * @param updateParent          Flag to indicate that parent references should be updated.
      * @param updateDependencies    Flag to indicate that dependency references should be updated.
      */
     public VersionUpdater(
         String groupId, String artifactId, String fromVersion, String toVersion,
-        boolean updateParent, boolean updateDependencies)
+        boolean autoVersion, boolean updateParent, boolean updateDependencies)
     {
+        // these checks simplify logic further down
+        if (StringUtil.isEmpty(groupId))
+            throw new IllegalArgumentException("groupId must be specified");
+        if ((fromVersion == null) && ! autoVersion)
+            throw new IllegalArgumentException("fromVersion must be specified if autoVersion not true");
+        if ((toVersion == null) && ! autoVersion)
+            throw new IllegalArgumentException("fromVersion must be specified if autoVersion not true");
+
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
+        this.autoVersion = autoVersion;
         this.updateParent = updateParent;
         this.updateDependencies = updateDependencies;
     }
@@ -72,7 +83,7 @@ public class VersionUpdater {
         for (File file : pomFiles.keySet())
         {
             PomWrapper wrapped = pomFiles.get(file);
-            boolean changed = possiblyUpdateVersion(wrapped)
+            boolean changed = possiblyUpdateProjectVersion(wrapped)
                             | possiblyUpdateParentVersion(wrapped)
                             | possiblyUpdateDependencies(wrapped);
             if (changed)
@@ -141,23 +152,50 @@ public class VersionUpdater {
     }
 
 
-    private boolean oldVersionMatches(Element versionElement)
+    private boolean groupAndArtifactMatches(Element reference)
+    {
+        Element groupElement = DomUtil.getChild(reference, "groupId");
+        if (groupElement == null)
+            return false;
+        if (! groupId.equals(DomUtil.getText(groupElement)))
+            return false;
+
+        if (artifactId == null)
+            return true;
+
+        Element artifactElement = DomUtil.getChild(reference, "artifactId");
+        if (artifactElement == null)
+            return false;
+        if (! artifactId.equals(DomUtil.getText(artifactElement)))
+            return false;
+
+        return true;
+    }
+
+
+    private boolean oldVersionMatches(Element container)
     {
         // this is a bogus file
+        if (container == null)
+            return false;
+
+        Element versionElement = DomUtil.getChild(container, "version");
         if (versionElement == null)
             return false;
 
-        // we update whatever is there
+        // auto-version doesn't need a from-version
         if (fromVersion == null)
-            return true;
+            return autoVersion;
 
         String oldVersion = DomUtil.getText(versionElement).trim();
         return ObjectUtil.equals(fromVersion, oldVersion);
     }
 
 
-    private void updateVersionElement(Element versionElement)
+    private void updateVersionElement(Element container)
     {
+        Element versionElement = DomUtil.getChild(container, "version");
+
         if (toVersion != null)
         {
             DomUtil.setText(versionElement, toVersion);
@@ -188,16 +226,18 @@ public class VersionUpdater {
     }
 
 
-    private boolean possiblyUpdateVersion(PomWrapper wrapped)
+    private boolean possiblyUpdateProjectVersion(PomWrapper wrapped)
     {
-        Element pomVersionElement = wrapped.selectElement(PomPaths.PROJECT_VERSION);
-        if (oldVersionMatches(pomVersionElement))
+        Element projectElement = wrapped.selectElement(PomPaths.PROJECT);
+        if (groupAndArtifactMatches(projectElement) && oldVersionMatches(projectElement))
         {
-            updateVersionElement(pomVersionElement);
+            updateVersionElement(projectElement);
             return true;
         }
-
-        return false;
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -206,14 +246,16 @@ public class VersionUpdater {
         if (! updateParent)
             return false;
 
-        Element parentVersionElement = wrapped.selectElement(PomPaths.PARENT_VERSION);
-        if (oldVersionMatches(parentVersionElement))
+        Element parentElement = wrapped.selectElement(PomPaths.PARENT);
+        if (groupAndArtifactMatches(parentElement) && oldVersionMatches(parentElement))
         {
-            updateVersionElement(parentVersionElement);
+            updateVersionElement(parentElement);
             return true;
         }
-
-        return false;
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -228,17 +270,19 @@ public class VersionUpdater {
         Set<String> targetProperties = new HashSet<String>();
         for (Element dependencyElement : targetDependencies)
         {
-            Element dependencyVersionElement = wrapped.selectElement(dependencyElement, "mvn:version");
-            String dependencyVersion = DomUtil.getText(dependencyVersionElement).trim();
-            if (dependencyVersion.equals(fromVersion))
+            if (groupAndArtifactMatches(dependencyElement) && oldVersionMatches(dependencyElement))
             {
-                updateVersionElement(dependencyVersionElement);
+                updateVersionElement(dependencyElement);
                 result = true;
             }
-            else if (dependencyVersion.startsWith("${"))
+            else
             {
-                String propertyName = dependencyVersion.substring(2, dependencyVersion.length() - 1);
-                targetProperties.add(propertyName);
+                String dependencyVersion = wrapped.selectValue(dependencyElement, "mvn:version").trim();
+                if (dependencyVersion.startsWith("${"))
+                {
+                    String propertyName = dependencyVersion.substring(2, dependencyVersion.length() - 1);
+                    targetProperties.add(propertyName);
+                }
             }
         }
 

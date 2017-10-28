@@ -42,7 +42,8 @@ public class Main
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.ARTIFACT_ID)),
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
-                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
+                commandLine.isOptionEnabled(CommandLine.Options.AUTO_VERSION),
+                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT), 
                 commandLine.isOptionEnabled(CommandLine.Options.UPDATE_DEPENDENCIES))
                 .run(commandLine.getParameters());
             System.exit(0);

@@ -122,4 +122,11 @@ extends SimpleCLIParser
     {
         super(argv, optionDefs);
     }
+    
+    
+    public boolean isValid()
+    {
+        // TODO - add some conditions
+        return true;
+    }
 }

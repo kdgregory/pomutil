@@ -15,19 +15,18 @@
 package com.kdgregory.pomutil.cleaner;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.util.List;
 
-import org.w3c.dom.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.xml.sax.InputSource;
-
-import net.sf.practicalxml.ParseUtil;
+import net.sf.kdgcommons.io.IOUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
 import com.kdgregory.pomutil.cleaner.transform.NormalizeDependencies;
-import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
 import com.kdgregory.pomutil.cleaner.transform.ReplaceExplicitVersionsWithProperties;
+import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
@@ -37,34 +36,13 @@ import com.kdgregory.pomutil.util.PomWrapper;
  */
 public class Cleaner
 {
-//----------------------------------------------------------------------------
-//  Instance variables and constructor
-//----------------------------------------------------------------------------
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private CommandLine args;
-    private PomWrapper pom;
-    private OutputStream out;
 
-
-    /**
-     *  Constructor for command-line invocation. Will read POM from arguments.
-     */
     public Cleaner(CommandLine args)
-    throws Exception
     {
         this.args = args;
-        this.pom = new PomWrapper(readDocument(args));
-    }
-
-
-    /**
-     *  Constructor for programmatic invocation.
-     */
-    public Cleaner(CommandLine args, InputStream in, OutputStream out)
-    {
-        this.args = args;
-        this.pom = new PomWrapper(ParseUtil.parse(in));
-        this.out = out;
     }
 
 
@@ -72,39 +50,68 @@ public class Cleaner
 //  Public methods
 //----------------------------------------------------------------------------
 
-    public void run()
+    /**
+     *  Invokes the selected transformations on the specified list of files.
+     */
+    public void run(List<File> files)
+    throws Exception
+    {
+        for (File file : files)
+        {
+            logger.info("processing: " + file.getPath());
+            PomWrapper pom = openFile(file);  
+            if (pom != null)
+            {
+                applyTransformations(pom);
+                writeOutput(pom, file);
+            }
+        }
+    }
+    
+    
+//----------------------------------------------------------------------------
+//  Internals
+//----------------------------------------------------------------------------
+    
+    private PomWrapper openFile(File file)
+    {
+        try
+        {
+            return new PomWrapper(file);
+        }
+        catch (Exception ex)
+        {
+            logger.warn("unable to parse file: " + file);
+            return null;
+        }
+    }
+    
+    private void applyTransformations(PomWrapper pom)
     throws Exception
     {
         new InsertCommonProperties(pom, args).transform();
         new NormalizeDependencies(pom, args).transform();
         new SortDependencies(pom, args).transform();
-        new ReplaceExplicitVersionsWithProperties(pom, args).transform();
-
-        new OutputHandler(args, out).writeOutput(pom.getDom());
+        new ReplaceExplicitVersionsWithProperties(pom, args).transform();  
     }
-
-
-
-//----------------------------------------------------------------------------
-//  Internals
-//----------------------------------------------------------------------------
-
-    /**
-     *  Creates the DOM, either by reading the first entry in the passed list
-     *  (which is then removed), or by reading StdIn (if there aren't any
-     *  entries in the list).
-     */
-    private static Document readDocument(CommandLine args)
+    
+    
+    private void writeOutput(PomWrapper pom, File file)
     throws Exception
     {
-        String filename = args.shift();
-        if (filename != null)
+        FileOutputStream out = null;
+        try
         {
-            return ParseUtil.parse(new File(filename));
+            out = new FileOutputStream(file);
+            new OutputHandler(args, out).writeOutput(pom.getDom());
         }
-        else
+        catch (Exception ex)
         {
-            return ParseUtil.parse(new InputSource(System.in));
+            logger.error("failed to successfully write: " + file);
+        }
+        finally
+        {
+            IOUtil.closeQuietly(out);
         }
     }
 }

@@ -17,6 +17,7 @@ package com.kdgregory.pomutil.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +35,56 @@ import net.sf.practicalxml.DomUtil;
  */
 public class Utils
 {
+    /**
+     *  Builds a list of files from the provided list of files and/or directories.
+     *  The provided files are added to this list without change; directories are
+     *  recursively examined, and any file named "pom.xml" is added to the list. 
+     */
+    public static List<File> buildFileListFromStringList(List<String> sources)
+    {
+        List<File> sourceFiles = new ArrayList<File>(sources.size());
+        for (String source : sources)
+        {
+            sourceFiles.add(new File(source));
+        }
+        return buildFileList(sourceFiles);
+    }
+    
+    
+    /**
+     *  Builds a list of files from the provided list of files and/or directories.
+     *  The provided files are added to this list without change; directories are
+     *  recursively examined, and any file named "pom.xml" is added to the list. 
+     */
+    public static List<File> buildFileList(List<File> sources)
+    {
+        List<File> result = new ArrayList<File>();
+        for (File source : sources)
+        {
+            if (source.isDirectory())
+            {
+                for (File child : source.listFiles())
+                {
+                    if (child.isDirectory())
+                    {
+                        result.addAll(buildFileList(Arrays.asList(child)));
+                    }
+                    else if (child.getName().equals("pom.xml"))
+                    {
+                        result.add(child);
+                    }
+                }
+            }
+            else
+            {
+                result.add(source);
+            }
+        }
+        return result;
+    }
+    
+    
+    
     /**
      *  Creates a <code>Map</code> from the children of the passed element, with
      *  the child's localName used as key.

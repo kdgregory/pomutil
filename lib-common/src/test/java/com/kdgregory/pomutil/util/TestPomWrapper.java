@@ -20,7 +20,6 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 import net.sf.practicalxml.DomUtil;
@@ -131,16 +130,19 @@ public class TestPomWrapper
     {
         PomWrapper wrapper = new PomWrapper(ParseUtil.parseFromClasspath("PomWrapper7.xml"));
 
-        List<Element> foundInDependencies = wrapper.selectDependenciesByGroupAndArtifact("junit", "junit");
+        List<Element> allDependencies = wrapper.selectElements(PomPaths.PROJECT_DEPENDENCIES,
+                                                               PomPaths.MANAGED_DEPENDENCIES);
+
+        List<Element> foundInDependencies = wrapper.filterByGroupAndArtifact(allDependencies, "junit", "junit");
         assertEquals("found dependency", 1, foundInDependencies.size());
         assertEquals("found dependency version", "4.10", wrapper.selectValue(foundInDependencies.get(0), "mvn:version"));
 
-        List<Element> foundInDependencyMgmt = wrapper.selectDependenciesByGroupAndArtifact("net.sf.kdgcommons", "kdgcommons");
+        List<Element> foundInDependencyMgmt = wrapper.filterByGroupAndArtifact(allDependencies, "net.sf.kdgcommons", "kdgcommons");
         assertEquals("found dependency mgmt", 1, foundInDependencyMgmt.size());
         assertEquals("found dependency mgmt version", "1.0.6", wrapper.selectValue(foundInDependencyMgmt.get(0), "mvn:version"));
 
         // note: relies on XPath returning elements in document order
-        List<Element> foundByGroupId = wrapper.selectDependenciesByGroupAndArtifact("org.apache.httpcomponents", null);
+        List<Element> foundByGroupId = wrapper.filterByGroupAndArtifact(allDependencies, "org.apache.httpcomponents", null);
         assertEquals("found by group ID", 2, foundByGroupId.size());
         assertEquals("found by group ID #1 version", "4.4.8", wrapper.selectValue(foundByGroupId.get(0), "mvn:version"));
         assertEquals("found by group ID #2 version", "4.5.3", wrapper.selectValue(foundByGroupId.get(1), "mvn:version"));

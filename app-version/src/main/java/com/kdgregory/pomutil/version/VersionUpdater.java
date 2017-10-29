@@ -274,9 +274,13 @@ public class VersionUpdater {
             return false;
 
         boolean result = false;
-
-        Set<Element> targetDependencies = new HashSet<Element>(wrapped.selectDependenciesByGroupAndArtifact(groupId, artifactId));
         Set<String> targetProperties = new HashSet<String>();
+
+        Set<Element> targetDependencies = new HashSet<Element>(
+                                                wrapped.filterByGroupAndArtifact(
+                                                    wrapped.selectElements(PomPaths.PROJECT_DEPENDENCIES,
+                                                                           PomPaths.MANAGED_DEPENDENCIES),
+                                                    groupId, artifactId));
         for (Element dependencyElement : targetDependencies)
         {
             if (groupAndArtifactMatches(dependencyElement) && oldVersionMatches(dependencyElement))

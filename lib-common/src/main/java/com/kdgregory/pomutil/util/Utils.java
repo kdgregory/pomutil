@@ -35,21 +35,6 @@ import net.sf.practicalxml.DomUtil;
 public class Utils
 {
     /**
-     *  Selects and concatenates the elements from multiple paths.
-     */
-    public static List<Element> multiSelect(PomWrapper pom, String... paths)
-    {
-
-        List<Element> ret = new ArrayList<Element>();
-        for (String xpath : paths)
-        {
-            ret.addAll(pom.selectElements(xpath));
-        }
-        return ret;
-    }
-
-
-    /**
      *  Creates a <code>Map</code> from the children of the passed element, with
      *  the child's localName used as key.
      */

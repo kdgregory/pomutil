@@ -154,25 +154,31 @@ public class PomWrapper
 
 
     /**
-     *  Executes the passed XPath against the POM and returns the elements that
-     *  it selects. Path components must be prefixed with "mvn" to use the Maven
+     *  Executes the passed paths against the POM and returns the elements that
+     *  they select. Path components must be prefixed with "mvn" to use the Maven
      *  namespace.
      */
-    public List<Element> selectElements(String xpath)
+    public List<Element> selectElements(String... paths)
     {
-        return selectElements(dom, xpath);
+        return selectElements(dom, paths);
     }
 
 
     /**
-     *  Executes the passed XPath against the specified node and returns the elements
-     *  that it selects. Path components must be prefixed with "mvn" to use the Maven
+     *  Executes the passed paths against the specified node and returns the elements
+     *  that they select. Path components must be prefixed with "mvn" to use the Maven
      *  namespace.
      */
-    public List<Element> selectElements(Node node, String xpath)
+    public List<Element> selectElements(Node node, String... paths)
     {
-        xpath = mungePath(xpath);
-        return xpFact.newXPath(xpath).evaluate(node, Element.class);
+        List<Element> result = new ArrayList<Element>();
+        for (String path : paths)
+        {
+            String mungedPath = mungePath(path);
+            List<Element> fromPath = xpFact.newXPath(mungedPath).evaluate(node, Element.class);
+            result.addAll(fromPath);
+        }
+        return result;
     }
 
 
@@ -346,29 +352,26 @@ public class PomWrapper
 
 
     /**
-     *  Finds all dependencies (including those inside dependencyManagement)
-     *  that have the specified group and optional artifact IDs.
+     *  Given a list of elements that contain <code>groupId</code> and <code>artifactId</code>
+     *  children, returns those elements that match the specified group and artifact.
      *
+     *  @param  elements        The list of elements to filter.
      *  @param  withGroupId     The dependency's groupId; must be specified.
      *  @param  withArtifactId  The dependency's artifactId; if null, selects
      *                          all dependencies for the specified group.
      */
-    public List<Element> selectDependenciesByGroupAndArtifact(String withGroupId, String withArtifactId)
+    public List<Element> filterByGroupAndArtifact(List<Element> elements, String withGroupId, String withArtifactId)
     {
         List<Element> result = new ArrayList<Element>();
 
-        List<Element> allDependencies = new ArrayList<Element>();
-        allDependencies.addAll(selectElements(PomPaths.PROJECT_DEPENDENCIES));
-        allDependencies.addAll(selectElements(PomPaths.MANAGED_DEPENDENCIES));
-
-        for (Element dependency : allDependencies)
+        for (Element element : elements)
         {
-            String dependencyGroupId    = selectValue(dependency, "mvn:groupId");
-            String dependencyArtifactId = selectValue(dependency, "mvn:artifactId");
+            String dependencyGroupId    = selectValue(element, "mvn:groupId");
+            String dependencyArtifactId = selectValue(element, "mvn:artifactId");
             if (withGroupId.equals(dependencyGroupId)
                 && ((withArtifactId == null) || withArtifactId.equals(dependencyArtifactId)))
             {
-                result.add(dependency);
+                result.add(element);
             }
         }
 

@@ -185,50 +185,59 @@ public class VersionUpdater {
         if (versionElement == null)
             return false;
 
+        return oldVersionMatches(DomUtil.getText(versionElement));
+    }
+
+
+    private boolean oldVersionMatches(String existingVersion)
+    {
+        logger.debug("testing version {}; fromVersion = {}, autoVersion = {}", existingVersion, fromVersion, autoVersion);
+
+        // this can't be used to check versions specified as properties
+        if (existingVersion.startsWith("${"))
+            return false;
+
         // auto-version doesn't need a from-version
         if (fromVersion == null)
             return autoVersion;
 
-        String oldVersion = DomUtil.getText(versionElement).trim();
-        return ObjectUtil.equals(fromVersion, oldVersion);
+        return ObjectUtil.equals(fromVersion, existingVersion.trim());
     }
 
 
-    private GAV updateVersionElement(Element container)
+    private void updateVersionElement(String containerType, Element container)
     {
-        GAV retval = new GAV(container);
-        Element versionElement = DomUtil.getChild(container, "version");
+        GAV gav = new GAV(container);
+        String newVersion = determineNewVersion(gav.version);
 
-        if (toVersion != null)
+        if (newVersion != null)
         {
-            DomUtil.setText(versionElement, toVersion);
-            retval.version = toVersion;
-            return retval;
-        }
-
-        String existingVersion = DomUtil.getText(versionElement);
-        if (existingVersion.endsWith("-SNAPSHOT"))
-        {
-            String newVersion = StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
+            logger.info("new {} version: {}:{}:{}", containerType, gav.groupId, gav.artifactId, gav.version);
+            Element versionElement = DomUtil.getChild(container, "version");
             DomUtil.setText(versionElement, newVersion);
-            retval.version = newVersion;
-            return retval;
         }
+    }
+
+
+    private String determineNewVersion(String existingVersion)
+    {
+        if (toVersion != null)
+            return toVersion;
+
+        if (existingVersion.endsWith("-SNAPSHOT"))
+            return StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
 
         String preservedPart = StringUtil.extractLeftOfLast(existingVersion, ".");
         String updatedPart = StringUtil.extractRightOfLast(existingVersion, ".");
         try
         {
             int oldValue = Integer.parseInt(updatedPart);
-            String newVersion = preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
-            DomUtil.setText(versionElement, newVersion);
-            retval.version = newVersion;
-            return retval;
+            return preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
         }
         catch (NumberFormatException ex)
         {
-            logger.error("unable to update version: " + existingVersion);
-            return retval;
+            logger.error("unable to autoversion: " + existingVersion);
+            return null;
         }
     }
 
@@ -238,8 +247,7 @@ public class VersionUpdater {
         Element projectElement = wrapped.selectElement(PomPaths.PROJECT);
         if (groupAndArtifactMatches(projectElement) && oldVersionMatches(projectElement))
         {
-            GAV update = updateVersionElement(projectElement);
-            logger.info("new project version: {}:{}:{}", update.groupId, update.artifactId, update.version);
+            updateVersionElement("project", projectElement);
             return true;
         }
         else
@@ -257,8 +265,7 @@ public class VersionUpdater {
         Element parentElement = wrapped.selectElement(PomPaths.PARENT);
         if (groupAndArtifactMatches(parentElement) && oldVersionMatches(parentElement))
         {
-            GAV update = updateVersionElement(parentElement);
-            logger.info("new parent version: {}:{}:{}", update.groupId, update.artifactId, update.version);
+            updateVersionElement("parent", parentElement);
             return true;
         }
         else
@@ -281,12 +288,12 @@ public class VersionUpdater {
                                                     wrapped.selectElements(PomPaths.PROJECT_DEPENDENCIES,
                                                                            PomPaths.MANAGED_DEPENDENCIES),
                                                     groupId, artifactId));
+
         for (Element dependencyElement : targetDependencies)
         {
             if (groupAndArtifactMatches(dependencyElement) && oldVersionMatches(dependencyElement))
             {
-                GAV update = updateVersionElement(dependencyElement);
-                logger.info("new dependency version: {}:{}:{}", update.groupId, update.artifactId, update.version);
+                updateVersionElement("dependency", dependencyElement);
                 result = true;
             }
             else
@@ -310,7 +317,8 @@ public class VersionUpdater {
 
         for (String property : targetProperties)
         {
-            if (! fromVersion.equals(wrapped.getProperty(property)))
+            String existingVersion = wrapped.getProperty(property);
+            if (! oldVersionMatches(existingVersion))
             {
                 continue;
             }
@@ -321,12 +329,14 @@ public class VersionUpdater {
 
             if (! elementsWithProperty.equals(targetDependencies))
             {
-                logger.warn("unselected dependencies use property {}; ignoring", property);
+                logger.warn("unselected dependencies use property {}; not updating", property);
                 continue;
             }
 
-            logger.warn("updating property {} to version", property, toVersion);
-            wrapped.setProperty(property, toVersion);
+            String newVersion = determineNewVersion(existingVersion);
+
+            logger.warn("updating property {} from {} to {}", property, existingVersion, newVersion);
+            wrapped.setProperty(property, newVersion);
             result = true;
         }
         return result;

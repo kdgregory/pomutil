@@ -446,6 +446,25 @@ public class TestVersionUpdates
 
 
     @Test
+    public void testAutoversionPropertyDependencies() throws Exception
+    {
+        logger.info("*** testAutoversionPropertyDependencies ***");
+
+        String oldVersion = "1.0.1-SNAPSHOT";
+        String newVersion = "1.0.1";
+
+        List<String> poms = createTestPoms("propertyDependencyPom.xml", 1);
+        File pom = new File(poms.get(0));
+
+        new VersionUpdater("com.example.pomutil.test", "updated-dependency", null, null, true, false, true).run(poms);
+
+        PomWrapper check = new PomWrapper(pom);
+        assertEquals("updated dependency version",      newVersion, check.getProperty("expectUpdate.version"));
+        assertEquals("non-updated dependency version",  oldVersion, check.getProperty("expectNoUpdate.version"));
+    }
+
+
+    @Test
     public void testBogusFile() throws Exception
     {
         logger.info("*** testBogusFile ***");

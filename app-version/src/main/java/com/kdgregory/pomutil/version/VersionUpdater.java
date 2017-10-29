@@ -2,12 +2,8 @@ package com.kdgregory.pomutil.version;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -77,80 +73,35 @@ public class VersionUpdater {
     }
 
 
-    public void run(List<String> filenames)
+    public void run(List<File> files)
     throws Exception
     {
-        Map<File,PomWrapper> pomFiles = findValidPoms(filenames);
-        for (File file : pomFiles.keySet())
+        for (File file : files)
         {
-            logger.info("processing " + file);
-            PomWrapper wrapped = pomFiles.get(file);
-            boolean changed = possiblyUpdateProjectVersion(wrapped)
-                            | possiblyUpdateParentVersion(wrapped)
-                            | possiblyUpdateDependencies(wrapped);
-            if (changed)
+            try
             {
-                FileOutputStream out = new FileOutputStream(file);
-                try
+                PomWrapper wrapped = new PomWrapper(file);
+                boolean changed = possiblyUpdateProjectVersion(wrapped)
+                                | possiblyUpdateParentVersion(wrapped)
+                                | possiblyUpdateDependencies(wrapped);
+                if (changed)
                 {
-                    OutputUtil.compactStream(wrapped.getDom(), out);
-                }
-                finally
-                {
-                    IOUtil.closeQuietly(out);
+                    FileOutputStream out = new FileOutputStream(file);
+                    try
+                    {
+                        OutputUtil.compactStream(wrapped.getDom(), out);
+                    }
+                    finally
+                    {
+                        IOUtil.closeQuietly(out);
+                    }
                 }
             }
-        }
-    }
-
-
-    private Map<File,PomWrapper> findValidPoms(List<String> filenames)
-    throws IOException
-    {
-        Map<File,PomWrapper> result = new HashMap<File,PomWrapper>();
-        for (String filename : filenames)
-        {
-            for (File file : recursivelyLookForPoms(new File(filename)))
+            catch (Exception ex)
             {
-                try
-                {
-                    result.put(file, new PomWrapper(file));
-                }
-                catch (Exception ex)
-                {
-                    logger.warn("unable to parse file: " + file);
-                }
+                logger.warn("unable to parse file: " + file);
             }
         }
-        return result;
-    }
-
-
-    private List<File> recursivelyLookForPoms(File file)
-    throws IOException
-    {
-        List<File> result = new ArrayList<File>();
-        if (file.isDirectory())
-        {
-            for (File child : file.listFiles())
-            {
-                if (child.isDirectory())
-                {
-                    result.addAll(recursivelyLookForPoms(child));
-                }
-                else if (child.getName().equals("pom.xml"))
-                {
-                    result.add(child);
-                }
-            }
-        }
-        else
-        {
-            // an explicit file can have any name
-            result.add(file);
-        }
-
-        return result;
     }
 
 

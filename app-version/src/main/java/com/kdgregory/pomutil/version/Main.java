@@ -14,7 +14,12 @@
 
 package com.kdgregory.pomutil.version;
 
+import java.io.File;
+import java.util.List;
+
 import net.sf.kdgcommons.collections.CollectionUtil;
+
+import com.kdgregory.pomutil.util.Utils;
 
 /**
  *  Driver program for POM version changes. See README for invocation instructions.
@@ -35,7 +40,7 @@ public class Main
                 System.exit(1);
             }
 
-            // TODO - create a utility function to find files
+            List<File> files = Utils.buildFileListFromStringList(commandLine.getParameters());
 
             new VersionUpdater(
                 CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.GROUP_ID)),
@@ -45,8 +50,7 @@ public class Main
                 commandLine.isOptionEnabled(CommandLine.Options.AUTO_VERSION),
                 commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT), 
                 commandLine.isOptionEnabled(CommandLine.Options.UPDATE_DEPENDENCIES))
-                .run(commandLine.getParameters());
-            System.exit(0);
+                .run(files);
         }
         catch (Throwable ex)
         {

@@ -1,0 +1,7 @@
+Move docs to app directory
+
+app-version: logging config should be package, not class
+
+all: print usage instructions, including no files in list
+
+app-cleaner: insert <properties> before <dependencies>

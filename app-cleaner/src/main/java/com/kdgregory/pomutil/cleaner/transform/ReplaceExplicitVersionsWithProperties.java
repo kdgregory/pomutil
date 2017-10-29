@@ -141,7 +141,7 @@ extends AbstractTransformer
 
     private Set<String> updateDependencies(List<Element> dependencies, Map<String,String> props)
     {
-        Set<String> newProps = new TreeSet<String>();   // this gives is our sort automatically
+        Set<String> newProps = new TreeSet<String>();   // this will give us a sorted list of props to insert
         for (Element dependency : dependencies)
         {
             String currentVersion = pom.selectValue(dependency, "mvn:version");
@@ -202,13 +202,19 @@ extends AbstractTransformer
         for (String propName : newProps)
         {
             if (! propName.startsWith("plugin."))
+            {
+                logger.info("adding property: " + propName);
                 pom.setProperty(propName, props.get(propName));
+            }
         }
 
         for (String propName : newProps)
         {
             if (propName.startsWith("plugin."))
+            {
+                logger.info("adding property: " + propName);
                 pom.setProperty(propName, props.get(propName));
+            }
         }
     }
 }

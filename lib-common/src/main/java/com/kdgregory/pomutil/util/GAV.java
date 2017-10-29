@@ -7,15 +7,14 @@ import net.sf.kdgcommons.lang.ObjectUtil;
 import net.sf.practicalxml.DomUtil;
 
 /**
- *  Holds the Maven groupId/artifactId/version. Instances are immutable once
- *  constructed.
+ *  Holds the Maven groupId/artifactId/version.
  */
 public class GAV
 implements Comparable<GAV>
 {
-    public final String groupId;
-    public final String artifactId;
-    public final String version;
+    public String groupId;
+    public String artifactId;
+    public String version;
 
 
     /**

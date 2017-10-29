@@ -21,6 +21,7 @@ import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
 
+import com.kdgregory.pomutil.util.GAV;
 import com.kdgregory.pomutil.util.PomPaths;
 import com.kdgregory.pomutil.util.PomWrapper;
 
@@ -82,6 +83,7 @@ public class VersionUpdater {
         Map<File,PomWrapper> pomFiles = findValidPoms(filenames);
         for (File file : pomFiles.keySet())
         {
+            logger.info("processing " + file);
             PomWrapper wrapped = pomFiles.get(file);
             boolean changed = possiblyUpdateProjectVersion(wrapped)
                             | possiblyUpdateParentVersion(wrapped)
@@ -116,7 +118,7 @@ public class VersionUpdater {
                 }
                 catch (Exception ex)
                 {
-                    logger.warn("unable to process file: " + file, ex);
+                    logger.warn("unable to parse file: " + file);
                 }
             }
         }
@@ -192,14 +194,16 @@ public class VersionUpdater {
     }
 
 
-    private void updateVersionElement(Element container)
+    private GAV updateVersionElement(Element container)
     {
+        GAV retval = new GAV(container);
         Element versionElement = DomUtil.getChild(container, "version");
 
         if (toVersion != null)
         {
             DomUtil.setText(versionElement, toVersion);
-            return;
+            retval.version = toVersion;
+            return retval;
         }
 
         String existingVersion = DomUtil.getText(versionElement);
@@ -207,7 +211,8 @@ public class VersionUpdater {
         {
             String newVersion = StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
             DomUtil.setText(versionElement, newVersion);
-            return;
+            retval.version = newVersion;
+            return retval;
         }
 
         String preservedPart = StringUtil.extractLeftOfLast(existingVersion, ".");
@@ -217,11 +222,13 @@ public class VersionUpdater {
             int oldValue = Integer.parseInt(updatedPart);
             String newVersion = preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
             DomUtil.setText(versionElement, newVersion);
-            return;
+            retval.version = newVersion;
+            return retval;
         }
         catch (NumberFormatException ex)
         {
             logger.error("unable to update version: " + existingVersion);
+            return retval;
         }
     }
 
@@ -231,7 +238,8 @@ public class VersionUpdater {
         Element projectElement = wrapped.selectElement(PomPaths.PROJECT);
         if (groupAndArtifactMatches(projectElement) && oldVersionMatches(projectElement))
         {
-            updateVersionElement(projectElement);
+            GAV update = updateVersionElement(projectElement);
+            logger.info("new project version: {}:{}:{}", update.groupId, update.artifactId, update.version);
             return true;
         }
         else
@@ -249,7 +257,8 @@ public class VersionUpdater {
         Element parentElement = wrapped.selectElement(PomPaths.PARENT);
         if (groupAndArtifactMatches(parentElement) && oldVersionMatches(parentElement))
         {
-            updateVersionElement(parentElement);
+            GAV update = updateVersionElement(parentElement);
+            logger.info("new parent version: {}:{}:{}", update.groupId, update.artifactId, update.version);
             return true;
         }
         else
@@ -272,7 +281,8 @@ public class VersionUpdater {
         {
             if (groupAndArtifactMatches(dependencyElement) && oldVersionMatches(dependencyElement))
             {
-                updateVersionElement(dependencyElement);
+                GAV update = updateVersionElement(dependencyElement);
+                logger.info("new dependency version: {}:{}:{}", update.groupId, update.artifactId, update.version);
                 result = true;
             }
             else
@@ -307,9 +317,11 @@ public class VersionUpdater {
 
             if (! elementsWithProperty.equals(targetDependencies))
             {
+                logger.warn("unselected dependencies use property {}; ignoring", property);
                 continue;
             }
 
+            logger.warn("updating property {} to version", property, toVersion);
             wrapped.setProperty(property, toVersion);
             result = true;
         }

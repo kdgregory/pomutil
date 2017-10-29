@@ -12,6 +12,9 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.kdgcommons.io.IOUtil;
 import net.sf.practicalxml.DomUtil;
 import net.sf.practicalxml.OutputUtil;
@@ -22,6 +25,9 @@ import com.kdgregory.pomutil.util.PomWrapper;
 
 public class TestVersionUpdates
 {
+    Logger logger = LoggerFactory.getLogger(getClass());
+
+
     private List<String> createTestPoms(String resourceName, int numCopies)
     throws IOException
     {
@@ -70,7 +76,6 @@ public class TestVersionUpdates
         FileOutputStream out = new FileOutputStream(file);
         OutputUtil.compactStream(updateWrapper.getDom(), out);
         out.close();
-
     }
 
 
@@ -81,6 +86,8 @@ public class TestVersionUpdates
     @Test
     public void testExplicitUpdate() throws Exception
     {
+        logger.info("*** testExplicitUpdate ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.1.0";
 
@@ -99,6 +106,8 @@ public class TestVersionUpdates
     @Test
     public void testOnlyUpdateMatchingGroup() throws Exception
     {
+        logger.info("*** testOnlyUpdateMatchingGroup ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -121,6 +130,8 @@ public class TestVersionUpdates
     @Test
     public void testOnlyUpdateMatchingArtifact() throws Exception
     {
+        logger.info("*** testOnlyUpdateMatchingArtifact ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -143,6 +154,8 @@ public class TestVersionUpdates
     @Test
     public void testWildcardArtifact() throws Exception
     {
+        logger.info("*** testWildcardArtifact ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -163,6 +176,8 @@ public class TestVersionUpdates
     @Test
     public void testOnlyUpdateMatchingVersions() throws Exception
     {
+        logger.info("*** testOnlyUpdateMatchingVersions ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -186,6 +201,8 @@ public class TestVersionUpdates
     @Test
     public void testDirectory() throws Exception
     {
+        logger.info("*** testDirectory ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.1.0";
 
@@ -204,6 +221,8 @@ public class TestVersionUpdates
     @Test
     public void testParentNoUpdate() throws Exception
     {
+        logger.info("*** testParentNoUpdate ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -219,6 +238,8 @@ public class TestVersionUpdates
     @Test
     public void testParentUpdate() throws Exception
     {
+        logger.info("*** testParentUpdate ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -234,6 +255,8 @@ public class TestVersionUpdates
     @Test
     public void testParentUpdateMatchesGroup() throws Exception
     {
+        logger.info("*** testParentUpdateMatchesGroup ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -249,6 +272,8 @@ public class TestVersionUpdates
     @Test
     public void testParentUpdateMatchesArtifact() throws Exception
     {
+        logger.info("*** testParentUpdateMatchesArtifact ***");
+
         String oldVersion = "1.0.0";
         String newVersion = "1.0.1-SNAPSHOT";
 
@@ -264,6 +289,8 @@ public class TestVersionUpdates
     @Test
     public void testAutomaticVersionDetectionSnapshotToRegular() throws Exception
     {
+        logger.info("*** testAutomaticVersionDetectionSnapshotToRegular ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -280,6 +307,8 @@ public class TestVersionUpdates
     @Test
     public void testAutomaticVersionDetectionRegulaToSnapshot() throws Exception
     {
+        logger.info("*** testAutomaticVersionDetectionRegulaToSnapshot ***");
+
         String oldVersion = "1.0.1";
         String newVersion = "1.0.2-SNAPSHOT";
 
@@ -296,6 +325,8 @@ public class TestVersionUpdates
     @Test
     public void testAutomaticVersionDetectionParentSnapshotToRegular() throws Exception
     {
+        logger.info("*** testAutomaticVersionDetectionParentSnapshotToRegular ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -312,6 +343,8 @@ public class TestVersionUpdates
     @Test
     public void testAutomaticVersionDetectionParentRegularToSnapshot() throws Exception
     {
+        logger.info("*** testAutomaticVersionDetectionParentRegularToSnapshot ***");
+
         String oldVersion = "1.0.1";
         String newVersion = "1.0.2-SNAPSHOT";
 
@@ -328,6 +361,8 @@ public class TestVersionUpdates
     @Test
     public void testUpdateExplicitDependencies() throws Exception
     {
+        logger.info("*** testUpdateExplicitDependencies ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -347,6 +382,8 @@ public class TestVersionUpdates
     @Test
     public void testUpdatePropertyDependencies() throws Exception
     {
+        logger.info("*** testUpdatePropertyDependencies ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -372,6 +409,8 @@ public class TestVersionUpdates
     @Test
     public void testUpdateSharedPropertyDependencies() throws Exception
     {
+        logger.info("*** testUpdateSharedPropertyDependencies ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -388,6 +427,8 @@ public class TestVersionUpdates
     @Test
     public void testAutoversionDependencies() throws Exception
     {
+        logger.info("*** testAutoversionDependencies ***");
+
         String oldVersion = "1.0.1-SNAPSHOT";
         String newVersion = "1.0.1";
 
@@ -407,6 +448,8 @@ public class TestVersionUpdates
     @Test
     public void testBogusFile() throws Exception
     {
+        logger.info("*** testBogusFile ***");
+
         File file = IOUtil.createTempFile(new ByteArrayInputStream("test".getBytes()),
                                           getClass().getName());
 

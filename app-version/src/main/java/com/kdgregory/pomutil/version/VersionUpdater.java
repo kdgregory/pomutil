@@ -78,6 +78,7 @@ public class VersionUpdater {
     {
         for (File file : files)
         {
+            logger.info("processing: " + file.getPath());
             try
             {
                 PomWrapper wrapped = new PomWrapper(file);

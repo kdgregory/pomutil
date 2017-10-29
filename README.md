@@ -7,9 +7,9 @@ Utilities to clean, organize, and restructure Maven POMs.
 
     There is also a version of this tool that [[WebCleaner|runs as a web-app]]. 
 
-* [Version Updater](docs/AppVersion.md) (in process)
+* [Version Updater](docs/AppVersion.md)
 
-    Updates the version for a project, either to a specified version or the next sequential version.
+    Updates the version for a set of POMs, either to a specified version or the next sequential version.
 
 * [Dependency Check](docs/AppDependency.md) (in process)
 
@@ -24,13 +24,15 @@ Utilities to clean, organize, and restructure Maven POMs.
 
 # Building and Running
 
-This project is built with Maven:
+The minimum JDK version to build/run this project is 1.6.
+
+This project is built with Maven; all dependencies are available from Maven Central.
 
     mvn clean install
 
 Each of the modules is in its own "app" directory. The build process produces a "shaded" executable JAR
 (one that contains all dependencies needed to run), so you can invoke a given app like so:
 
-    java -jar target/application.jar APP_SPECIFIC_ARGUMENTS
+    java -jar target/APPLICATION.jar APP_SPECIFIC_ARGUMENTS
 
 Documentation for each app can be found on the Wiki, following links shown above.

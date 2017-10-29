@@ -23,7 +23,7 @@ import com.kdgregory.pomutil.util.PomPaths;
 import com.kdgregory.pomutil.util.PomWrapper;
 
 
-public class TestVersionUpdates
+public class TestVersionUpdater
 {
     Logger logger = LoggerFactory.getLogger(getClass());
 

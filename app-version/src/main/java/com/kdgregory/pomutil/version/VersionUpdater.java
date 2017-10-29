@@ -164,7 +164,7 @@ public class VersionUpdater {
 
         if (newVersion != null)
         {
-            logger.info("new {} version: {}:{}:{}", containerType, gav.groupId, gav.artifactId, gav.version);
+            logger.info("new {} version: {}:{}:{}", containerType, gav.groupId, gav.artifactId, newVersion);
             Element versionElement = DomUtil.getChild(container, "version");
             DomUtil.setText(versionElement, newVersion);
         }

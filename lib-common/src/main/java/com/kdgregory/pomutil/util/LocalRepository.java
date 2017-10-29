@@ -67,10 +67,10 @@ public class LocalRepository
      */
     public static String relativePath(Artifact artifact)
     {
-        return artifact.getGroupId().replace('.', '/')
-             + "/" + artifact.getArtifactId()
-             + "/" + artifact.getVersion()
-             + "/" + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getPackaging();
+        return artifact.groupId.replace('.', '/')
+             + "/" + artifact.artifactId
+             + "/" + artifact.version
+             + "/" + artifact.artifactId + "-" + artifact.version + "." + artifact.packaging;
     }
 
     /**

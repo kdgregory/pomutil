@@ -89,7 +89,7 @@ public class DependencyScanner
         {
             for (Scope scope : scopes)
             {
-                if (artifact.getScope() == scope)
+                if (artifact.scope == scope)
                 {
                     result.add(artifact);
                     break;
@@ -108,7 +108,7 @@ public class DependencyScanner
     public Artifact getDependency(String className, Scope scope)
     {
         Artifact dependency = dependencyLookup.get(className);
-        if ((dependency == null) || (dependency.getScope() != scope))
+        if ((dependency == null) || (dependency.scope != scope))
             return null;
         return dependency;
     }

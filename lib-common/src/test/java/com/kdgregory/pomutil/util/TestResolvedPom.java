@@ -104,12 +104,12 @@ public class TestResolvedPom
         ResolvedPom pom = new ResolvedPom(wrapper, new LocalRepository());
 
         Artifact a1 = pom.getDirectDependencies().get(new GAKey("net.sf.practicalxml", "practicalxml"));
-        assertFalse("practicalxml: default non-optional", a1.isOptional());
+        assertFalse("practicalxml: default non-optional", a1.optional);
 
         Artifact a2 = pom.getDirectDependencies().get(new GAKey("net.sf.kdgcommons", "kdgcommons"));
-        assertTrue("kdgcommons: explicit optional", a2.isOptional());
+        assertTrue("kdgcommons: explicit optional", a2.optional);
 
         Artifact a3 = pom.getDirectDependencies().get(new GAKey("junit", "junit"));
-        assertFalse("junit: explicit non-optional", a3.isOptional());
+        assertFalse("junit: explicit non-optional", a3.optional);
     }
 }

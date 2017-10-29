@@ -190,9 +190,9 @@ public class ResolvedPom
             if (directDependencies.containsKey(key))
                 continue;
 
-            String groupId = artifact.getGroupId();
-            String artifactId = artifact.getArtifactId();
-            String version = artifact.getVersion();
+            String groupId = artifact.groupId;
+            String artifactId = artifact.artifactId;
+            String version = artifact.version;
 
             if (StringUtil.isBlank(version))
                 version = getVersionFromDependencyManagement(groupId, artifactId);
@@ -206,16 +206,16 @@ public class ResolvedPom
                 continue;
             }
 
-            if (! version.equals(artifact.getVersion()))
+            if (! version.equals(artifact.version))
                 artifact = artifact.withVersion(version);
 
-            if (artifact.getPackaging().equals("pom"))
+            if (artifact.packaging.equals("pom"))
             {
                 // FIXME - warn if scope not specified
                 resolveImportedPom(groupId, artifactId, version);
             }
 
-            if (! artifact.getPackaging().equals("jar"))
+            if (! artifact.packaging.equals("jar"))
                 continue;
 
             directDependencies.put(key, artifact);

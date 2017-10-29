@@ -21,7 +21,6 @@ import org.w3c.dom.Element;
 import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.util.PomPaths;
 import com.kdgregory.pomutil.util.PomWrapper;
-import com.kdgregory.pomutil.util.Utils;
 
 
 /**
@@ -53,7 +52,7 @@ public abstract class AbstractTransformer
      */
     protected List<Element> selectAllDependencies()
     {
-        return Utils.multiSelect(pom, PomPaths.PROJECT_DEPENDENCIES, PomPaths.MANAGED_DEPENDENCIES);
+        return pom.selectElements(PomPaths.PROJECT_DEPENDENCIES, PomPaths.MANAGED_DEPENDENCIES);
     }
 
 
@@ -62,7 +61,7 @@ public abstract class AbstractTransformer
      */
     protected List<Element> selectAllPlugins()
     {
-        return Utils.multiSelect(pom, PomPaths.BUILD_PLUGINS, PomPaths.REPORTING_PLUGINS, PomPaths.MANAGED_PLUGINS);
+        return pom.selectElements(PomPaths.BUILD_PLUGINS, PomPaths.REPORTING_PLUGINS, PomPaths.MANAGED_PLUGINS);
     }
 
 

@@ -1,22 +1,22 @@
 Utilities to clean, organize, and restructure Maven POMs.
 
-* [POM Cleaner](docs/AppCleaner.md)
+* [POM Cleaner](app-cleaner/README.md)
 
     "Cleans up" a single POM, normalizing plugin and dependency specifications, converting hardcoded versions
     to properties, consitently ordering top-level elements, and pretty-printing the output.
 
     There is also a version of this tool that [[WebCleaner|runs as a web-app]]. 
 
-* [Version Updater](docs/AppVersion.md)
+* [Version Updater](app-version/README.md)
 
     Updates the version for a set of POMs, either to a specified version or the next sequential version.
 
-* [Dependency Check](docs/AppDependency.md) (in process)
+* [Dependency Check](app-dependency/README.md) (in process)
 
     Examines a project to find dependencies that are specified but unused, and those that are used but
     unspecified (ie, transitive dependencies that should be direct).
 
-* [Parent POM Builder](docs/AppParent.md) (not currently implemented)
+* [Parent POM Builder]() (not currently implemented)
 
     Examines a collection of project POMs, extracting dependency and plugin information, and producing
     a parent POM that is referenced by those projects.
@@ -35,4 +35,4 @@ Each of the modules is in its own "app" directory. The build process produces a 
 
     java -jar target/APPLICATION.jar APP_SPECIFIC_ARGUMENTS
 
-Documentation for each app can be found on the Wiki, following links shown above.
+Documentation for each app can be found in the app's README, or by following the links above.

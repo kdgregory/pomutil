@@ -17,6 +17,7 @@ package com.kdgregory.pomutil.cleaner;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.kdgcommons.collections.CollectionUtil;
 import net.sf.kdgcommons.util.SimpleCLIParser;
 
 
@@ -126,7 +127,6 @@ extends SimpleCLIParser
     
     public boolean isValid()
     {
-        // TODO - add some conditions
-        return true;
+        return ! CollectionUtil.isEmpty(getParameters());
     }
 }

@@ -17,8 +17,6 @@ package com.kdgregory.pomutil.cleaner;
 import java.io.File;
 import java.util.List;
 
-import net.sf.kdgcommons.collections.CollectionUtil;
-
 import com.kdgregory.pomutil.util.Utils;
 
 
@@ -36,14 +34,15 @@ public class Main
         CommandLine commandLine = new CommandLine(argv);
         List<File> files = Utils.buildFileListFromStringList(commandLine.getParameters());
         
-        if (CollectionUtil.isEmpty(files) || (! commandLine.isValid())) 
+        if (! commandLine.isValid())
         {
-            System.out.println("invalid command line");
-            // TODO - print usage
+            System.err.println("usage: java -jar target/app-cleaner-*.jar OPTIONS FILES_OR_DIRECTORIES...");
+            System.err.println();
+            System.err.println("where OPTIONS are:");
+            System.err.println(commandLine.getHelp());
             System.exit(1);
         }
 
         new Cleaner(commandLine).run(files);
-        System.exit(0);
     }
 }

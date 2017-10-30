@@ -105,94 +105,9 @@ public class VersionUpdater {
         }
     }
 
-
-    private boolean groupAndArtifactMatches(Element reference)
-    {
-        Element groupElement = DomUtil.getChild(reference, "groupId");
-        if (groupElement == null)
-            return false;
-        if (! groupId.equals(DomUtil.getText(groupElement)))
-            return false;
-
-        if (artifactId == null)
-            return true;
-
-        Element artifactElement = DomUtil.getChild(reference, "artifactId");
-        if (artifactElement == null)
-            return false;
-        if (! artifactId.equals(DomUtil.getText(artifactElement)))
-            return false;
-
-        return true;
-    }
-
-
-    private boolean oldVersionMatches(Element container)
-    {
-        // this is a bogus file
-        if (container == null)
-            return false;
-
-        Element versionElement = DomUtil.getChild(container, "version");
-        if (versionElement == null)
-            return false;
-
-        return oldVersionMatches(DomUtil.getText(versionElement));
-    }
-
-
-    private boolean oldVersionMatches(String existingVersion)
-    {
-        logger.debug("testing version {}; fromVersion = {}, autoVersion = {}", existingVersion, fromVersion, autoVersion);
-
-        // this can't be used to check versions specified as properties
-        if (existingVersion.startsWith("${"))
-            return false;
-
-        // auto-version doesn't need a from-version
-        if (fromVersion == null)
-            return autoVersion;
-
-        return ObjectUtil.equals(fromVersion, existingVersion.trim());
-    }
-
-
-    private void updateVersionElement(String containerType, Element container)
-    {
-        GAV gav = new GAV(container);
-        String newVersion = determineNewVersion(gav.version);
-
-        if (newVersion != null)
-        {
-            logger.info("new {} version: {}:{}:{}", containerType, gav.groupId, gav.artifactId, newVersion);
-            Element versionElement = DomUtil.getChild(container, "version");
-            DomUtil.setText(versionElement, newVersion);
-        }
-    }
-
-
-    private String determineNewVersion(String existingVersion)
-    {
-        if (toVersion != null)
-            return toVersion;
-
-        if (existingVersion.endsWith("-SNAPSHOT"))
-            return StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
-
-        String preservedPart = StringUtil.extractLeftOfLast(existingVersion, ".");
-        String updatedPart = StringUtil.extractRightOfLast(existingVersion, ".");
-        try
-        {
-            int oldValue = Integer.parseInt(updatedPart);
-            return preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
-        }
-        catch (NumberFormatException ex)
-        {
-            logger.error("unable to autoversion: " + existingVersion);
-            return null;
-        }
-    }
-
+//----------------------------------------------------------------------------
+//  Internals
+//----------------------------------------------------------------------------
 
     private boolean possiblyUpdateProjectVersion(PomWrapper wrapped)
     {
@@ -292,5 +207,93 @@ public class VersionUpdater {
             result = true;
         }
         return result;
+    }
+
+
+    private boolean groupAndArtifactMatches(Element reference)
+    {
+        Element groupElement = DomUtil.getChild(reference, "groupId");
+        if (groupElement == null)
+            return false;
+        if (! groupId.equals(DomUtil.getText(groupElement)))
+            return false;
+
+        if (artifactId == null)
+            return true;
+
+        Element artifactElement = DomUtil.getChild(reference, "artifactId");
+        if (artifactElement == null)
+            return false;
+        if (! artifactId.equals(DomUtil.getText(artifactElement)))
+            return false;
+
+        return true;
+    }
+
+
+    private boolean oldVersionMatches(Element container)
+    {
+        // this is a bogus file
+        if (container == null)
+            return false;
+
+        Element versionElement = DomUtil.getChild(container, "version");
+        if (versionElement == null)
+            return false;
+
+        return oldVersionMatches(DomUtil.getText(versionElement));
+    }
+
+
+    private boolean oldVersionMatches(String existingVersion)
+    {
+        logger.debug("testing version {}; fromVersion = {}, autoVersion = {}", existingVersion, fromVersion, autoVersion);
+
+        // this can't be used to check versions specified as properties
+        if (existingVersion.startsWith("${"))
+            return false;
+
+        // auto-version doesn't need a from-version
+        if (fromVersion == null)
+            return autoVersion;
+
+        return ObjectUtil.equals(fromVersion, existingVersion.trim());
+    }
+
+
+    private void updateVersionElement(String containerType, Element container)
+    {
+        GAV gav = new GAV(container);
+        String newVersion = determineNewVersion(gav.version);
+
+        if (newVersion != null)
+        {
+            logger.info("new {} version: {}:{}:{}", containerType, gav.groupId, gav.artifactId, newVersion);
+            Element versionElement = DomUtil.getChild(container, "version");
+            DomUtil.setText(versionElement, newVersion);
+        }
+    }
+
+
+    private String determineNewVersion(String existingVersion)
+    {
+        if (toVersion != null)
+            return toVersion;
+
+        if (existingVersion.endsWith("-SNAPSHOT"))
+            return StringUtil.extractLeft(existingVersion, "-SNAPSHOT");
+
+        String preservedPart = StringUtil.extractLeftOfLast(existingVersion, ".");
+        String updatedPart = StringUtil.extractRightOfLast(existingVersion, ".");
+        try
+        {
+            int oldValue = Integer.parseInt(updatedPart);
+            return preservedPart + "." + (oldValue + 1) + "-SNAPSHOT";
+        }
+        catch (NumberFormatException ex)
+        {
+            logger.error("unable to autoversion: " + existingVersion);
+            return null;
+        }
     }
 }

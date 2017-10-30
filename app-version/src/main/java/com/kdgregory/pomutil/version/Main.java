@@ -30,32 +30,29 @@ import com.kdgregory.pomutil.util.Utils;
 public class Main
 {
     public static void main(String[] argv)
+    throws Exception
     {
-        try
-        {
-            CommandLine commandLine = new CommandLine(argv);
-            if (! commandLine.isValid())
-            {
-                // TODO - print usage
-                System.exit(1);
-            }
+        CommandLine commandLine = new CommandLine(argv);
 
-            List<File> files = Utils.buildFileListFromStringList(commandLine.getParameters());
-
-            new VersionUpdater(
-                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.GROUP_ID)),
-                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.ARTIFACT_ID)),
-                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
-                CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
-                commandLine.isOptionEnabled(CommandLine.Options.AUTO_VERSION),
-                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT), 
-                commandLine.isOptionEnabled(CommandLine.Options.UPDATE_DEPENDENCIES))
-                .run(files);
-        }
-        catch (Throwable ex)
-        {
-            ex.printStackTrace();
+        if (! commandLine.isValid())
+        {        
+            System.err.println("usage: java -jar target/app-version-*.jar OPTIONS FILES_OR_DIRECTORIES...");
+            System.err.println();
+            System.err.println("where OPTIONS are:");
+            System.err.println(commandLine.getHelp());
             System.exit(1);
         }
+
+        List<File> files = Utils.buildFileListFromStringList(commandLine.getParameters());
+
+        new VersionUpdater(
+            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.GROUP_ID)),
+            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.ARTIFACT_ID)),
+            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.OLD_VERSION)),
+            CollectionUtil.first(commandLine.getOptionValues(CommandLine.Options.NEW_VERSION)),
+            commandLine.isOptionEnabled(CommandLine.Options.AUTO_VERSION),
+            commandLine.isOptionEnabled(CommandLine.Options.UPDATE_PARENT),
+            commandLine.isOptionEnabled(CommandLine.Options.UPDATE_DEPENDENCIES))
+            .run(files);
     }
 }

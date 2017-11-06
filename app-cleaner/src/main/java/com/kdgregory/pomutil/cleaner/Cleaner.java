@@ -16,12 +16,15 @@ package com.kdgregory.pomutil.cleaner;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.kdgcommons.io.IOUtil;
+import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
 import com.kdgregory.pomutil.cleaner.transform.NormalizeDependencies;
@@ -66,6 +69,18 @@ public class Cleaner
                 writeOutput(pom, file);
             }
         }
+    }
+    
+    
+    /**
+     *  Invokes the selected transformations on an input stream, writing the
+     *  output to the provided output stream. This exists for the web cleaner.
+     */
+    public void run(InputStream in, OutputStream out)
+    throws Exception
+    {
+        PomWrapper pom = new PomWrapper(ParseUtil.parse(in));
+        new OutputHandler(args, out).writeOutput(pom.getDom());
     }
     
     

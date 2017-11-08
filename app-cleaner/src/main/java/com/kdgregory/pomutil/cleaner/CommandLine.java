@@ -30,12 +30,17 @@ import net.sf.kdgcommons.util.SimpleCLIParser;
 public class CommandLine
 extends SimpleCLIParser
 {
+
+//----------------------------------------------------------------------------
+//  Configuration
+//----------------------------------------------------------------------------
+
     public enum Options
     {
         ORGANIZE_POM, PRETTY_PRINT, COMMON_PROPS,
         DEPENDENCY_NORMALIZE, DEPENDENCY_SORT, DEPENDENCY_SORT_BY_SCOPE,
-        VERSION_PROPS, VP_REPLACE_EXISTING, VP_CONVERT_PLUGINS, VP_ARTIFACT_ID,
-        PLUGIN_NORMALIZE
+        VERSION_PROPS, VP_REPLACE_EXISTING, VP_ARTIFACT_ID,
+        VP_CONVERT_PLUGINS, PLUGIN_NORMALIZE
     }
 
 
@@ -68,15 +73,15 @@ extends SimpleCLIParser
                 + " version properties follow same form). Do not use if you inherit properties"
                 + " from a parent POM"),
         new OptionDefinition(
-                Options.VP_CONVERT_PLUGINS,
-                "--convertPluginVersions", "--noConvertPluginVersions", true,
-                "Create properties for plugins as well as normal dependencies. These properties"
-                + " take the form \"plugin.ARTIFACTID.version\"."),
-        new OptionDefinition(
                 Options.VP_ARTIFACT_ID,
                 "--addArtifactIdToProp", 1,
                 "For artifacts in the specified group, always construct version properties named"
                 + " \"GROUPID.ARTIFACTID.version\" (often used for organization-local artifacts)."),
+        new OptionDefinition(
+                Options.VP_CONVERT_PLUGINS,
+                "--convertPluginVersions", "--noConvertPluginVersions", true,
+                "Create properties for plugins as well as normal dependencies. These properties"
+                + " take the form \"plugin.ARTIFACTID.version\"."),
         new OptionDefinition(
                 Options.DEPENDENCY_NORMALIZE,
                 "--dependencyNormalize", "--noDependencyNormalize", true,
@@ -98,9 +103,7 @@ extends SimpleCLIParser
                 + " the specification is relying on the default.")
     };
 
-    private static Map<Object,OptionDefinition> optionDefsByKey
-            = new HashMap<Object,OptionDefinition>();
-
+    private static Map<Object,OptionDefinition> optionDefsByKey = new HashMap<Object,OptionDefinition>();
     static
     {
         for (OptionDefinition optionDef : optionDefs)
@@ -118,15 +121,52 @@ extends SimpleCLIParser
         return optionDefsByKey.get(key);
     }
 
+//----------------------------------------------------------------------------
+//  Operation
+//----------------------------------------------------------------------------
 
     public CommandLine(String... argv)
     {
         super(argv, optionDefs);
     }
-    
-    
+
+
     public boolean isValid()
     {
         return ! CollectionUtil.isEmpty(getParameters());
+    }
+
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(256);
+
+        for (OptionDefinition optionDef : optionDefs)
+        {
+            if (optionDef.getType() == OptionDefinition.Type.BINARY)
+            {
+                sb.append((sb.length() > 0) ? " " : "");
+                sb.append(isOptionEnabled(optionDef.getKey())
+                          ? optionDef.getEnableVal()
+                          : optionDef.getDisableVal());
+            }
+            else if (! getOptionValues(optionDef.getKey()).isEmpty())
+            {
+                sb.append((sb.length() > 0) ? " " : "");
+                sb.append(optionDef.getEnableVal());
+                for (String value : getOptionValues(optionDef.getKey()))
+                {
+                    sb.append(" ").append(value);
+                }
+            }
+        }
+
+        for (String param : getParameters())
+        {
+            sb.append(" ").append(param);
+        }
+
+        return sb.toString();
     }
 }

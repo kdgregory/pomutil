@@ -80,6 +80,7 @@ public class Cleaner
     throws Exception
     {
         PomWrapper pom = new PomWrapper(ParseUtil.parse(in));
+        applyTransformations(pom);
         new OutputHandler(args, out).writeOutput(pom.getDom());
     }
     

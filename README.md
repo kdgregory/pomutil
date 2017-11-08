@@ -5,7 +5,7 @@ Utilities to clean, organize, and restructure Maven POMs.
     "Cleans up" a single POM, normalizing plugin and dependency specifications, converting hardcoded versions
     to properties, consitently ordering top-level elements, and pretty-printing the output.
 
-    There is also a version of this tool that [runs as a web-app](web-cleaner).
+    There is also a version of this tool that [runs as a web-app](web-cleaner/README.md).
 
 * [Version Updater](app-version/README.md)
 

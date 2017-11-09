@@ -62,7 +62,7 @@ extends AbstractTransformer
 
         for (Element dependency : selectAllDependencies())
         {
-            Map<String,Element> children = Utils.getChildrenAsMap(dependency);
+            Map<String,Element> children = Utils.removeChildrenToMap(dependency);
             removeMatchingChild(children, "scope", "compile");
             removeMatchingChild(children, "type", "jar");
             Utils.reconstruct(dependency, children, STANDARD_CHILDREN);

@@ -38,7 +38,7 @@ public class Utils
     /**
      *  Builds a list of files from the provided list of files and/or directories.
      *  The provided files are added to this list without change; directories are
-     *  recursively examined, and any file named "pom.xml" is added to the list. 
+     *  recursively examined, and any file named "pom.xml" is added to the list.
      */
     public static List<File> buildFileListFromStringList(List<String> sources)
     {
@@ -49,12 +49,12 @@ public class Utils
         }
         return buildFileList(sourceFiles);
     }
-    
-    
+
+
     /**
      *  Builds a list of files from the provided list of files and/or directories.
      *  The provided files are added to this list without change; directories are
-     *  recursively examined, and any file named "pom.xml" is added to the list. 
+     *  recursively examined, and any file named "pom.xml" is added to the list.
      */
     public static List<File> buildFileList(List<File> sources)
     {
@@ -81,48 +81,6 @@ public class Utils
             }
         }
         return result;
-    }
-    
-    
-    
-    /**
-     *  Creates a <code>Map</code> from the children of the passed element, with
-     *  the child's localName used as key.
-     */
-    public static Map<String,Element> getChildrenAsMap(Element elem)
-    {
-        Map<String,Element> children = new LinkedHashMap<String,Element>();
-        for (Element child : DomUtil.getChildren(elem))
-        {
-            children.put(DomUtil.getLocalName(child), child);
-        }
-        return children;
-    }
-
-
-    /**
-     *  Reconstructs the passed element, ordering its children according to their
-     *  localNames as specified by the <code>childOrder</code> array. Any children
-     *  whose names are not in the array are appended to the end of the element.
-     *  Will remove any comments or other non-element children.
-     */
-    public static Element reconstruct(Element elem, Map<String,Element> children, String... childOrder)
-    {
-        DomUtil.removeAllChildren(elem);
-        for (String name : childOrder)
-        {
-            Element child = children.remove(name);
-            if (child != null)
-                elem.appendChild(child);
-        }
-
-        // pick up anything left over
-        for (Element child : children.values())
-        {
-            elem.appendChild(child);
-        }
-
-        return elem;
     }
 
 
@@ -164,5 +122,65 @@ public class Utils
                 }
             }
         }
+    }
+
+
+    /**
+     *  Removes all children from the passed element, storing them in an
+     *  order-preserving map keyed by the child's localName.
+     *
+     *  @throws IllegalStateException if there's more than one child with the
+     *          same localName (this should be considered an unrecoverable
+     *          error, as the element will already have been mutated).
+     */
+    public static Map<String,Element> removeChildrenToMap(Element elem)
+    {
+        Map<String,Element> children = new LinkedHashMap<String,Element>();
+        for (Element child : DomUtil.getChildren(elem))
+        {
+            String localName = DomUtil.getLocalName(child);
+            Element prev = children.put(localName, child);
+            if (prev != null)
+                throw new IllegalStateException("duplicate child name: " + localName);
+            elem.removeChild(child);
+        }
+        return children;
+    }
+
+
+    /**
+     *  Reconstructs the passed element, ordering its children according to their
+     *  localNames as specified by the <code>childOrder</code> array. Any children
+     *  whose names are not in the array are appended to the end of the element.
+     *  <p>
+     *  WARNING: only one child must exist with a given name!
+     */
+    public static Element reconstruct(Element elem, String... childOrder)
+    {
+        return reconstruct(elem, removeChildrenToMap(elem), childOrder);
+    }
+
+
+    /**
+     *  Updates the specified element with children from the map, in the specified
+     *  order. Any elements in the map that do not correspond to specified order
+     *  will be appended at the end of the element.
+     */
+    public static Element reconstruct(Element elem, Map<String,Element> children, String... childOrder)
+    {
+        for (String name : childOrder)
+        {
+            Element child = children.remove(name);
+            if (child != null)
+                elem.appendChild(child);
+        }
+
+        // rebuild anything left over
+        for (Element child : children.values())
+        {
+            elem.appendChild(child);
+        }
+
+        return elem;
     }
 }

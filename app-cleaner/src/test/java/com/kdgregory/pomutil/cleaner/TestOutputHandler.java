@@ -15,62 +15,39 @@
 package com.kdgregory.pomutil.cleaner;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.File;
 
 import org.w3c.dom.Document;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import net.sf.kdgcommons.io.IOUtil;
 import net.sf.kdgcommons.lang.StringUtil;
 import net.sf.practicalxml.ParseUtil;
-
-import com.kdgregory.pomutil.cleaner.CommandLine;
-import com.kdgregory.pomutil.cleaner.OutputHandler;
 
 
 public class TestOutputHandler
 {
-//----------------------------------------------------------------------------
-//  The OutputHandler writes to StdOut, so we need to capture it
-//----------------------------------------------------------------------------
-
-    private PrintStream savedStdOut;
-    private ByteArrayOutputStream capture = new ByteArrayOutputStream();
-
-    @Before
-    public void setUp()
-    {
-        savedStdOut = System.out;
-        System.setOut(new PrintStream(capture));
-    }
-
-
-    @After
-    public void tearDown()
-    {
-        System.setOut(savedStdOut);
-    }
-
 
 //----------------------------------------------------------------------------
 //  Support Code
 //----------------------------------------------------------------------------
 
     /**
-     *  Replaces all platform-dependent line separators in the source string
-     *  with a newline, and trims any whitespace from the ends of the string.
-     *  This will hopefully let us build on Windows and Mac as well as Linux.
+     *  Converts the passed stream to a string, replaces all platform-dependent
+     *  line separaters with a newline, and trims whitespace. This will hopefully
+     *  let us build on Windows and Mac as well as Linux.
      */
-    private static String transformNewlines(String src)
+    private String getOutput(ByteArrayOutputStream out)
+    throws Exception
     {
         String lineSep = System.getProperty("line.separator");
         if (StringUtil.isEmpty(lineSep))
             lineSep = "\n";
 
-        StringBuilder sb = new StringBuilder(src);
+        String output = new String(out.toByteArray(), "UTF-8");
+        StringBuilder sb = new StringBuilder(output);
         int ii = 0;
         while ((ii = sb.indexOf(lineSep, ii)) >= 0)
         {
@@ -81,48 +58,54 @@ public class TestOutputHandler
     }
 
 
-    /**
-     *  Extracts the captured output stream and prepares it for use.
-     */
-    private String getOutput()
-    throws Exception
-    {
-        String output = new String(capture.toByteArray(), "UTF-8");
-        return transformNewlines(output);
-    }
-
-
 //----------------------------------------------------------------------------
 //  Testcases
 //----------------------------------------------------------------------------
 
+    // note: we don't have to work with a Maven POM for any of these tests
+
     @Test
     public void testNoPrettyPrint() throws Exception
     {
-        // note: we don't have to work with a Maven POM for most (all?) of these tests
+        CommandLine args = new CommandLine("--noPrettyPrint");
 
         String src = "<root>              <child>value</child> \n </root>";
         Document dom = ParseUtil.parse(src);
 
-        CommandLine args = new CommandLine("--noPrettyPrint");
-        new OutputHandler(args).writeOutput(dom);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new OutputHandler(args).writeOutput(dom, out);
 
-        assertEquals("no transform", src, getOutput());
+        assertEquals("no transform", src, getOutput(out));
     }
 
 
     @Test
     public void testPrettyPrint() throws Exception
     {
-        // note: we don't have to work with a Maven POM for most (all?) of these tests
+        CommandLine args = new CommandLine("--prettyPrint=3");
 
         String src = "<root>         <child>value</child> \n </root>";
         Document dom = ParseUtil.parse(src);
 
-        CommandLine args = new CommandLine("--prettyPrint=3");
-        new OutputHandler(args).writeOutput(dom);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new OutputHandler(args).writeOutput(dom, out);
 
-        assertEquals("<root>\n   <child>value</child>\n</root>", getOutput());
+        assertEquals("<root>\n   <child>value</child>\n</root>", getOutput(out));
+    }
+
+
+    @Test
+    public void testWriteToFile() throws Exception
+    {
+        CommandLine args = new CommandLine("--noPrettyPrint");
+
+        String src = "<root><child>value</child></root>";
+        Document dom = ParseUtil.parse(src);
+
+        File dest = IOUtil.createTempFile("testWriteToFile", 0);
+        new OutputHandler(args).writeOutput(dom, dest);
+
+        assertEquals(src.length(), dest.length());
     }
 
 }

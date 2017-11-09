@@ -15,7 +15,6 @@
 package com.kdgregory.pomutil.cleaner;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.kdgcommons.io.IOUtil;
 import net.sf.practicalxml.ParseUtil;
 
 import com.kdgregory.pomutil.cleaner.transform.InsertCommonProperties;
@@ -62,16 +60,16 @@ public class Cleaner
         for (File file : files)
         {
             logger.info("processing: " + file.getPath());
-            PomWrapper pom = openFile(file);  
+            PomWrapper pom = openFile(file);
             if (pom != null)
             {
                 applyTransformations(pom);
-                writeOutput(pom, file);
+                new OutputHandler(args).writeOutput(pom.getDom(), file);
             }
         }
     }
-    
-    
+
+
     /**
      *  Invokes the selected transformations on an input stream, writing the
      *  output to the provided output stream. This exists for the web cleaner.
@@ -81,14 +79,14 @@ public class Cleaner
     {
         PomWrapper pom = new PomWrapper(ParseUtil.parse(in));
         applyTransformations(pom);
-        new OutputHandler(args, out).writeOutput(pom.getDom());
+        new OutputHandler(args).writeOutput(pom.getDom(), out);
     }
-    
-    
+
+
 //----------------------------------------------------------------------------
 //  Internals
 //----------------------------------------------------------------------------
-    
+
     private PomWrapper openFile(File file)
     {
         try
@@ -101,33 +99,13 @@ public class Cleaner
             return null;
         }
     }
-    
+
     private void applyTransformations(PomWrapper pom)
     throws Exception
     {
         new InsertCommonProperties(pom, args).transform();
         new NormalizeDependencies(pom, args).transform();
         new SortDependencies(pom, args).transform();
-        new ReplaceExplicitVersionsWithProperties(pom, args).transform();  
-    }
-    
-    
-    private void writeOutput(PomWrapper pom, File file)
-    throws Exception
-    {
-        FileOutputStream out = null;
-        try
-        {
-            out = new FileOutputStream(file);
-            new OutputHandler(args, out).writeOutput(pom.getDom());
-        }
-        catch (Exception ex)
-        {
-            logger.error("failed to successfully write: " + file);
-        }
-        finally
-        {
-            IOUtil.closeQuietly(out);
-        }
+        new ReplaceExplicitVersionsWithProperties(pom, args).transform();
     }
 }

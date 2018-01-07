@@ -14,9 +14,14 @@
 
 package com.kdgregory.pomutil.cleaner;
 
+import java.io.File;
+import java.util.List;
+
+import com.kdgregory.pomutil.util.Utils;
+
 
 /**
- *  Driver program for single-file cleanup. See README for invocation instructions.
+ *  Driver program for POM cleanup.
  *  <p>
  *  Successful execution results in a 0 return code. Any exception will be written
  *  to StdErr, and the program will terminate with a non-zero return code.
@@ -24,16 +29,20 @@ package com.kdgregory.pomutil.cleaner;
 public class Main
 {
     public static void main(String[] argv)
+    throws Exception
     {
-        try
+        CommandLine commandLine = new CommandLine(argv);
+        List<File> files = Utils.buildFileListFromStringList(commandLine.getParameters());
+        
+        if (! commandLine.isValid())
         {
-            new Cleaner(new CommandLine(argv)).run();
-            System.exit(0);
-        }
-        catch (Throwable ex)
-        {
-            ex.printStackTrace();
+            System.err.println("usage: java -jar target/app-cleaner-*.jar OPTIONS FILES_OR_DIRECTORIES...");
+            System.err.println();
+            System.err.println("where OPTIONS are:");
+            System.err.println(commandLine.getHelp());
             System.exit(1);
         }
+
+        new Cleaner(commandLine).run(files);
     }
 }

@@ -17,6 +17,7 @@ package com.kdgregory.pomutil.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,43 +36,51 @@ import net.sf.practicalxml.DomUtil;
 public class Utils
 {
     /**
-     *  Creates a <code>Map</code> from the children of the passed element, with
-     *  the child's localName used as key.
+     *  Builds a list of files from the provided list of files and/or directories.
+     *  The provided files are added to this list without change; directories are
+     *  recursively examined, and any file named "pom.xml" is added to the list.
      */
-    public static Map<String,Element> getChildrenAsMap(Element elem)
+    public static List<File> buildFileListFromStringList(List<String> sources)
     {
-        Map<String,Element> children = new LinkedHashMap<String,Element>();
-        for (Element child : DomUtil.getChildren(elem))
+        List<File> sourceFiles = new ArrayList<File>(sources.size());
+        for (String source : sources)
         {
-            children.put(DomUtil.getLocalName(child), child);
+            sourceFiles.add(new File(source));
         }
-        return children;
+        return buildFileList(sourceFiles);
     }
 
 
     /**
-     *  Reconstructs the passed element, ordering its children according to their
-     *  localNames as specified by the <code>childOrder</code> array. Any children
-     *  whose names are not in the array are appended to the end of the element.
-     *  Will remove any comments or other non-element children.
+     *  Builds a list of files from the provided list of files and/or directories.
+     *  The provided files are added to this list without change; directories are
+     *  recursively examined, and any file named "pom.xml" is added to the list.
      */
-    public static Element reconstruct(Element elem, Map<String,Element> children, String... childOrder)
+    public static List<File> buildFileList(List<File> sources)
     {
-        DomUtil.removeAllChildren(elem);
-        for (String name : childOrder)
+        List<File> result = new ArrayList<File>();
+        for (File source : sources)
         {
-            Element child = children.remove(name);
-            if (child != null)
-                elem.appendChild(child);
+            if (source.isDirectory())
+            {
+                for (File child : source.listFiles())
+                {
+                    if (child.isDirectory())
+                    {
+                        result.addAll(buildFileList(Arrays.asList(child)));
+                    }
+                    else if (child.getName().equals("pom.xml"))
+                    {
+                        result.add(child);
+                    }
+                }
+            }
+            else
+            {
+                result.add(source);
+            }
         }
-
-        // pick up anything left over
-        for (Element child : children.values())
-        {
-            elem.appendChild(child);
-        }
-
-        return elem;
+        return result;
     }
 
 
@@ -113,5 +122,65 @@ public class Utils
                 }
             }
         }
+    }
+
+
+    /**
+     *  Removes all children from the passed element, storing them in an
+     *  order-preserving map keyed by the child's localName.
+     *
+     *  @throws IllegalStateException if there's more than one child with the
+     *          same localName (this should be considered an unrecoverable
+     *          error, as the element will already have been mutated).
+     */
+    public static Map<String,Element> removeChildrenToMap(Element elem)
+    {
+        Map<String,Element> children = new LinkedHashMap<String,Element>();
+        for (Element child : DomUtil.getChildren(elem))
+        {
+            String localName = DomUtil.getLocalName(child);
+            Element prev = children.put(localName, child);
+            if (prev != null)
+                throw new IllegalStateException("duplicate child name: " + localName);
+            elem.removeChild(child);
+        }
+        return children;
+    }
+
+
+    /**
+     *  Reconstructs the passed element, ordering its children according to their
+     *  localNames as specified by the <code>childOrder</code> array. Any children
+     *  whose names are not in the array are appended to the end of the element.
+     *  <p>
+     *  WARNING: only one child must exist with a given name!
+     */
+    public static Element reconstruct(Element elem, String... childOrder)
+    {
+        return reconstruct(elem, removeChildrenToMap(elem), childOrder);
+    }
+
+
+    /**
+     *  Updates the specified element with children from the map, in the specified
+     *  order. Any elements in the map that do not correspond to specified order
+     *  will be appended at the end of the element.
+     */
+    public static Element reconstruct(Element elem, Map<String,Element> children, String... childOrder)
+    {
+        for (String name : childOrder)
+        {
+            Element child = children.remove(name);
+            if (child != null)
+                elem.appendChild(child);
+        }
+
+        // rebuild anything left over
+        for (Element child : children.values())
+        {
+            elem.appendChild(child);
+        }
+
+        return elem;
     }
 }

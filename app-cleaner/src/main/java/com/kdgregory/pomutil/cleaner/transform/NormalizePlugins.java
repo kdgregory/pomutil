@@ -14,8 +14,6 @@
 
 package com.kdgregory.pomutil.cleaner.transform;
 
-import java.util.Map;
-
 import org.w3c.dom.Element;
 
 import net.sf.practicalxml.DomUtil;
@@ -75,16 +73,14 @@ extends AbstractTransformer
         if (disabled)
             return;
 
-        for (Element dependency : selectAllPlugins())
+        for (Element plugin : selectAllPlugins())
         {
-            Map<String,Element> children = Utils.getChildrenAsMap(dependency);
-            if (! children.containsKey("groupId"))
+            if (DomUtil.getChild(plugin, "groupId") == null)
             {
-                Element groupId = DomUtil.appendChildInheritNamespace(dependency, "groupId");
+                Element groupId = DomUtil.appendChildInheritNamespace(plugin, "groupId");
                 DomUtil.setText(groupId, "org.apache.maven.plugins");
-                children = Utils.getChildrenAsMap(dependency);
             }
-            Utils.reconstruct(dependency, children, STANDARD_CHILDREN);
+            Utils.reconstruct(plugin, STANDARD_CHILDREN);
         }
     }
 

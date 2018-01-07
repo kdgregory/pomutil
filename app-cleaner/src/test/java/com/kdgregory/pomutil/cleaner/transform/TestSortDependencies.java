@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.kdgregory.pomutil.cleaner;
+package com.kdgregory.pomutil.cleaner.transform;
 
 import java.util.List;
 
@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import com.kdgregory.pomutil.cleaner.CommandLine;
 import com.kdgregory.pomutil.cleaner.transform.SortDependencies;
 
 

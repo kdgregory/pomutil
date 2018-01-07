@@ -86,7 +86,7 @@ public class MainController
         {
             in = file.getInputStream();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new Cleaner(options.toCommandLine(), in, out).run();
+            new Cleaner(options.toCommandLine()).run(in, out);
             result = new String(out.toByteArray(), "UTF-8");
         }
         catch (Exception ex)

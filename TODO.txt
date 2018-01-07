@@ -1,14 +1,8 @@
-# BuildParent
+app-version: logging config should be package, not class
 
-    Constructs a parent POM from a set of project POMs.
+app-cleaner: insert <properties> before <dependencies>
 
-
-## Invocation
-
-## Options
-
-## Roadmap
-
+app-parent:
 *   Move all version properties into the parent, keeping the highest version number (option: warning where different
     children have different versions).
 *   Move all non-execution plugin definitions into the parent. This will probably use a configuration file of some

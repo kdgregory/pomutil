@@ -15,6 +15,7 @@
 package com.kdgregory.pomutil.cleaner;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,35 +34,17 @@ import net.sf.practicalxml.OutputUtil;
 
 
 /**
- *  Responsible for generating output. The output may be written to a file
- *  (if specified by command-line options), StdOut, or a passed stream (if
- *  invoked programmatically). Output is written as UTF-8 (which may cause
- *  problems with a terminal that expects something else).
+ *  Responsible for generating output, applying any transformations (such
+ *  as pretty-printing) specified via command-line arguments.
  */
 public class OutputHandler
 {
     private CommandLine args;
-    private OutputStream out0;
 
 
-    /**
-     *  Constructor for output to StdOut or file (specified via
-     *  invocation arguments).
-     */
     public OutputHandler(CommandLine args)
     {
-        this(args, null);
-    }
-
-
-    /**
-     *  Constructor for known output stream. Caller is responsible for
-     *  closing this stream.
-     */
-    public OutputHandler(CommandLine args, OutputStream out)
-    {
         this.args = args;
-        this.out0 = out;
     }
 
 
@@ -70,25 +53,38 @@ public class OutputHandler
 //----------------------------------------------------------------------------
 
     /**
-     *  Post-processes the passed DOM as specified by the invocation
-     *  arguments, and writes it to the destination. If there is at
-     *  least one non-option argument, it is taken as the name of the
-     *  output file. If not, output is written to StdOut.
+     *  Post-processes the passed DOM as specified by the invocation arguments
+     *  and writes it to the specified file. Overwrites any previous contents.
      */
-    public void writeOutput(Document dom)
+    public void writeOutput(Document dom, File file)
     throws IOException
     {
-        dom = postProcess(dom);
-        Writer out = null;
+        FileOutputStream out = null;
         try
         {
-            out = openWriter();
+            out = new FileOutputStream(file);
             writeOutput(dom, out);
         }
         finally
         {
             IOUtil.closeQuietly(out);
         }
+    }
+
+
+    /**
+     *  Post-processes the passed DOM as specified by the invocation arguments
+     *  and writes it to the specified stream. Caller is responsible for closing
+     *  the stream.
+     */
+    public void writeOutput(Document dom, OutputStream out0)
+    throws IOException
+    {
+        dom = postProcess(dom);
+
+        Writer out = new BufferedWriter(new OutputStreamWriter(out0, "UTF-8"));
+        writeOutput(dom, out);
+        out.flush();
     }
 
 
@@ -108,40 +104,6 @@ public class OutputHandler
             DomUtil.removeEmptyTextRecursive(dom.getDocumentElement());
         }
         return dom;
-    }
-
-
-    /**
-     *  Opens a writer for the output. If there's a non-option argument in the
-     *  passed arguments, it will be taken as a filename. Otherwise, uses StdOut.
-     *  <p>
-     *  This method returns a writer, rather than an OutputStream, to work around
-     *  JDK bug #XXX, which doesn't indent when writing to a stream. The returned
-     *  writer will perform UTF-8 encoding.
-     */
-    public Writer openWriter()
-    throws IOException
-    {
-        FileOutputStream fos = null;
-        OutputStream out = null;
-        try
-        {
-            String filename = args.shift();
-            if (filename != null)
-            {
-                out = fos = new FileOutputStream(filename);
-            }
-            else
-            {
-                out = (out0 == null) ? System.out : out0;
-            }
-            return new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-        }
-        catch (IOException ex)
-        {
-            IOUtil.closeQuietly(fos);
-            throw ex;
-        }
     }
 
 

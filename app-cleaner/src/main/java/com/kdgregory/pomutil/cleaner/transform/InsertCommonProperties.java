@@ -17,6 +17,9 @@ package com.kdgregory.pomutil.cleaner.transform;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.kdgcommons.collections.MapBuilder;
 import net.sf.kdgcommons.lang.StringUtil;
 
@@ -30,17 +33,15 @@ import com.kdgregory.pomutil.util.PomWrapper;
 public class InsertCommonProperties
 extends AbstractTransformer
 {
+    Logger logger = LoggerFactory.getLogger(getClass());
+
     private static Map<String,String> COMMON_PROPS = new MapBuilder<String,String>(new TreeMap<String,String>())
                                                      .put("project.build.sourceEncoding",       "UTF-8")
                                                      .put("project.reporting.outputEncoding",   "UTF-8")
                                                      .toMap();
 
-
-//----------------------------------------------------------------------------
-//  Instance variables and Constuctors
-//----------------------------------------------------------------------------
-
     private boolean disabled;
+
 
     /**
      *  Base constructor.
@@ -74,7 +75,10 @@ extends AbstractTransformer
         for (Map.Entry<String,String> prop : COMMON_PROPS.entrySet())
         {
             if (StringUtil.isBlank(pom.getProperty(prop.getKey())))
+            {
+                logger.info("adding property: " + prop.getKey());
                 pom.setProperty(prop.getKey(), prop.getValue());
+            }
         }
     }
 }

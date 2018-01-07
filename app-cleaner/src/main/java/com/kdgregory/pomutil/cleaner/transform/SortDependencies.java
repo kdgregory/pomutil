@@ -19,6 +19,9 @@ import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.practicalxml.DomUtil;
 
 import com.kdgregory.pomutil.cleaner.CommandLine;
@@ -34,13 +37,10 @@ import com.kdgregory.pomutil.util.PomWrapper;
 public class SortDependencies
 extends AbstractTransformer
 {
-
-//----------------------------------------------------------------------------
-//  Instance variables and constructors
-//----------------------------------------------------------------------------
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private boolean disabled;
-    private boolean orderByGroup;
+    private boolean orderbyScope;
 
 
     /**
@@ -50,7 +50,7 @@ extends AbstractTransformer
     {
         super(pom,args);
         disabled = ! args.isOptionEnabled(CommandLine.Options.DEPENDENCY_SORT);
-        orderByGroup = args.isOptionEnabled(CommandLine.Options.DEPENDENCY_SORT_BY_SCOPE);
+        orderbyScope = args.isOptionEnabled(CommandLine.Options.DEPENDENCY_SORT_BY_SCOPE);
     }
 
 
@@ -73,6 +73,7 @@ extends AbstractTransformer
         if (disabled)
             return;
 
+        logger.info("sorting dependencies");
         processGroup(PomPaths.PROJECT_DEPENDENCIES);
         processGroup(PomPaths.MANAGED_DEPENDENCIES);
     }
@@ -85,7 +86,7 @@ extends AbstractTransformer
     private void processGroup(String selectionPath)
     {
         TreeMap<Artifact,Element> dependencies
-                = orderByGroup
+                = orderbyScope
                 ? new TreeMap<Artifact,Element>(new Artifact.ScopedComparator())
                 : new TreeMap<Artifact,Element>();
 

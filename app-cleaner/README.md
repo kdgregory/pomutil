@@ -1,10 +1,11 @@
 # Cleaner
 
-Cleaner takes a single POM and cleans it up according to your options.
+Accepts a set of POMs (or directory containing POMs) and cleans them according to your options.
+Cleaned POMs overwrite original (you do use source control, right?).
 
 ## Invocation
 
-    java -jar app-dependency.jar [OPTIONS] [INFILE [[OUTFILE]]
+    java -jar target/app-cleaner-*.jar [OPTIONS] FILE_OR_DIRECTORY
 
 ## Options
 
